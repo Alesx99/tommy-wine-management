@@ -1276,7 +1276,6 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="config.js"></script>
     <script>
         // Dati in memoria
         let clienti = [];
@@ -1303,7 +1302,7 @@
         
         // Configurazione GitHub
         const GITHUB_CONFIG = {
-            token: localStorage.getItem('tommy_github_token') || getGitHubToken() || '',
+            token: localStorage.getItem('tommy_github_token') || '',
             gistId: localStorage.getItem('tommy_gist_id') || 'ed140f6366c097f54410d096017bb51b',
             enabled: localStorage.getItem('tommy_github_enabled') === 'true'
         };
