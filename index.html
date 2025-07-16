@@ -753,6 +753,35 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal per Configurazione GitHub Obbligatoria all'Avvio -->
+        <div id="githubSetupOverlay" class="security-overlay">
+            <div class="security-modal">
+                <h3>🔧 Configurazione Iniziale GitHub</h3>
+                <div class="security-warning">
+                    <strong>📡 SINCRONIZZAZIONE CLOUD:</strong><br>
+                    Inserisci il tuo token GitHub per abilitare la sincronizzazione tra dispositivi
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">GitHub Token:</label>
+                    <input type="password" id="githubTokenSetup" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <small style="color: #666; font-size: 12px;">Token personale con permessi gist</small>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Gist ID (opzionale):</label>
+                    <input type="text" id="gistIdSetup" placeholder="ed140f6366c097f54410d096017bb51b" value="ed140f6366c097f54410d096017bb51b" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <small style="color: #666; font-size: 12px;">ID del Gist (pre-compilato con il tuo Gist)</small>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button class="btn btn-primary" onclick="saveGitHubSetup()">✅ Configura e Continua</button>
+                    <button class="btn btn-secondary" onclick="skipGitHubSetup()">⏭️ Salta Configurazione</button>
+                </div>
+                <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 12px;">
+                    <strong>💡 Suggerimento:</strong><br>
+                    Se non hai ancora un token, puoi saltare questa configurazione e inserirla dopo tramite il pulsante ⚙️ GitHub
+                </div>
+            </div>
+        </div>
         
         <div class="header">
             <h1>🍷 Gestione Tommy</h1>
@@ -2991,8 +3020,16 @@
                 // Carica i dati salvati
                 await loadDataFromStorage();
                 
-                // Mostra il modal di login all'avvio
-                showLoginModal();
+                // Controlla se GitHub è già configurato
+                const hasGitHubToken = localStorage.getItem('tommy_github_token');
+                
+                if (!hasGitHubToken) {
+                    // Se non c'è il token, mostra la configurazione GitHub prima del login
+                    showGitHubSetup();
+                } else {
+                    // Se c'è già il token, mostra direttamente il login
+                    showLoginModal();
+                }
                 
                 // Imposta la data di oggi come default
                 const today = new Date().toISOString().split('T')[0];
@@ -3018,6 +3055,30 @@
                         }
                     }
                 }, 2000);
+
+                // Event listeners per la modale di setup GitHub
+                const githubTokenSetup = document.getElementById('githubTokenSetup');
+                const gistIdSetup = document.getElementById('gistIdSetup');
+                
+                if (githubTokenSetup) {
+                    githubTokenSetup.addEventListener('keypress', function(event) {
+                        if (event.key === 'Enter') {
+                            saveGitHubSetup();
+                        } else if (event.key === 'Escape') {
+                            skipGitHubSetup();
+                        }
+                    });
+                }
+                
+                if (gistIdSetup) {
+                    gistIdSetup.addEventListener('keypress', function(event) {
+                        if (event.key === 'Enter') {
+                            saveGitHubSetup();
+                        } else if (event.key === 'Escape') {
+                            skipGitHubSetup();
+                        }
+                    });
+                }
                 
                 // Event listeners per filtri vini con debounce
                 const filterInputs = ['filterNome', 'filterProduttore', 'filterRegione', 'filterVitigno'];
@@ -3710,6 +3771,61 @@
             tokenInput.value = GITHUB_CONFIG.token;
             gistInput.value = GITHUB_CONFIG.gistId;
             enabledCheckbox.checked = GITHUB_CONFIG.enabled;
+        }
+
+        // Funzioni per configurazione GitHub obbligatoria all'avvio
+        function showGitHubSetup() {
+            const overlay = document.getElementById('githubSetupOverlay');
+            const tokenInput = document.getElementById('githubTokenSetup');
+            const gistInput = document.getElementById('gistIdSetup');
+            
+            overlay.style.display = 'flex';
+            tokenInput.focus();
+            
+            // Precompila il Gist ID con quello pre-configurato
+            gistInput.value = 'ed140f6366c097f54410d096017bb51b';
+        }
+
+        function hideGitHubSetup() {
+            const overlay = document.getElementById('githubSetupOverlay');
+            overlay.style.display = 'none';
+        }
+
+        function saveGitHubSetup() {
+            const token = document.getElementById('githubTokenSetup').value.trim();
+            const gistId = document.getElementById('gistIdSetup').value.trim();
+            
+            if (!token) {
+                showNotification('❌ Inserisci il token GitHub', 'error');
+                return;
+            }
+            
+            // Salva la configurazione
+            GITHUB_CONFIG.token = token;
+            GITHUB_CONFIG.gistId = gistId;
+            GITHUB_CONFIG.enabled = true;
+            
+            localStorage.setItem('tommy_github_token', token);
+            localStorage.setItem('tommy_gist_id', gistId);
+            localStorage.setItem('tommy_github_enabled', 'true');
+            
+            hideGitHubSetup();
+            showNotification('✅ GitHub configurato! Ora accedi al sistema', 'success');
+            
+            // Mostra il modal di login
+            setTimeout(() => {
+                showLoginModal();
+            }, 1000);
+        }
+
+        function skipGitHubSetup() {
+            hideGitHubSetup();
+            showNotification('⏭️ Configurazione GitHub saltata. Puoi configurarla dopo tramite ⚙️ GitHub', 'info');
+            
+            // Mostra il modal di login
+            setTimeout(() => {
+                showLoginModal();
+            }, 1000);
         }
         
         function hideGitHubConfig() {
