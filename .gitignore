@@ -28,6 +28,7 @@ node_modules/
 .env
 .env.local
 .env.production
+config.js
 
 # File di dati locali (se presenti)
 data/
