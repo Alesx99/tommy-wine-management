@@ -4338,16 +4338,19 @@
             if (!handleAdminSectionAccessForGuest(tabName)) {
                 return;
             }
-            // Nascondi tutte le tab
+            
+            // Nascondi tutte le tab e rimuovi le classi active
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
+                tab.style.display = 'none';
             });
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
 
-            // Assicurati che la sezione benvenuto sia sempre nascosta per admin
+            // Gestione specifica per admin
             if (currentUser === 'admin') {
+                // Nascondi completamente la sezione benvenuto per admin
                 const benvenutoSection = document.getElementById('benvenuto');
                 if (benvenutoSection) {
                     benvenutoSection.style.display = 'none';
@@ -4355,46 +4358,75 @@
                     benvenutoSection.classList.remove('guest-only');
                 }
                 
-                // Nascondi anche la tab benvenuto per admin
-                const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
+                // Nascondi la tab benvenuto per admin
+                const benvenutoTab = document.querySelector('.nav-tab[onclick*="showTab(\'benvenuto\')"]');
                 if (benvenutoTab) {
                     benvenutoTab.style.display = 'none';
                     benvenutoTab.classList.remove('active');
                     benvenutoTab.classList.add('guest-only');
                 }
+                
+                // Mostra solo le tab admin e quelle pubbliche (prodotti, vini)
+                const adminTabs = document.querySelectorAll('.nav-tab.admin-only');
+                adminTabs.forEach(tab => {
+                    tab.style.display = 'block';
+                    tab.classList.remove('hidden-for-guest');
+                    tab.classList.add('admin-only');
+                });
+                
+                // Mostra le sezioni admin
+                const adminSections = ['dashboard', 'clienti', 'fatture'];
+                adminSections.forEach(sectionId => {
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        section.style.display = 'block';
+                        section.classList.remove('hidden-for-guest');
+                        section.classList.add('admin-only');
+                    }
+                });
             }
 
-            // Nascondi le tab admin-only per ospiti
+            // Gestione specifica per ospiti
             if (currentUser === 'guest') {
+                // Nascondi tutte le tab admin-only per ospiti
                 const adminTabs = document.querySelectorAll('.nav-tab.admin-only');
                 adminTabs.forEach(tab => {
                     tab.style.display = 'none';
                     tab.classList.remove('active');
                     tab.classList.add('admin-only');
                 });
-            }
-
-            // Mostra la tab selezionata
-            document.getElementById(tabName).classList.add('active');
-
-            // Nascondi le sezioni admin-only per ospiti
-            if (currentUser === 'guest') {
+                
+                // Nascondi tutte le sezioni admin-only per ospiti
                 const adminSections = ['dashboard', 'clienti', 'fatture'];
                 adminSections.forEach(sectionId => {
                     const section = document.getElementById(sectionId);
-                    if (section && sectionId !== tabName) {
+                    if (section) {
                         section.style.display = 'none';
                         section.classList.remove('active');
                         section.classList.add('admin-only');
                     }
                 });
+                
+                // Mostra solo le tab pubbliche per ospiti
+                const publicTabs = document.querySelectorAll('.nav-tab:not(.admin-only)');
+                publicTabs.forEach(tab => {
+                    tab.style.display = 'block';
+                    tab.classList.remove('hidden-for-guest');
+                });
             }
             
-            // Se l'evento è disponibile, attiva il pulsante cliccato
+            // Mostra la tab selezionata
+            const selectedTab = document.getElementById(tabName);
+            if (selectedTab) {
+                selectedTab.style.display = 'block';
+                selectedTab.classList.add('active');
+            }
+            
+            // Attiva il pulsante della tab corrispondente
             if (event && event.target) {
                 event.target.classList.add('active');
             } else {
-                // Altrimenti trova e attiva il pulsante della tab corrispondente
+                // Trova e attiva il pulsante della tab corrispondente
                 const tabButtons = document.querySelectorAll('.nav-tab');
                 tabButtons.forEach(button => {
                     if (button.getAttribute('onclick') && button.getAttribute('onclick').includes(tabName)) {
@@ -4421,6 +4453,12 @@
             setTimeout(() => {
                 initTableEnhancements(tabName);
             }, 200);
+            
+            // Pulisci le classi CSS per evitare conflitti
+            cleanupTabClasses();
+            
+            // Preveni la duplicazione delle schede
+            preventTabDuplication();
         }
 
         // Funzione per navigare alle sezioni dalla scheda di benvenuto
@@ -4432,58 +4470,91 @@
         // Funzione per gestire la modalità ospite
         function setupGuestMode() {
             if (currentUser === 'guest') {
-                // Mostra la scheda di benvenuto per gli ospiti
-                showTab('benvenuto');
-                
-                // Nascondi elementi admin
+                // Nascondi completamente tutti gli elementi admin
                 document.querySelectorAll('.admin-only').forEach(el => {
                     el.style.display = 'none';
+                    el.classList.add('admin-only');
                 });
                 
                 // Mostra elementi guest
                 document.querySelectorAll('.guest-only').forEach(el => {
                     el.style.display = 'block';
+                    el.classList.add('guest-only');
                 });
                 
-                // Mostra specificamente la sezione benvenuto per ospiti
-                const benvenutoSection = document.getElementById('benvenuto');
-                if (benvenutoSection) {
-                    benvenutoSection.style.display = 'block';
-                    benvenutoSection.classList.add('guest-only');
-                }
-                
-                // Nascondi schede non accessibili agli ospiti
-                const hiddenTabs = ['clienti', 'fatture', 'dashboard'];
-                hiddenTabs.forEach(tabId => {
-                    const tab = document.querySelector(`.nav-tab[onclick="showTab('${tabId}')"]`);
+                // Nascondi specificamente le tab admin-only per ospiti
+                const adminTabIds = ['dashboard', 'clienti', 'fatture'];
+                adminTabIds.forEach(tabId => {
+                    const tab = document.querySelector(`.nav-tab[onclick*="showTab('${tabId}')"]`);
                     if (tab) {
                         tab.style.display = 'none';
+                        tab.classList.add('admin-only');
                         tab.classList.add('hidden-for-guest');
                     }
                 });
                 
+                // Nascondi le sezioni admin-only per ospiti
+                adminTabIds.forEach(sectionId => {
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        section.style.display = 'none';
+                        section.classList.add('admin-only');
+                        section.classList.add('hidden-for-guest');
+                    }
+                });
+                
                 // Mostra la tab benvenuto per ospiti
-                const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
+                const benvenutoTab = document.querySelector('.nav-tab[onclick*="showTab(\'benvenuto\')"]');
                 if (benvenutoTab) {
                     benvenutoTab.style.display = 'block';
                     benvenutoTab.classList.add('guest-only');
-                    benvenutoTab.classList.add('active');
+                    benvenutoTab.classList.remove('admin-only');
                 }
-
-                // Nascondi le tab admin-only per ospiti
-                hideAdminTabsForGuest();
                 
-                // Avvia il monitoraggio delle tab admin-only per ospiti
-                monitorAdminTabsForGuest();
+                // Mostra la sezione benvenuto per ospiti
+                const benvenutoSection = document.getElementById('benvenuto');
+                if (benvenutoSection) {
+                    benvenutoSection.style.display = 'block';
+                    benvenutoSection.classList.add('guest-only');
+                    benvenutoSection.classList.remove('admin-only');
+                }
+                
+                // Mostra le tab pubbliche (prodotti, vini) per ospiti
+                const publicTabIds = ['prodotti', 'vini'];
+                publicTabIds.forEach(tabId => {
+                    const tab = document.querySelector(`.nav-tab[onclick*="showTab('${tabId}')"]`);
+                    if (tab) {
+                        tab.style.display = 'block';
+                        tab.classList.remove('admin-only');
+                        tab.classList.remove('hidden-for-guest');
+                    }
+                });
+                
+                // Mostra le sezioni pubbliche per ospiti
+                publicTabIds.forEach(sectionId => {
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        section.style.display = 'block';
+                        section.classList.remove('admin-only');
+                        section.classList.remove('hidden-for-guest');
+                    }
+                });
                 
                 // Disabilita funzioni di modifica per ospiti
                 disableEditFunctions();
+                
+                // Inizializza correttamente le schede
+                initializeTabsCorrectly();
+                
+                // Mostra la scheda di benvenuto per gli ospiti
+                showTab('benvenuto');
                 
                 console.log('👤 Modalità ospite attivata');
             } else {
                 // Nascondi elementi guest per admin
                 document.querySelectorAll('.guest-only').forEach(el => {
                     el.style.display = 'none';
+                    el.classList.add('guest-only');
                 });
                 
                 // Nascondi specificamente la sezione benvenuto per admin
@@ -4491,36 +4562,42 @@
                 if (benvenutoSection) {
                     benvenutoSection.style.display = 'none';
                     benvenutoSection.classList.remove('active');
-                    benvenutoSection.classList.remove('guest-only');
+                    benvenutoSection.classList.add('guest-only');
                 }
                 
                 // Nascondi la tab benvenuto per admin
-                const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
+                const benvenutoTab = document.querySelector('.nav-tab[onclick*="showTab(\'benvenuto\')"]');
                 if (benvenutoTab) {
                     benvenutoTab.style.display = 'none';
                     benvenutoTab.classList.remove('active');
                     benvenutoTab.classList.add('guest-only');
                 }
                 
-                // Assicurati che la tab benvenuto sia sempre nascosta per admin
-                setTimeout(() => {
-                    const benvenutoTabCheck = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
-                    if (benvenutoTabCheck) {
-                        benvenutoTabCheck.style.display = 'none';
-                        benvenutoTabCheck.classList.remove('active');
-                        benvenutoTabCheck.classList.add('guest-only');
-                    }
-                }, 100);
-                
                 // Mostra elementi admin
                 document.querySelectorAll('.admin-only').forEach(el => {
                     el.style.display = 'block';
+                    el.classList.add('admin-only');
                 });
                 
-                // Mostra tutte le schede per admin
-                document.querySelectorAll('.nav-tab').forEach(tab => {
-                    tab.style.display = 'block';
-                    tab.classList.remove('hidden-for-guest');
+                // Mostra tutte le schede admin per admin
+                const adminTabIds = ['dashboard', 'clienti', 'fatture'];
+                adminTabIds.forEach(tabId => {
+                    const tab = document.querySelector(`.nav-tab[onclick*="showTab('${tabId}')"]`);
+                    if (tab) {
+                        tab.style.display = 'block';
+                        tab.classList.add('admin-only');
+                        tab.classList.remove('hidden-for-guest');
+                    }
+                });
+                
+                // Mostra le sezioni admin per admin
+                adminTabIds.forEach(sectionId => {
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        section.style.display = 'block';
+                        section.classList.add('admin-only');
+                        section.classList.remove('hidden-for-guest');
+                    }
                 });
             }
         }
@@ -9776,8 +9853,8 @@
             // Mostra le tab admin-only per Tommaso
             showAdminTabsForTommaso();
             
-            // Avvia il monitoraggio delle tab admin-only per Tommaso
-            monitorAdminTabsForTommaso();
+            // Inizializza correttamente le schede
+            initializeTabsCorrectly();
         }
 
         function showGuestInterface() {
@@ -11070,6 +11147,7 @@
         // Variabili globali per i timer di monitoraggio
         let guestMonitorTimer = null;
         let adminMonitorTimer = null;
+        let monitoringActive = false;
 
         // Funzione per fermare tutti i monitoraggi
         function stopAllMonitoring() {
@@ -11085,6 +11163,23 @@
                 clearInterval(benvenutoMonitorTimer);
                 benvenutoMonitorTimer = null;
             }
+            monitoringActive = false;
+        }
+
+        // Funzione per avviare il monitoraggio in modo sicuro
+        function startSafeMonitoring() {
+            if (monitoringActive) {
+                stopAllMonitoring();
+            }
+            
+            if (currentUser === 'guest') {
+                monitorAdminTabsForGuest();
+            } else if (currentUser === 'admin') {
+                monitorAdminTabsForTommaso();
+                monitorBenvenutoTabForAdmin();
+            }
+            
+            monitoringActive = true;
         }
 
         // Funzione per monitorare e nascondere le tab admin-only per ospiti
@@ -11138,6 +11233,75 @@
                 }
             }
             return true;
+        }
+
+        // Funzione per pulire e riorganizzare le classi CSS delle schede
+        function cleanupTabClasses() {
+            // Rimuovi classi duplicate e conflittuali
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                // Rimuovi classi duplicate
+                const classes = tab.classList;
+                if (classes.contains('admin-only') && classes.contains('guest-only')) {
+                    if (currentUser === 'admin') {
+                        tab.classList.remove('guest-only');
+                    } else {
+                        tab.classList.remove('admin-only');
+                    }
+                }
+                
+                // Assicurati che le tab abbiano le classi corrette
+                if (currentUser === 'admin') {
+                    if (tab.getAttribute('onclick') && tab.getAttribute('onclick').includes('dashboard') ||
+                        tab.getAttribute('onclick') && tab.getAttribute('onclick').includes('clienti') ||
+                        tab.getAttribute('onclick') && tab.getAttribute('onclick').includes('fatture')) {
+                        tab.classList.add('admin-only');
+                        tab.classList.remove('guest-only');
+                    }
+                } else {
+                    if (tab.getAttribute('onclick') && tab.getAttribute('onclick').includes('benvenuto')) {
+                        tab.classList.add('guest-only');
+                        tab.classList.remove('admin-only');
+                    }
+                }
+            });
+            
+            // Pulisci anche le sezioni
+            document.querySelectorAll('.tab-content').forEach(section => {
+                const sectionId = section.id;
+                if (sectionId === 'dashboard' || sectionId === 'clienti' || sectionId === 'fatture') {
+                    section.classList.add('admin-only');
+                    section.classList.remove('guest-only');
+                } else if (sectionId === 'benvenuto') {
+                    section.classList.add('guest-only');
+                    section.classList.remove('admin-only');
+                }
+            });
+        }
+
+        // Funzione per prevenire la duplicazione delle schede
+        function preventTabDuplication() {
+            // Controlla se ci sono tab duplicate
+            const tabIds = ['dashboard', 'clienti', 'fatture', 'prodotti', 'vini', 'benvenuto'];
+            tabIds.forEach(tabId => {
+                const tabs = document.querySelectorAll(`.nav-tab[onclick*="showTab('${tabId}')"]`);
+                if (tabs.length > 1) {
+                    // Mantieni solo la prima tab e rimuovi le duplicate
+                    for (let i = 1; i < tabs.length; i++) {
+                        tabs[i].remove();
+                    }
+                }
+            });
+            
+            // Controlla se ci sono sezioni duplicate
+            tabIds.forEach(sectionId => {
+                const sections = document.querySelectorAll(`#${sectionId}`);
+                if (sections.length > 1) {
+                    // Mantieni solo la prima sezione e rimuovi le duplicate
+                    for (let i = 1; i < sections.length; i++) {
+                        sections[i].remove();
+                    }
+                }
+            });
         }
 
         // Funzione per mostrare le tab admin-only per Tommaso
@@ -11201,6 +11365,104 @@
                     }
                 }, 2000); // Controlla ogni 2 secondi invece di 1
             }
+        }
+
+        // Funzione per inizializzare correttamente le schede all'avvio
+        function initializeTabsCorrectly() {
+            // Ferma tutti i monitoraggi esistenti
+            stopAllMonitoring();
+            
+            // Pulisci le classi CSS
+            cleanupTabClasses();
+            
+            // Preveni la duplicazione delle schede
+            preventTabDuplication();
+            
+            // Imposta la visualizzazione corretta in base al tipo di utente
+            if (currentUser === 'admin') {
+                // Mostra tutte le tab admin per admin
+                const adminTabIds = ['dashboard', 'clienti', 'fatture'];
+                adminTabIds.forEach(tabId => {
+                    const tab = document.querySelector(`.nav-tab[onclick*="showTab('${tabId}')"]`);
+                    if (tab) {
+                        tab.style.display = 'block';
+                        tab.classList.add('admin-only');
+                        tab.classList.remove('guest-only');
+                        tab.classList.remove('hidden-for-guest');
+                    }
+                });
+                
+                // Nascondi la tab benvenuto per admin
+                const benvenutoTab = document.querySelector('.nav-tab[onclick*="showTab(\'benvenuto\')"]');
+                if (benvenutoTab) {
+                    benvenutoTab.style.display = 'none';
+                    benvenutoTab.classList.add('guest-only');
+                    benvenutoTab.classList.remove('admin-only');
+                }
+                
+                // Mostra le sezioni admin
+                adminTabIds.forEach(sectionId => {
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        section.style.display = 'block';
+                        section.classList.add('admin-only');
+                        section.classList.remove('guest-only');
+                        section.classList.remove('hidden-for-guest');
+                    }
+                });
+                
+                // Nascondi la sezione benvenuto per admin
+                const benvenutoSection = document.getElementById('benvenuto');
+                if (benvenutoSection) {
+                    benvenutoSection.style.display = 'none';
+                    benvenutoSection.classList.add('guest-only');
+                    benvenutoSection.classList.remove('admin-only');
+                }
+                
+            } else if (currentUser === 'guest') {
+                // Nascondi tutte le tab admin per ospiti
+                const adminTabIds = ['dashboard', 'clienti', 'fatture'];
+                adminTabIds.forEach(tabId => {
+                    const tab = document.querySelector(`.nav-tab[onclick*="showTab('${tabId}')"]`);
+                    if (tab) {
+                        tab.style.display = 'none';
+                        tab.classList.add('admin-only');
+                        tab.classList.add('hidden-for-guest');
+                        tab.classList.remove('guest-only');
+                    }
+                });
+                
+                // Mostra la tab benvenuto per ospiti
+                const benvenutoTab = document.querySelector('.nav-tab[onclick*="showTab(\'benvenuto\')"]');
+                if (benvenutoTab) {
+                    benvenutoTab.style.display = 'block';
+                    benvenutoTab.classList.add('guest-only');
+                    benvenutoTab.classList.remove('admin-only');
+                    benvenutoTab.classList.remove('hidden-for-guest');
+                }
+                
+                // Nascondi le sezioni admin per ospiti
+                adminTabIds.forEach(sectionId => {
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        section.style.display = 'none';
+                        section.classList.add('admin-only');
+                        section.classList.add('hidden-for-guest');
+                        section.classList.remove('guest-only');
+                    }
+                });
+                
+                // Mostra la sezione benvenuto per ospiti
+                const benvenutoSection = document.getElementById('benvenuto');
+                if (benvenutoSection) {
+                    benvenutoSection.style.display = 'block';
+                    benvenutoSection.classList.add('guest-only');
+                    benvenutoSection.classList.remove('admin-only');
+                }
+            }
+            
+            // Avvia il monitoraggio sicuro
+            startSafeMonitoring();
         }
     </script>
 </body>
