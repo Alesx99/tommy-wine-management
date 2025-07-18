@@ -4376,6 +4376,16 @@
                     benvenutoTab.classList.add('guest-only');
                 }
                 
+                // Assicurati che la tab benvenuto sia sempre nascosta per admin
+                setTimeout(() => {
+                    const benvenutoTabCheck = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
+                    if (benvenutoTabCheck) {
+                        benvenutoTabCheck.style.display = 'none';
+                        benvenutoTabCheck.classList.remove('active');
+                        benvenutoTabCheck.classList.add('guest-only');
+                    }
+                }, 100);
+                
                 // Mostra elementi admin
                 document.querySelectorAll('.admin-only').forEach(el => {
                     el.style.display = 'block';
@@ -8127,6 +8137,16 @@
             display: block !important;
         }
 
+        /* Forza nascondere tab benvenuto per admin */
+        body:not(.guest-mode) .nav-tab.guest-only {
+            display: none !important;
+        }
+
+        /* Mostra tab benvenuto solo in modalità ospite */
+        body.guest-mode .nav-tab.guest-only.active {
+            display: block !important;
+        }
+
         .welcome-section {
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
             border-radius: 20px;
@@ -9240,26 +9260,31 @@
         }
 
         function showAdminInterface() {
+            // Rimuovi classe guest-mode dal body
+            document.body.classList.remove('guest-mode');
+            
             // Ripristina l'ordine originale delle schede per admin
             restoreOriginalTabOrder();
             
-            // Mostra tutte le sezioni per l'admin
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.style.display = 'block';
-                tab.classList.remove('hidden-for-guest');
-            });
-            
-            // Mostra la tab dashboard per Tommaso
-            const dashboardTab = document.querySelector('.nav-tab[onclick="showTab(\'dashboard\')"]');
-            if (dashboardTab) dashboardTab.style.display = 'block';
-            
-            // Nascondi scheda di benvenuto per admin
+            // Nascondi IMMEDIATAMENTE la tab benvenuto per admin
             const benvenutoTabElement = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
             if (benvenutoTabElement) {
                 benvenutoTabElement.style.display = 'none';
                 benvenutoTabElement.classList.remove('active');
                 benvenutoTabElement.classList.add('guest-only');
             }
+            
+            // Mostra tutte le sezioni per l'admin (tranne benvenuto)
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                if (!tab.classList.contains('guest-only')) {
+                    tab.style.display = 'block';
+                    tab.classList.remove('hidden-for-guest');
+                }
+            });
+            
+            // Mostra la tab dashboard per Tommaso
+            const dashboardTab = document.querySelector('.nav-tab[onclick="showTab(\'dashboard\')"]');
+            if (dashboardTab) dashboardTab.style.display = 'block';
             
             // Nascondi specificamente la sezione benvenuto per admin
             const benvenutoSection = document.getElementById('benvenuto');
@@ -9315,9 +9340,18 @@
             
             // Inizializza la gestione stati fatture
             initializeStatoFatture();
+            
+            // Nascondi la tab benvenuto per admin
+            hideBenvenutoTabForAdmin();
+            
+            // Avvia il monitoraggio della tab benvenuto per admin
+            monitorBenvenutoTabForAdmin();
         }
 
         function showGuestInterface() {
+            // Aggiungi classe guest-mode al body
+            document.body.classList.add('guest-mode');
+            
             // Nascondi completamente sezioni non accessibili ai clienti
             const clientiTab = document.querySelector('.nav-tab[onclick="showTab(\'clienti\')"]');
             const fattureTab = document.querySelector('.nav-tab[onclick="showTab(\'fatture\')"]');
@@ -9407,6 +9441,9 @@
         function logout() {
             currentUser = null;
             isLoggedIn = false;
+            
+            // Rimuovi classe guest-mode dal body
+            document.body.classList.remove('guest-mode');
             
             // Nascondi info utente
             document.getElementById('userInfo').style.display = 'none';
@@ -10538,6 +10575,33 @@
             setTimeout(() => {
                 checkAndUpdateStatoFatture();
             }, 1000);
+        }
+
+        // Funzione per nascondere la tab benvenuto per admin
+        function hideBenvenutoTabForAdmin() {
+            if (currentUser === 'admin') {
+                const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
+                if (benvenutoTab) {
+                    benvenutoTab.style.display = 'none';
+                    benvenutoTab.classList.remove('active');
+                    benvenutoTab.classList.add('guest-only');
+                }
+            }
+        }
+
+        // Funzione per monitorare e nascondere la tab benvenuto per admin
+        function monitorBenvenutoTabForAdmin() {
+            if (currentUser === 'admin') {
+                setInterval(() => {
+                    const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
+                    if (benvenutoTab && benvenutoTab.style.display !== 'none') {
+                        benvenutoTab.style.display = 'none';
+                        benvenutoTab.classList.remove('active');
+                        benvenutoTab.classList.add('guest-only');
+                        console.log('🔒 Tab benvenuto nascosta per admin');
+                    }
+                }, 1000); // Controlla ogni secondo
+            }
         }
     </script>
 </body>
