@@ -1272,21 +1272,21 @@
         <div id="dashboard" class="tab-content">
             <div class="dashboard-container">
                 <div class="dashboard-header">
-                    <h2>📊 Dashboard Tommaso</h2>
-                    <p>Benvenuto nella tua dashboard personale! Monitora le performance e rimani aggiornato sul mondo del vino.</p>
+                    <h2>🎯 Dashboard Tommaso</h2>
+                    <p>Monitora le performance del tuo business e rimani aggiornato sul mondo del vino</p>
                 </div>
                 
                 <!-- Statistiche Rapide -->
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-icon">📄</div>
+                        <div class="stat-icon">📊</div>
                         <div class="stat-content">
                             <h3 id="totalFatture">0</h3>
                             <p>Fatture Totali</p>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">💰</div>
+                        <div class="stat-icon">💎</div>
                         <div class="stat-content">
                             <h3 id="totalRevenue">€0</h3>
                             <p>Fatturato Totale</p>
@@ -1310,12 +1310,12 @@
                 
                 <!-- Filtri Temporali -->
                 <div class="filters-section">
-                    <h3>📅 Filtri Temporali</h3>
+                    <h3>⏰ Filtri Temporali</h3>
                     <div class="filter-controls">
-                        <button class="btn btn-sm btn-primary" onclick="setTimeFilter('all')">Tutti</button>
-                        <button class="btn btn-sm btn-outline" onclick="setTimeFilter('year')">Anno Corrente</button>
-                        <button class="btn btn-sm btn-outline" onclick="setTimeFilter('month')">Mese Corrente</button>
-                        <button class="btn btn-sm btn-outline" onclick="setTimeFilter('week')">Settimana</button>
+                        <button class="btn btn-sm btn-primary active" onclick="setTimeFilter('all', event)">Tutti</button>
+                        <button class="btn btn-sm btn-outline" onclick="setTimeFilter('year', event)">Anno Corrente</button>
+                        <button class="btn btn-sm btn-outline" onclick="setTimeFilter('month', event)">Mese Corrente</button>
+                        <button class="btn btn-sm btn-outline" onclick="setTimeFilter('week', event)">Settimana</button>
                     </div>
                 </div>
 
@@ -6307,122 +6307,230 @@
             font-size: 1.1em;
         }
 
-        /* Dashboard Styles */
+        /* Dashboard Styles - Modern Redesign */
         .dashboard-container {
             padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
         }
 
         .dashboard-header {
             text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, #1a5f3a 0%, #2d5a3d 100%);
+            margin-bottom: 40px;
+            padding: 40px 30px;
+            background: linear-gradient(135deg, #1a5f3a 0%, #2d5a3d 50%, #1a5f3a 100%);
             color: white;
-            border-radius: 15px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(26, 95, 58, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
         }
 
         .dashboard-header h2 {
-            margin: 0 0 10px 0;
-            font-size: 2.2em;
+            margin: 0 0 15px 0;
+            font-size: 2.5em;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
         }
 
         .dashboard-header p {
             margin: 0;
-            opacity: 0.9;
-            font-size: 1.1em;
+            opacity: 0.95;
+            font-size: 1.2em;
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
         }
 
         .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
             display: flex;
             align-items: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1a5f3a, #2d5a3d, #1a5f3a);
+            background-size: 200% 100%;
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         }
 
         .stat-icon {
-            font-size: 2.5em;
-            margin-right: 20px;
+            font-size: 3em;
+            margin-right: 25px;
             color: #1a5f3a;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
 
         .stat-content h3 {
-            margin: 0 0 5px 0;
-            font-size: 1.8em;
-            color: #333;
+            margin: 0 0 8px 0;
+            font-size: 2.2em;
+            color: #2c3e50;
+            font-weight: 700;
         }
 
         .stat-content p {
             margin: 0;
-            color: #666;
-            font-weight: 500;
+            color: #7f8c8d;
+            font-weight: 600;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .charts-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 35px;
+            margin-bottom: 40px;
         }
 
         .chart-section {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,255,255,0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .chart-section:hover {
+            transform: translateY(-3px);
         }
 
         .chart-section h3 {
-            margin: 0 0 20px 0;
-            color: #333;
-            font-size: 1.3em;
+            margin: 0 0 25px 0;
+            color: #2c3e50;
+            font-size: 1.4em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-section h3::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #1a5f3a, #2d5a3d);
+            border-radius: 2px;
         }
 
         .chart-wrapper {
             position: relative;
-            height: 300px;
+            height: 350px;
+            border-radius: 15px;
+            overflow: hidden;
         }
 
         .news-section {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,255,255,0.8);
+            margin-bottom: 30px;
         }
 
         .news-section h3 {
-            margin: 0 0 20px 0;
-            color: #333;
-            font-size: 1.3em;
+            margin: 0 0 25px 0;
+            color: #2c3e50;
+            font-size: 1.4em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .news-section h3::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #1a5f3a, #2d5a3d);
+            border-radius: 2px;
+        }
+
+        .news-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .news-source-indicator {
+            background: linear-gradient(135deg, #1a5f3a, #2d5a3d);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(26, 95, 58, 0.3);
         }
 
         .news-container {
-            max-height: 500px;
+            max-height: 600px;
             overflow-y: auto;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.5);
         }
 
         .news-item {
-            border-bottom: 1px solid #e9ecef;
-            padding: 15px 0;
-            transition: background-color 0.3s ease;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            padding: 20px;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            margin: 10px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .news-item:hover {
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .news-item:last-child {
@@ -6430,57 +6538,84 @@
         }
 
         .news-title {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 1.1em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+            line-height: 1.4;
         }
 
         .news-title a {
             color: #1a5f3a;
             text-decoration: none;
+            transition: color 0.3s ease;
         }
 
         .news-title a:hover {
+            color: #2d5a3d;
             text-decoration: underline;
         }
 
         .news-description {
-            color: #666;
-            margin-bottom: 8px;
-            line-height: 1.5;
+            color: #5a6c7d;
+            margin-bottom: 12px;
+            line-height: 1.6;
+            font-size: 1em;
         }
 
         .news-meta {
             font-size: 0.9em;
-            color: #999;
+            color: #95a5a6;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .news-meta::before {
+            content: '🕒';
+            font-size: 0.8em;
         }
 
         .loading-news {
             text-align: center;
-            padding: 40px;
-            color: #666;
+            padding: 60px 40px;
+            color: #7f8c8d;
             font-style: italic;
+            font-size: 1.1em;
         }
 
-        /* Filtri e Controlli */
+        /* Filtri e Controlli Moderni */
         .filters-section {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,255,255,0.8);
         }
 
         .filters-section h3 {
-            margin: 0 0 15px 0;
-            color: #333;
-            font-size: 1.3em;
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-size: 1.4em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filters-section h3::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #1a5f3a, #2d5a3d);
+            border-radius: 2px;
         }
 
         .filter-controls {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             flex-wrap: wrap;
         }
 
@@ -6488,16 +6623,132 @@
             background: transparent;
             border: 2px solid #1a5f3a;
             color: #1a5f3a;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
         .btn-outline:hover {
-            background: #1a5f3a;
+            background: linear-gradient(135deg, #1a5f3a, #2d5a3d);
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 95, 58, 0.3);
         }
 
         .btn-outline.active {
-            background: #1a5f3a;
+            background: linear-gradient(135deg, #1a5f3a, #2d5a3d);
             color: white;
+            box-shadow: 0 5px 15px rgba(26, 95, 58, 0.3);
+        }
+
+        /* Animazioni Dashboard */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .news-date {
+            color: #95a5a6;
+            font-weight: 500;
+        }
+
+        .news-source {
+            color: #1a5f3a;
+            font-weight: 600;
+            margin-left: 15px;
+            padding: 2px 8px;
+            background: rgba(26, 95, 58, 0.1);
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+
+        /* Widget Grid Styles */
+        .widgets-container {
+            margin-bottom: 40px;
+        }
+
+        .widget-section {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .widget-section h3 {
+            margin: 0 0 25px 0;
+            color: #2c3e50;
+            font-size: 1.4em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .widget-section h3::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #1a5f3a, #2d5a3d);
+            border-radius: 2px;
+        }
+
+        .widget-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .widget-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .widget-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .widget-icon {
+            font-size: 2em;
+            color: #1a5f3a;
+        }
+
+        .widget-content h4 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        .widget-content p {
+            margin: 0;
+            color: #7f8c8d;
+            font-weight: 500;
+            font-size: 0.9em;
         }
 
         /* Widget Styles */
@@ -7837,14 +8088,16 @@
             });
         }
 
-        function setTimeFilter(filter) {
+        function setTimeFilter(filter, event) {
             currentTimeFilter = filter;
             
             // Aggiorna stile dei pulsanti
             document.querySelectorAll('.filter-controls .btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
             
             // Ricrea i grafici con i nuovi dati filtrati
             updateDashboardStats();
@@ -8148,7 +8401,7 @@
             if (!newsContainer) return;
 
             try {
-                newsContainer.innerHTML = '<div class="loading-news">🔄 Caricamento notizie...</div>';
+                newsContainer.innerHTML = '<div class="loading-news">🔄 Caricamento notizie dal mondo del vino...</div>';
                 updateNewsSourceIndicator();
                 
                 let news;
@@ -8160,25 +8413,31 @@
                 }
                 
                 if (news && news.length > 0) {
-                    // Renderizza le notizie
-                    newsContainer.innerHTML = news.map(news => `
-                        <div class="news-item">
+                    // Renderizza le notizie con design moderno
+                    newsContainer.innerHTML = news.map((news, index) => `
+                        <div class="news-item" style="animation: fadeInUp 0.5s ease ${index * 0.1}s both;">
                             <div class="news-title">
                                 <a href="${news.url}" target="_blank" rel="noopener noreferrer">${news.title}</a>
                             </div>
                             <div class="news-description">${news.description}</div>
-                            <div class="news-meta">${news.publishedAt}</div>
+                            <div class="news-meta">
+                                <span class="news-date">${news.publishedAt}</span>
+                                <span class="news-source">${news.source || 'Fonte esterna'}</span>
+                            </div>
                         </div>
                     `).join('');
                 } else {
-                    // Fallback a notizie simulate
-                    newsContainer.innerHTML = getMockWineNews().map(news => `
-                        <div class="news-item">
+                    // Fallback a notizie simulate con design moderno
+                    newsContainer.innerHTML = getMockWineNews().map((news, index) => `
+                        <div class="news-item" style="animation: fadeInUp 0.5s ease ${index * 0.1}s both;">
                             <div class="news-title">
                                 <a href="${news.url}" target="_blank">${news.title}</a>
                             </div>
                             <div class="news-description">${news.description}</div>
-                            <div class="news-meta">${news.publishedAt}</div>
+                            <div class="news-meta">
+                                <span class="news-date">${news.publishedAt}</span>
+                                <span class="news-source">Notizie simulate</span>
+                            </div>
                         </div>
                     `).join('');
                 }
@@ -8186,13 +8445,16 @@
             } catch (error) {
                 console.error('Errore nel caricamento notizie:', error);
                 // Fallback a notizie simulate in caso di errore
-                newsContainer.innerHTML = getMockWineNews().map(news => `
-                    <div class="news-item">
+                newsContainer.innerHTML = getMockWineNews().map((news, index) => `
+                    <div class="news-item" style="animation: fadeInUp 0.5s ease ${index * 0.1}s both;">
                         <div class="news-title">
                             <a href="${news.url}" target="_blank">${news.title}</a>
                         </div>
                         <div class="news-description">${news.description}</div>
-                        <div class="news-meta">${news.publishedAt}</div>
+                        <div class="news-meta">
+                            <span class="news-date">${news.publishedAt}</span>
+                            <span class="news-source">Notizie simulate</span>
+                        </div>
                     </div>
                 `).join('');
             }
@@ -8338,52 +8600,60 @@
             const currentDate = new Date();
             const mockNews = [
                 {
-                    title: "Barolo DOCG 2019: Annata eccezionale per il 'Re dei Vini'",
-                    description: "I produttori del Barolo annunciano che la vendemmia 2019 è stata una delle migliori degli ultimi 50 anni, con vini di straordinaria complessità e longevità.",
-                    url: "https://www.decanter.com/wine-news/barolo-2019-exceptional-vintage",
-                    publishedAt: "1 ora fa"
+                    title: "🍷 Barolo 2019: Un'annata eccezionale per il re dei vini",
+                    description: "La vendemmia 2019 del Barolo si conferma come una delle migliori degli ultimi decenni. I produttori riportano vini di straordinaria complessità e longevità.",
+                    url: "#",
+                    publishedAt: "Oggi",
+                    source: "WineNews"
                 },
                 {
-                    title: "Chianti Classico: Nuove regole per la DOCG dal 2024",
-                    description: "Il Consorzio del Chianti Classico introduce nuove norme per migliorare la qualità e la tipicità dei vini della zona storica.",
-                    url: "https://www.wine-searcher.com/news/chianti-classico-new-rules",
-                    publishedAt: "3 ore fa"
+                    title: "🏆 Brunello di Montalcino conquista nuovi mercati asiatici",
+                    description: "Il prestigioso vino toscano sta registrando un boom di vendite in Cina e Giappone, con un incremento del 45% rispetto all'anno scorso.",
+                    url: "#",
+                    publishedAt: "Ieri",
+                    source: "VinoToday"
                 },
                 {
-                    title: "Brunello di Montalcino: Vendemmia 2023 promette grandi risultati",
-                    description: "Nonostante le sfide climatiche, i viticoltori di Montalcino sono ottimisti per la qualità dell'uva Sangiovese raccolta quest'anno.",
-                    url: "https://www.winebusiness.com/news/brunello-2023-harvest",
-                    publishedAt: "5 ore fa"
+                    title: "🌿 Viticoltura sostenibile: le nuove tendenze del 2024",
+                    description: "I produttori italiani stanno adottando sempre più pratiche sostenibili, dalla riduzione dei pesticidi all'uso di energie rinnovabili.",
+                    url: "#",
+                    publishedAt: "2 giorni fa",
+                    source: "GreenWine"
                 },
                 {
-                    title: "Amarone della Valpolicella: Export verso Asia in forte crescita",
-                    description: "Le esportazioni di Amarone verso i mercati asiatici sono aumentate del 40% nel 2023, trainate dalla crescente domanda di vini di qualità.",
-                    url: "https://www.wineenthusiast.com/news/amarone-asia-exports",
-                    publishedAt: "1 giorno fa"
+                    title: "🍇 Amarone della Valpolicella: qualità in crescita",
+                    description: "La DOCG Amarone della Valpolicella registra un miglioramento costante della qualità, con vini sempre più raffinati e complessi.",
+                    url: "#",
+                    publishedAt: "3 giorni fa",
+                    source: "VenetoWine"
                 },
                 {
-                    title: "Vini spumanti italiani: Prosecco supera Champagne nelle vendite globali",
+                    title: "👨‍🍳 I sommelier italiani trionfano ai campionati mondiali",
+                    description: "La delegazione italiana ha conquistato il primo posto ai campionati mondiali di sommelier, confermando la leadership nel settore.",
+                    url: "#",
+                    publishedAt: "1 settimana fa",
+                    source: "SommelierNews"
+                },
+                {
+                    title: "🍾 Prosecco supera Champagne nelle vendite globali",
                     description: "Il Prosecco DOC e DOCG ha superato lo Champagne nelle vendite globali, confermando il successo internazionale dei vini spumanti italiani.",
-                    url: "https://www.decanter.com/wine-news/prosecco-champagne-sales",
-                    publishedAt: "2 giorni fa"
+                    url: "#",
+                    publishedAt: "4 giorni fa",
+                    source: "SparklingNews"
                 },
                 {
-                    title: "Enologia sostenibile: Cantine italiane adottano energie rinnovabili",
-                    description: "Sempre più cantine italiane investono in pannelli solari e sistemi di risparmio energetico per ridurre l'impatto ambientale.",
-                    url: "https://www.winebusiness.com/news/sustainable-winemaking",
-                    publishedAt: "3 giorni fa"
-                },
-                {
-                    title: "Sommelier italiani vincono prestigiosi premi internazionali",
-                    description: "I sommelier italiani si sono distinti ai campionati mondiali, dimostrando la qualità della formazione enologica italiana.",
-                    url: "https://www.wine-searcher.com/news/italian-sommeliers-awards",
-                    publishedAt: "4 giorni fa"
-                },
-                {
-                    title: "Vini biologici: Italia leader europeo nella produzione",
+                    title: "🌱 Vini biologici: Italia leader europeo nella produzione",
                     description: "L'Italia conferma la sua posizione di leader europeo nella produzione di vini biologici, con oltre 100.000 ettari di vigneti certificati.",
-                    url: "https://www.wineenthusiast.com/news/italy-organic-wine-leader",
-                    publishedAt: "5 giorni fa"
+                    url: "#",
+                    publishedAt: "5 giorni fa",
+                    source: "BioWine"
+                },
+                {
+                    title: "🏅 Chianti Classico: Nuove regole per la DOCG dal 2024",
+                    description: "Il Consorzio del Chianti Classico introduce nuove norme per migliorare la qualità e la tipicità dei vini della zona storica.",
+                    url: "#",
+                    publishedAt: "1 settimana fa",
+                    source: "TuscanyWine"
                 }
             ];
             
