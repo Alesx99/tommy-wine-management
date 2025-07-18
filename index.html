@@ -176,11 +176,11 @@
 
         .data-table {
             width: 100%;
+            min-width: 800px; /* Larghezza minima per assicurare scroll */
             border-collapse: collapse;
             margin-top: 20px;
             background: white;
             border-radius: 8px;
-            overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
@@ -189,6 +189,23 @@
             padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid #e9ecef;
+            white-space: nowrap; /* Previene il wrap del testo */
+        }
+        
+        /* Stili specifici per la colonna azioni */
+        .data-table th:last-child,
+        .data-table td:last-child {
+            position: sticky;
+            right: 0;
+            background: white;
+            z-index: 10;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+        }
+        
+        /* Assicura che i bottoni nelle azioni siano sempre visibili */
+        .data-table td:last-child .btn {
+            margin: 2px;
+            white-space: nowrap;
         }
 
         .data-table th {
@@ -1149,9 +1166,9 @@
             <button class="nav-tab" onclick="showTab('dashboard', event)" style="display: none;">📊 Dashboard</button>
             <button class="nav-tab active" onclick="showTab('clienti', event)">👥 Clienti</button>
             <button class="nav-tab" onclick="showTab('fatture', event)">📄 Fatture</button>
+            <button class="nav-tab guest-only" onclick="showTab('benvenuto', event)" style="display: none;">🏠 Benvenuto</button>
             <button class="nav-tab" onclick="showTab('prodotti', event)">🍺 Prodotti</button>
             <button class="nav-tab" onclick="showTab('vini', event)">🍷 Vini</button>
-            <button class="nav-tab guest-only" onclick="showTab('benvenuto', event)" style="display: none;">🏠 Benvenuto</button>
         </div>
 
         <!-- TAB CLIENTI -->
@@ -1221,14 +1238,8 @@
             <div class="export-section">
                 <h4>📋 Lista Clienti</h4>
                 
-                <!-- Slider per visualizzazione mobile -->
-                <div class="table-slider-container">
-                    <div class="slider-controls">
-                        <button type="button" class="slider-btn slider-prev" onclick="slideTable('left', 'clienti')">‹</button>
-                        <span class="slider-indicator" id="clienti-indicator">1/1</span>
-                        <button type="button" class="slider-btn slider-next" onclick="slideTable('right', 'clienti')">›</button>
-                    </div>
-                    
+                <!-- Tabella con scroll orizzontale -->
+                <div class="table-container">
                     <div class="table-wrapper">
                         <table id="clientiTable" class="data-table">
                             <thead>
@@ -1407,14 +1418,8 @@
             <div class="export-section">
                 <h4>📋 Lista Documenti</h4>
                 
-                <!-- Slider per visualizzazione mobile -->
-                <div class="table-slider-container">
-                    <div class="slider-controls">
-                        <button type="button" class="slider-btn slider-prev" onclick="slideTable('left')">‹</button>
-                        <span class="slider-indicator">1/1</span>
-                        <button type="button" class="slider-btn slider-next" onclick="slideTable('right')">›</button>
-                    </div>
-                    
+                <!-- Tabella con scroll orizzontale -->
+                <div class="table-container">
                     <div class="table-wrapper">
                         <table id="fattureTable" class="data-table">
                             <thead>
@@ -1572,14 +1577,8 @@
                 </div>
                 
                 
-                <!-- Slider per visualizzazione mobile -->
-                <div class="table-slider-container">
-                    <div class="slider-controls">
-                        <button type="button" class="slider-btn slider-prev" onclick="slideTable('left', 'prodotti')">‹</button>
-                        <span class="slider-indicator" id="prodotti-indicator">1/1</span>
-                        <button type="button" class="slider-btn slider-next" onclick="slideTable('right', 'prodotti')">›</button>
-                    </div>
-                    
+                <!-- Tabella con scroll orizzontale -->
+                <div class="table-container">
                     <div class="table-wrapper">
                         <table id="prodottiTable" class="data-table">
                             <thead>
@@ -1841,14 +1840,8 @@
                 </div>
                 
                 
-                <!-- Slider per visualizzazione mobile -->
-                <div class="table-slider-container">
-                    <div class="slider-controls">
-                        <button type="button" class="slider-btn slider-prev" onclick="slideTable('left', 'vini')">‹</button>
-                        <span class="slider-indicator" id="vini-indicator">1/1</span>
-                        <button type="button" class="slider-btn slider-next" onclick="slideTable('right', 'vini')">›</button>
-                    </div>
-                    
+                <!-- Tabella con scroll orizzontale -->
+                <div class="table-container">
                     <div class="table-wrapper">
                         <table id="viniTable" class="data-table">
                             <thead>
@@ -3000,9 +2993,9 @@
             // Aggiorna il select clienti se si è nella tab fatture
             if (tabName === 'fatture') {
                 updateClientiSelect();
-                // Inizializza lo slider per la tabella fatture
+                // Inizializza i miglioramenti per la tabella fatture
                 setTimeout(() => {
-                    initTableSlider('fatture');
+                    initTableEnhancements('fatture');
                 }, 200);
             }
             
@@ -3011,9 +3004,9 @@
                 loadTommasoDashboard();
             }
             
-            // Inizializza lo slider per tutte le tabelle quando si cambia tab
+            // Inizializza i miglioramenti per tutte le tabelle quando si cambia tab
             setTimeout(() => {
-                initTableSlider(tabName);
+                initTableEnhancements(tabName);
             }, 200);
         }
 
@@ -3053,6 +3046,78 @@
                 document.querySelectorAll('.admin-only').forEach(el => {
                     el.style.display = 'block';
                 });
+            }
+        }
+
+        // Funzione per gestire l'ordine delle schede per ospiti
+        function organizeTabsForGuest() {
+            const navTabs = document.querySelector('.nav-tabs');
+            if (!navTabs) return;
+            
+            // Ottieni tutte le schede
+            const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
+            const prodottiTab = document.querySelector('.nav-tab[onclick="showTab(\'prodotti\')"]');
+            const viniTab = document.querySelector('.nav-tab[onclick="showTab(\'vini\')"]');
+            
+            if (benvenutoTab && prodottiTab && viniTab) {
+                // Rimuovi le schede dalla loro posizione attuale
+                benvenutoTab.remove();
+                prodottiTab.remove();
+                viniTab.remove();
+                
+                // Aggiungi le schede nell'ordine corretto per ospiti: Benvenuto, Prodotti, Vini
+                navTabs.appendChild(benvenutoTab);
+                navTabs.appendChild(prodottiTab);
+                navTabs.appendChild(viniTab);
+                
+                // Imposta la scheda Benvenuto come attiva
+                benvenutoTab.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.getElementById('benvenuto').classList.add('active');
+            }
+        }
+
+        // Funzione per ripristinare l'ordine originale delle schede per admin
+        function restoreOriginalTabOrder() {
+            const navTabs = document.querySelector('.nav-tabs');
+            if (!navTabs) return;
+            
+            // Ottieni tutte le schede
+            const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
+            const prodottiTab = document.querySelector('.nav-tab[onclick="showTab(\'prodotti\')"]');
+            const viniTab = document.querySelector('.nav-tab[onclick="showTab(\'vini\')"]');
+            
+            if (benvenutoTab && prodottiTab && viniTab) {
+                // Rimuovi le schede dalla loro posizione attuale
+                benvenutoTab.remove();
+                prodottiTab.remove();
+                viniTab.remove();
+                
+                // Ripristina l'ordine originale: Dashboard, Clienti, Fatture, Prodotti, Vini, Benvenuto
+                const fattureTab = document.querySelector('.nav-tab[onclick="showTab(\'fatture\')"]');
+                if (fattureTab) {
+                    fattureTab.after(prodottiTab);
+                    prodottiTab.after(viniTab);
+                    viniTab.after(benvenutoTab);
+                }
+            }
+        }
+
+        // Funzione per gestire la navigazione tra schede per ospiti
+        function navigateToSection(section) {
+            if (currentUser === 'guest') {
+                // Per gli ospiti, mostra direttamente la scheda richiesta
+                showTab(section);
+                
+                // Aggiorna le statistiche se necessario
+                if (section === 'benvenuto') {
+                    updateWelcomeStats();
+                }
+            } else {
+                // Per gli admin, comportamento normale
+                showTab(section);
             }
         }
 
@@ -3147,9 +3212,9 @@
                     tbody.appendChild(row);
                 });
                 
-                            // Inizializza lo slider dopo l'aggiornamento della tabella
+                            // Inizializza i miglioramenti delle tabelle dopo l'aggiornamento
             setTimeout(() => {
-                initTableSlider('clienti');
+                initTableEnhancements('clienti');
             }, 100);
             
 
@@ -3288,9 +3353,9 @@
                 tbody.appendChild(row);
             });
             
-            // Inizializza lo slider dopo l'aggiornamento della tabella
+            // Inizializza i miglioramenti dopo l'aggiornamento della tabella
             setTimeout(() => {
-                initTableSlider('fatture');
+                initTableEnhancements('fatture');
             }, 100);
             
 
@@ -4841,79 +4906,80 @@
         }
 
         // Variabili globali per lo slider
-        let currentSlide = 0;
-        let totalSlides = 1;
-        let slideWidth = 0;
-        
-        // Funzione per gestire lo slider delle tabelle
-        function slideTable(direction, tableType = 'fatture') {
-            const tableWrapper = document.querySelector(`#${tableType}Table`).closest('.table-wrapper');
-            const table = document.getElementById(`${tableType}Table`);
-            const indicator = document.getElementById(`${tableType}-indicator`);
-            const prevBtn = tableWrapper.querySelector('.slider-prev');
-            const nextBtn = tableWrapper.querySelector('.slider-next');
+        // Funzione per migliorare la gestione delle tabelle
+        function enhanceTableScrolling() {
+            const tableWrappers = document.querySelectorAll('.table-wrapper');
             
-            if (!tableWrapper || !table) return;
-            
-            // Calcola la larghezza della tabella e del contenitore
-            const tableWidth = table.scrollWidth;
-            const containerWidth = tableWrapper.clientWidth;
-            
-            // Se la tabella è più piccola del contenitore, non serve lo slider
-            if (tableWidth <= containerWidth) {
-                currentSlide = 0;
-                totalSlides = 1;
-                updateSliderControls(tableType);
-                return;
-            }
-            
-            // Calcola il numero totale di slide
-            slideWidth = containerWidth * 0.8; // 80% della larghezza del contenitore
-            totalSlides = Math.ceil(tableWidth / slideWidth);
-            
-            // Gestisci la direzione
-            if (direction === 'left' && currentSlide > 0) {
-                currentSlide--;
-            } else if (direction === 'right' && currentSlide < totalSlides - 1) {
-                currentSlide++;
-            }
-            
-            // Applica la traslazione
-            const translateX = -currentSlide * slideWidth;
-            tableWrapper.scrollTo({
-                left: translateX,
-                behavior: 'smooth'
+            tableWrappers.forEach(wrapper => {
+                // Aggiungi indicatori di scroll
+                const table = wrapper.querySelector('.data-table');
+                if (table && table.scrollWidth > wrapper.clientWidth) {
+                    wrapper.classList.add('has-scroll');
+                }
+                
+                // Aggiungi event listener per scroll smooth
+                wrapper.addEventListener('scroll', function() {
+                    // Aggiorna indicatori di scroll se necessario
+                    updateScrollIndicators(wrapper);
+                });
             });
-            
-            // Aggiorna i controlli
-            updateSliderControls(tableType);
         }
         
-        // Funzione per aggiornare i controlli dello slider
-        function updateSliderControls(tableType = 'fatture') {
-            const indicator = document.getElementById(`${tableType}-indicator`);
-            const tableWrapper = document.querySelector(`#${tableType}Table`).closest('.table-wrapper');
-            const prevBtn = tableWrapper.querySelector('.slider-prev');
-            const nextBtn = tableWrapper.querySelector('.slider-next');
+        // Funzione per aggiornare indicatori di scroll
+        function updateScrollIndicators(wrapper) {
+            const scrollLeft = wrapper.scrollLeft;
+            const scrollWidth = wrapper.scrollWidth;
+            const clientWidth = wrapper.clientWidth;
             
-            if (indicator) {
-                indicator.textContent = `${currentSlide + 1}/${totalSlides}`;
+            // Aggiungi/rimuovi classi per indicatori visivi
+            if (scrollLeft > 0) {
+                wrapper.classList.add('scrolled-left');
+            } else {
+                wrapper.classList.remove('scrolled-left');
             }
             
-            if (prevBtn) {
-                prevBtn.disabled = currentSlide === 0;
-            }
-            
-            if (nextBtn) {
-                nextBtn.disabled = currentSlide >= totalSlides - 1;
+            if (scrollLeft < scrollWidth - clientWidth - 1) {
+                wrapper.classList.add('scrolled-right');
+            } else {
+                wrapper.classList.remove('scrolled-right');
             }
         }
         
-        // Funzione per inizializzare lo slider quando si cambia tab
-        function initTableSlider(tableType = 'fatture') {
+        // Funzione per inizializzare le tabelle quando si cambia tab
+        function initTableEnhancements(tableType = 'fatture') {
             setTimeout(() => {
-                slideTable('left', tableType); // Reset alla prima slide
+                enhanceTableScrolling();
+                updateTableAccessibility();
             }, 100);
+        }
+        
+        // Funzione per migliorare l'accessibilità delle tabelle
+        function updateTableAccessibility() {
+            const tables = document.querySelectorAll('.data-table');
+            
+            tables.forEach(table => {
+                // Aggiungi attributi di accessibilità
+                table.setAttribute('role', 'table');
+                table.setAttribute('aria-label', 'Tabella dati');
+                
+                // Aggiungi attributi alle righe
+                const rows = table.querySelectorAll('tr');
+                rows.forEach((row, index) => {
+                    if (index === 0) {
+                        row.setAttribute('role', 'row');
+                        const headers = row.querySelectorAll('th');
+                        headers.forEach(header => {
+                            header.setAttribute('role', 'columnheader');
+                        });
+                    } else {
+                        row.setAttribute('role', 'row');
+                        const cells = row.querySelectorAll('td');
+                        cells.forEach(cell => {
+                            cell.setAttribute('role', 'cell');
+                        });
+                    }
+                });
+            });
         }
         
 
@@ -5235,8 +5301,82 @@
         
         .table-wrapper {
             overflow-x: auto;
+            overflow-y: hidden;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 100%;
+            position: relative;
+        }
+        
+        /* Assicura che le tabelle mantengano la loro larghezza minima */
+        .table-wrapper .data-table {
+            margin-top: 0;
+            border-radius: 0;
+        }
+        
+        /* Stili per il nuovo contenitore delle tabelle */
+        .table-container {
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        /* Miglioramenti per la responsività */
+        @media (max-width: 768px) {
+            .table-container {
+                margin: 15px 0;
+            }
+            
+            .table-wrapper {
+                border-radius: 4px;
+            }
+            
+            .data-table {
+                min-width: 600px; /* Riduce la larghezza minima su mobile */
+                font-size: 12px;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 8px 6px;
+            }
+            
+            .data-table td:last-child .btn {
+                padding: 4px 6px;
+                font-size: 11px;
+            }
+        }
+        
+        /* Indicatori di scroll per le tabelle */
+        .table-wrapper.has-scroll::before,
+        .table-wrapper.has-scroll::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 20px;
+            pointer-events: none;
+            z-index: 5;
+            transition: opacity 0.3s ease;
+        }
+        
+        .table-wrapper.has-scroll::before {
+            left: 0;
+            background: linear-gradient(to right, rgba(255,255,255,0.9), transparent);
+            opacity: 0;
+        }
+        
+        .table-wrapper.has-scroll::after {
+            right: 0;
+            background: linear-gradient(to left, rgba(255,255,255,0.9), transparent);
+            opacity: 0;
+        }
+        
+        .table-wrapper.scrolled-left::before {
+            opacity: 1;
+        }
+        
+        .table-wrapper.scrolled-right::after {
+            opacity: 1;
         }
         
         .table-wrapper::-webkit-scrollbar {
@@ -5899,6 +6039,10 @@
 
         .guest-only {
             display: block !important;
+        }
+        
+        .nav-tab.hidden-for-guest {
+            display: none !important;
         }
         }
         
@@ -6640,6 +6784,9 @@
         }
 
         function showAdminInterface() {
+            // Ripristina l'ordine originale delle schede per admin
+            restoreOriginalTabOrder();
+            
             // Mostra tutte le sezioni per l'admin
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.style.display = 'block';
@@ -6650,8 +6797,8 @@
             if (dashboardTab) dashboardTab.style.display = 'block';
             
             // Nascondi scheda di benvenuto per admin
-            const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
-            if (benvenutoTab) benvenutoTab.style.display = 'none';
+            const benvenutoTabElement = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
+            if (benvenutoTabElement) benvenutoTabElement.style.display = 'none';
             
             document.getElementById('securityToggle').style.display = 'block';
             
@@ -6708,6 +6855,9 @@
             const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
             if (benvenutoTab) benvenutoTab.style.display = 'block';
             
+            // Riorganizza l'ordine delle schede per ospiti: Benvenuto, Prodotti, Vini
+            organizeTabsForGuest();
+            
             // Nascondi pulsante sicurezza
             document.getElementById('securityToggle').style.display = 'none';
             
@@ -6739,9 +6889,6 @@
             // Mostra info utente
             document.getElementById('userInfo').style.display = 'block';
             document.getElementById('currentUserDisplay').textContent = '👤 Cliente';
-            
-            // Mostra la scheda di benvenuto per gli ospiti
-            showTab('benvenuto');
             
             // Disattiva la censura per i clienti (mostra sempre i prezzi)
             isSecurityActive = false;
@@ -6782,6 +6929,9 @@
             document.querySelectorAll('.guest-note').forEach(note => {
                 note.remove();
             });
+            
+            // Ripristina l'ordine originale delle schede
+            restoreOriginalTabOrder();
             
             showLoginModal();
             showNotification('👋 Logout effettuato!', 'info');
