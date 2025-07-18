@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestione Tommy - Bar e Cantina</title>
+    <title>Gestione Tommy - Bar e Cantina Tommy</title>
     <style>
         * {
             margin: 0;
@@ -1063,7 +1063,7 @@
         
         <div class="header">
             <h1>🍷 Gestione Tommy</h1>
-            <p>Bar e Cantina - Sistema di Gestione Dati</p>
+            <p>Bar e Cantina Tommy - Sistema di Gestione Dati</p>
             <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
                 💾 Dati salvati automaticamente nel browser
                 <div id="syncStatus" style="margin-top: 5px; font-size: 0.8em;">
@@ -1947,6 +1947,7 @@
             // Controlla se l'azienda di Tommaso esiste già
             const existingCompany = clienti.find(cliente => 
                 cliente.nomeAzienda === 'Bar e Cantina Tommy' || 
+                cliente.nomeAzienda === 'Privilege Cafè&Wine' ||
                 (cliente.nome === 'Tommaso' && cliente.tipologia === 'azienda')
             );
             
@@ -1954,6 +1955,11 @@
                 // Aggiorna i dati esistenti
                 existingCompany.indirizzo = 'C.so Vittorio Emanuele II, 48 Bitonto (Ba) 70032';
                 existingCompany.telefono = '0803740786';
+                existingCompany.email = 'tommyprivilege@gmail.com';
+                existingCompany.nomeAzienda = 'Bar e Cantina Tommy';
+                existingCompany.citta = 'Bitonto';
+                existingCompany.cap = '70032';
+                existingCompany.provincia = 'BA';
                 showNotification('✅ Dati azienda Tommaso aggiornati!', 'success');
             } else {
                 // Aggiungi nuovo cliente azienda
@@ -1961,7 +1967,7 @@
                     id: Date.now().toString(),
                     nome: 'Tommaso',
                     cognome: '',
-                    email: 'info@bar-cantina-tommy.it',
+                    email: 'tommyprivilege@gmail.com',
                     telefono: '0803740786',
                     indirizzo: 'C.so Vittorio Emanuele II, 48 Bitonto (Ba) 70032',
                     citta: 'Bitonto',
@@ -1969,7 +1975,7 @@
                     provincia: 'BA',
                     tipologia: 'azienda',
                     nomeAzienda: 'Bar e Cantina Tommy',
-                    note: 'Azienda principale',
+                    note: 'Azienda principale - Dati per intestazione fatture',
                     dataRegistrazione: new Date().toISOString().split('T')[0]
                 };
                 
@@ -2318,6 +2324,21 @@
             }
         }
 
+        function getStatoBadge(stato) {
+            if (!stato) return '<span class="status-badge status-pending">In Attesa</span>';
+            
+            switch(stato) {
+                case 'pagata': 
+                    return '<span class="status-badge status-paid">Pagata</span>';
+                case 'in_attesa': 
+                    return '<span class="status-badge status-pending">In Attesa</span>';
+                case 'scaduta': 
+                    return '<span class="status-badge status-overdue">Scaduta</span>';
+                default: 
+                    return '<span class="status-badge status-pending">In Attesa</span>';
+            }
+        }
+
         function editDocumento(id) {
             const documento = documenti.find(d => d.id === id);
             if (!documento) return;
@@ -2400,8 +2421,8 @@
             let printContent = `
                 <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
                     <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
-                        <h1 style="margin: 0; color: #333;">Privilege Cafè&Wine</h1>
-                        <p style="margin: 5px 0; color: #666;">Via Roma 123, Milano - Tel: 02 1234567</p>
+                        <h1 style="margin: 0; color: #333;">Bar e Cantina Tommy</h1>
+                        <p style="margin: 5px 0; color: #666;">C.so Vittorio Emanuele II, 48 Bitonto (Ba) 70032 - Tel: 0803740786</p>
                         <h2 style="margin: 20px 0; color: #ff6b6b;">${documento.tipo.toUpperCase()} N. ${documento.numero}</h2>
                     </div>
                     
@@ -2684,36 +2705,7 @@
             alert('Vino aggiunto con successo!');
         });
 
-        // Aggiorna tabella clienti
-        function updateClientiTable() {
-            const tbody = document.getElementById('clientiTableBody');
-            tbody.innerHTML = '';
-            
-            clienti.forEach(cliente => {
-                const row = document.createElement('tr');
-                const tipologiaDisplay = cliente.tipologia === 'azienda' ? '🏢 Azienda' : '👤 Privato';
-                const nomeAziendaDisplay = cliente.nomeAzienda || '-';
-                row.innerHTML = `
-                    <td>${nomeAziendaDisplay}</td>
-                    <td><span class="status-badge ${cliente.tipologia === 'azienda' ? 'status-paid' : 'status-pending'}">${tipologiaDisplay}</span></td>
-                    <td>${cliente.nome}</td>
-                    <td>${cliente.cognome}</td>
-                    <td>${cliente.email}</td>
-                    <td>${cliente.telefono}</td>
-                    <td>${cliente.citta}</td>
-                    <td>${cliente.dataRegistrazione}</td>
-                    <td>${cliente.note}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning" onclick="editCliente(${cliente.id})">✏️ Modifica</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteCliente(${cliente.id})">🗑️ Elimina</button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-            
-            // Aggiorna anche il select delle fatture
-            updateClientiSelect();
-        }
+
         
         // Funzione per gestire la visibilità del campo Nome Azienda
         function toggleNomeAzienda() {
@@ -3107,8 +3099,8 @@
             let printContent = `
                 <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
                     <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
-                        <h1 style="margin: 0; color: #333;">Privilege Cafè&Wine</h1>
-                        <p style="margin: 5px 0; color: #666;">Via Roma 123, Milano - Tel: 02 1234567</p>
+                        <h1 style="margin: 0; color: #333;">Bar e Cantina Tommy</h1>
+                        <p style="margin: 5px 0; color: #666;">C.so Vittorio Emanuele II, 48 Bitonto (Ba) 70032 - Tel: 0803740786</p>
                         <h2 style="margin: 20px 0; color: #ff6b6b;">${tipo.toUpperCase()} N. ${numero}</h2>
                     </div>
                     
@@ -3201,77 +3193,9 @@
             }, 500);
         }
 
-        // Aggiorna tabella fatture
-        function updateFattureTable() {
-            const tbody = document.getElementById('fattureTableBody');
-            tbody.innerHTML = '';
-            
-            fatture.forEach(fattura => {
-                const statusClass = fattura.stato === 'pagata' ? 'status-paid' : 
-                                  fattura.stato === 'in_attesa' ? 'status-pending' : 'status-overdue';
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${fattura.numero}</td>
-                    <td>${fattura.cliente}</td>
-                    <td>${fattura.data}</td>
-                    <td>${fattura.scadenza}</td>
-                    <td>€${fattura.importo.toFixed(2)}</td>
-                    <td><span class="status-badge ${statusClass}">${fattura.stato}</span></td>
-                    <td>${fattura.note}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning" onclick="editFattura(${fattura.id})">✏️ Modifica</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteFattura(${fattura.id})">🗑️ Elimina</button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
 
-        // Aggiorna tabella prodotti
-        function updateProdottiTable() {
-            const tbody = document.getElementById('prodottiTableBody');
-            tbody.innerHTML = '';
-            
-            prodotti.forEach(prodotto => {
-                const stockClass = prodotto.quantita <= prodotto.quantitaMinima ? 'stock-low' : 'stock-ok';
-                const stockText = prodotto.quantita <= prodotto.quantitaMinima ? 'Scorte Basse' : 'OK';
-                
-                // Gestione censura prezzi di acquisto - solo per admin
-                let prezzoAcquistoCell = '';
-                if (currentUser === 'admin') {
-                    const prezzoAcquistoDisplay = isSecurityActive && !isSecurityUnlocked ? 
-                        `<span class="censored">€${prodotto.prezzoAcquisto.toFixed(2)}</span>` : 
-                        `€${prodotto.prezzoAcquisto.toFixed(2)}`;
-                    prezzoAcquistoCell = `<td class="table-censored">${prezzoAcquistoDisplay}</td>`;
-                }
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${prodotto.nome}</td>
-                    <td>
-                        <div>
-                            <span class="status-badge ${getCategoriaColor(prodotto.categoriaPrincipale)}">${prodotto.categoriaPrincipale.toUpperCase()}</span>
-                            <br>
-                            <span class="status-badge ${getCategoriaColor(prodotto.sottocategoria)}">${getSottocategoriaDisplayName(prodotto.categoriaPrincipale, prodotto.sottocategoria)}</span>
-                        </div>
-                    </td>
-                    <td>${prodotto.marca}</td>
-                    ${prezzoAcquistoCell}
-                    <td>€${prodotto.prezzoVenditaIngrosso.toFixed(2)}</td>
-                    <td>€${prodotto.prezzoVenditaDettaglio.toFixed(2)}</td>
-                    <td>${prodotto.quantita}</td>
-                    <td>${prodotto.unitaMisura || 'bottiglie'}</td>
-                    <td><span class="status-badge ${stockClass}">${stockText}</span></td>
-                    <td>${prodotto.fornitore}</td>
-                    <td>${prodotto.note}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning" onclick="editProdotto(${prodotto.id})">✏️ Modifica</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteProdotto(${prodotto.id})">🗑️ Elimina</button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
+
+
 
         function deleteProdotto(id) {
             if (confirm('Sei sicuro di voler eliminare questo prodotto?')) {
@@ -3285,47 +3209,7 @@
             }
         }
 
-                // Aggiorna tabella vini
-        function updateViniTable() {
-            const tbody = document.getElementById('viniTableBody');
-            tbody.innerHTML = '';
-            
-            vini.forEach(vino => {
-                const stockClass = vino.quantita <= 3 ? 'stock-low' : 'stock-ok';
-                const stockText = vino.quantita <= 3 ? 'Scorte Basse' : 'OK';
-                
-                // Gestione censura prezzi di acquisto - solo per admin
-                let prezzoAcquistoCell = '';
-                if (currentUser === 'admin') {
-                    const prezzoAcquistoDisplay = isSecurityActive && !isSecurityUnlocked ? 
-                        `<span class="censored">€${vino.prezzoAcquisto.toFixed(2)}</span>` : 
-                        `€${vino.prezzoAcquisto.toFixed(2)}`;
-                    prezzoAcquistoCell = `<td class="table-censored">${prezzoAcquistoDisplay}</td>`;
-                }
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${vino.nome}</td>
-                    <td>${vino.produttore}</td>
-                    <td>${vino.annata}</td>
-                    <td>${vino.tipologia}</td>
-                    <td>${vino.regione}</td>
-                    <td>${vino.vitigno || '-'}</td>
-                    ${prezzoAcquistoCell}
-                    <td>€${vino.prezzoVenditaIngrosso.toFixed(2)}</td>
-                    <td>€${vino.prezzoVenditaDettaglio.toFixed(2)}</td>
-                    <td>${vino.quantita}</td>
-                    <td>${vino.unitaMisura || 'bottiglie'}</td>
-                    <td><span class="status-badge ${stockClass}">${stockText}</span></td>
-                    <td>${vino.note}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning" onclick="editVino(${vino.id})">✏️ Modifica</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteVino(${vino.id})">🗑️ Elimina</button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
+
 
         // Funzione per modificare un prodotto
         function editProdotto(id) {
@@ -3845,7 +3729,7 @@
             let printContent = `
                 <div class="print-wine-list">
                     <div class="wine-header">
-                        <h1 class="wine-title">Privilege Cafè&Wine</h1>
+                        <h1 class="wine-title">Bar e Cantina Tommy</h1>
                         <p class="wine-subtitle">Listino Vini - ${tipoText}</p>
                         <p class="wine-date">Aggiornato al ${new Date().toLocaleDateString('it-IT')}</p>
                     </div>
@@ -3875,7 +3759,7 @@
 
             printContent += `
                     <div class="wine-footer">
-                        <p>Privilege Cafè&Wine - Listino prezzi al ${tipoText.toLowerCase()}</p>
+                        <p>Bar e Cantina Tommy - Listino prezzi al ${tipoText.toLowerCase()}</p>
                         <p>I prezzi sono espressi in Euro e includono IVA</p>
                     </div>
                 </div>
@@ -3887,7 +3771,7 @@
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>Listino Vini ${tipoText} - Privilege Cafè&Wine</title>
+                    <title>Listino Vini ${tipoText} - Bar e Cantina Tommy</title>
                     <style>
                         body {
                             font-family: 'Arial', sans-serif;

@@ -114,7 +114,7 @@ Questo progetto è sotto licenza MIT. Vedi il file `LICENSE` per i dettagli.
 
 ## 👨‍💻 Sviluppatore
 
-Sviluppato per la gestione del bar e cantina "Privilege Cafè&Wine".
+Sviluppato per la gestione del bar e cantina "Bar e Cantina Tommy".
 
 ---
 
