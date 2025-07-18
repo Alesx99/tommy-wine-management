@@ -9403,21 +9403,18 @@
             
             console.log('📊 Statistiche sincronizzazione:', stats);
             
-            const message = `
-                📊 Statistiche Sincronizzazione:
-                
-                📋 Dati:
-                • Clienti: ${stats.clienti}
-                • Documenti: ${stats.documenti}
-                • Prodotti: ${stats.prodotti}
-                • Vini: ${stats.vini}
-                
-                🔄 Sincronizzazione:
-                • Stato: ${stats.isOnline ? '🌐 Online' : '📡 Offline'}
-                • Ultimo sync: ${stats.lastSync ? new Date(parseInt(stats.lastSync)).toLocaleString() : 'Mai'}
-                • Device ID: ${stats.deviceId}
-                • Backup disponibili: ${stats.backupCount}
-            `;
+            const message = 
+                '📊 Statistiche Sincronizzazione:\n\n' +
+                '📋 Dati:\n' +
+                `• Clienti: ${stats.clienti}\n` +
+                `• Documenti: ${stats.documenti}\n` +
+                `• Prodotti: ${stats.prodotti}\n` +
+                `• Vini: ${stats.vini}\n\n` +
+                '🔄 Sincronizzazione:\n' +
+                `• Stato: ${stats.isOnline ? '🌐 Online' : '📡 Offline'}\n` +
+                `• Ultimo sync: ${stats.lastSync ? new Date(parseInt(stats.lastSync)).toLocaleString() : 'Mai'}\n` +
+                `• Device ID: ${stats.deviceId}\n` +
+                `• Backup disponibili: ${stats.backupCount}`;
             
             alert(message);
         }
@@ -10018,27 +10015,27 @@
                 }
                 
                 // Renderizza le notizie con design moderno e immagini
-                newsContainer.innerHTML = news.map((news, index) => `
-                    <div class="news-item" style="animation: fadeInUp 0.5s ease ${index * 0.1}s both;">
-                        <div class="news-content">
-                            ${news.image ? `
-                                <div class="news-image">
-                                    <img src="${news.image}" alt="${news.title}" onerror="this.style.display='none'">
-                                </div>
-                            ` : ''}
-                            <div class="news-text">
-                                <div class="news-title">
-                                    <a href="${news.url}" target="_blank" rel="noopener noreferrer">${news.title}</a>
-                                </div>
-                                <div class="news-description">${news.description}</div>
-                                <div class="news-meta">
-                                    <span class="news-date">${news.publishedAt}</span>
-                                    <span class="news-source">${news.source || (apiError ? 'Notizie simulate' : 'GNews')}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
+                newsContainer.innerHTML = news.map((news, index) => 
+                    '<div class="news-item" style="animation: fadeInUp 0.5s ease ' + (index * 0.1) + 's both;">' +
+                        '<div class="news-content">' +
+                            (news.image ? 
+                                '<div class="news-image">' +
+                                    '<img src="' + news.image + '" alt="' + news.title + '" onerror="this.style.display=\'none\'">' +
+                                '</div>'
+                            : '') +
+                            '<div class="news-text">' +
+                                '<div class="news-title">' +
+                                    '<a href="' + news.url + '" target="_blank" rel="noopener noreferrer">' + news.title + '</a>' +
+                                '</div>' +
+                                '<div class="news-description">' + news.description + '</div>' +
+                                '<div class="news-meta">' +
+                                    '<span class="news-date">' + news.publishedAt + '</span>' +
+                                    '<span class="news-source">' + (news.source || (apiError ? 'Notizie simulate' : 'GNews')) + '</span>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>'
+                ).join('');
                 
                 // Mostra notifica se si usano notizie simulate
                 if (apiError) {
@@ -10050,22 +10047,22 @@
             } catch (error) {
                 console.error('Errore nel caricamento notizie:', error);
                 // Fallback a notizie simulate in caso di errore
-                newsContainer.innerHTML = getMockWineNews().map((news, index) => `
-                    <div class="news-item" style="animation: fadeInUp 0.5s ease ${index * 0.1}s both;">
-                        <div class="news-content">
-                            <div class="news-text">
-                                <div class="news-title">
-                                    <a href="${news.url}" target="_blank">${news.title}</a>
-                                </div>
-                                <div class="news-description">${news.description}</div>
-                                <div class="news-meta">
-                                    <span class="news-date">${news.publishedAt}</span>
-                                    <span class="news-source">Notizie simulate</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
+                newsContainer.innerHTML = getMockWineNews().map((news, index) => 
+                    '<div class="news-item" style="animation: fadeInUp 0.5s ease ' + (index * 0.1) + 's both;">' +
+                        '<div class="news-content">' +
+                            '<div class="news-text">' +
+                                '<div class="news-title">' +
+                                    '<a href="' + news.url + '" target="_blank">' + news.title + '</a>' +
+                                '</div>' +
+                                '<div class="news-description">' + news.description + '</div>' +
+                                '<div class="news-meta">' +
+                                    '<span class="news-date">' + news.publishedAt + '</span>' +
+                                    '<span class="news-source">Notizie simulate</span>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>'
+                ).join('');
                 
                 setTimeout(() => {
                     showNotification('📰 Mostrando notizie simulate - Errore di caricamento', 'warning');
