@@ -1320,6 +1320,28 @@
             width: 100%;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            background: var(--surface-color);
+            position: relative;
+        }
+
+        /* Ensure proper scrolling behavior */
+        .table-scroll-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-scroll-container::-webkit-scrollbar-track {
+            background: var(--border-light);
+            border-radius: var(--radius-sm);
+        }
+
+        .table-scroll-container::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: var(--radius-sm);
+        }
+
+        .table-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
         }
         
         .table-scroll-container::-webkit-scrollbar {
@@ -1343,12 +1365,27 @@
         .scrollable-table {
             min-width: 1200px;
             width: 100%;
+            border-collapse: collapse;
         }
         
         .scrollable-table th,
         .scrollable-table td {
             white-space: nowrap;
             padding: var(--spacing-md) var(--spacing-sm);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .scrollable-table th {
+            background: var(--border-light);
+            font-weight: 600;
+            color: var(--text-primary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .scrollable-table tr:hover {
+            background: var(--border-light);
         }
         
         /* Specific column styles */
@@ -1375,6 +1412,80 @@
         .scrollable-table td:nth-child(14) {
             white-space: nowrap;
             min-width: 120px;
+        }
+
+        /* Vini table specific styles */
+        #viniTable {
+            min-width: 1400px;
+        }
+
+        #viniTable th,
+        #viniTable td {
+            padding: var(--spacing-md) var(--spacing-sm);
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        #viniTable th {
+            background: var(--border-light);
+            font-weight: 600;
+            color: var(--text-primary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #viniTable td {
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        #viniTable tr:hover {
+            background: var(--border-light);
+        }
+
+        /* Sticky actions column - always visible */
+        #viniTable th:last-child,
+        #viniTable td:last-child {
+            position: sticky;
+            right: 0;
+            background: var(--surface-color);
+            z-index: 15;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            min-width: 140px;
+        }
+
+        /* Ensure buttons are always visible and compact */
+        #viniTable td:last-child .btn {
+            margin: 2px;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 0.75rem;
+            white-space: nowrap;
+            min-width: 60px;
+        }
+
+        /* Responsive adjustments for vini table */
+        @media (max-width: 1200px) {
+            #viniTable {
+                min-width: 1200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #viniTable {
+                min-width: 1000px;
+                font-size: 0.875rem;
+            }
+            
+            #viniTable th,
+            #viniTable td {
+                padding: var(--spacing-sm) var(--spacing-xs);
+            }
+
+            #viniTable td:last-child .btn {
+                padding: var(--spacing-xs);
+                font-size: 0.7rem;
+                min-width: 50px;
+            }
         }
 
         /* Censorship and Security System */
@@ -2719,30 +2830,28 @@
                 
                 
                 <!-- Tabella con scroll orizzontale -->
-                <div class="table-container">
-                    <div class="table-wrapper">
-                        <table id="viniTable" class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Nome</th>
-                                    <th>Produttore</th>
-                                    <th>Annata</th>
-                                    <th>Tipologia</th>
-                                    <th>Regione</th>
-                                    <th>Vitigno</th>
-                                    <th id="prezzoAcquistoHeaderVini" style="display: none;">Prezzo Acquisto</th>
-                                    <th>Prezzo Ingrosso</th>
-                                    <th>Prezzo Dettaglio</th>
-                                    <th>Quantità</th>
-                                    <th>Unità</th>
-                                    <th>Stato Stock</th>
-                                    <th>Note</th>
-                                    <th>Azioni</th>
-                                </tr>
-                            </thead>
-                            <tbody id="viniTableBody"></tbody>
-                        </table>
-                    </div>
+                <div class="table-scroll-container">
+                    <table id="viniTable" class="data-table scrollable-table" role="table" aria-label="Tabella dati vini">
+                        <thead>
+                            <tr role="row">
+                                <th role="columnheader">Nome</th>
+                                <th role="columnheader">Produttore</th>
+                                <th role="columnheader">Annata</th>
+                                <th role="columnheader">Tipologia</th>
+                                <th role="columnheader">Regione</th>
+                                <th role="columnheader">Vitigno</th>
+                                <th id="prezzoAcquistoHeaderVini" style="display: none;" role="columnheader">Prezzo Acquisto</th>
+                                <th role="columnheader">Prezzo Ingrosso</th>
+                                <th role="columnheader">Prezzo Dettaglio</th>
+                                <th role="columnheader">Quantità</th>
+                                <th role="columnheader">Unità</th>
+                                <th role="columnheader">Stato Stock</th>
+                                <th role="columnheader">Note</th>
+                                <th role="columnheader">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="viniTableBody"></tbody>
+                    </table>
                 </div>
                 
 
