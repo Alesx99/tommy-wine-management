@@ -628,6 +628,228 @@
             padding: 2px 6px;
         }
 
+        /* Stili per i modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 90%;
+            max-height: 90%;
+            width: 1200px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 30px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* Stili per la sezione prodotti */
+        .prodotti-section {
+            margin: 30px 0;
+        }
+
+        .prodotti-controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .prodotti-table-container {
+            overflow-x: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+        }
+
+        .prodotti-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        .prodotti-table th,
+        .prodotti-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .prodotti-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .prodotti-table input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .prodotti-table input:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+
+        /* Stili per i totali */
+        .totali-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .totali-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .totali-grid input {
+            font-weight: bold;
+            font-size: 16px;
+            background: white;
+        }
+
+        /* Stili per il catalogo */
+        .catalogo-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .catalogo-tab {
+            padding: 15px 25px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+
+        .catalogo-tab.active {
+            color: #ff6b6b;
+            border-bottom: 3px solid #ff6b6b;
+        }
+
+        .catalogo-tab:hover {
+            background: #e9ecef;
+        }
+
+        .catalogo-tab-content {
+            display: none;
+        }
+
+        .catalogo-tab-content.active {
+            display: block;
+        }
+
+        .catalogo-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .catalogo-table th,
+        .catalogo-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .catalogo-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .catalogo-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Stili per i badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .badge-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .badge-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .badge-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
         /* Responsive per il sistema di sicurezza */
         @media (max-width: 768px) {
             .security-toggle {
@@ -815,11 +1037,23 @@
                 <form id="clienteForm">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Nome *</label>
+                            <label>Nome Azienda</label>
+                            <input type="text" name="nomeAzienda" placeholder="Nome dell'azienda (lasciare vuoto per privati)">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipologia *</label>
+                            <select name="tipologia" required onchange="toggleNomeAzienda()">
+                                <option value="">Seleziona tipologia...</option>
+                                <option value="privato">Privato</option>
+                                <option value="azienda">Azienda</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Nome Referente *</label>
                             <input type="text" name="nome" required>
                         </div>
                         <div class="form-group">
-                            <label>Cognome *</label>
+                            <label>Cognome Referente *</label>
                             <input type="text" name="cognome" required>
                         </div>
                         <div class="form-group">
@@ -865,8 +1099,10 @@
                 <table id="clientiTable" class="data-table">
                     <thead>
                         <tr>
-                            <th>Nome</th>
-                            <th>Cognome</th>
+                            <th>Nome Azienda</th>
+                            <th>Tipologia</th>
+                            <th>Nome Referente</th>
+                            <th>Cognome Referente</th>
                             <th>Email</th>
                             <th>Telefono</th>
                             <th>Città</th>
@@ -883,63 +1119,30 @@
         <!-- TAB FATTURE -->
         <div id="fatture" class="tab-content">
             <div class="form-section">
-                <h3>📄 Inserimento Nuova Fattura</h3>
-                <form id="fatturaForm">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Numero Fattura *</label>
-                            <input type="text" name="numero" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Cliente *</label>
-                            <select name="cliente" required>
-                                <option value="">Seleziona cliente...</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Data Fattura *</label>
-                            <input type="date" name="data" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Data Scadenza *</label>
-                            <input type="date" name="scadenza" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Importo (€) *</label>
-                            <input type="number" name="importo" step="0.01" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Stato Pagamento</label>
-                            <select name="stato">
-                                <option value="pagata">Pagata</option>
-                                <option value="in_attesa">In Attesa</option>
-                                <option value="scaduta">Scaduta</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Note</label>
-                        <textarea name="note" placeholder="Note sulla fattura..."></textarea>
-                    </div>
-                    <div class="actions">
-                        <button type="submit" class="btn btn-primary">➕ Aggiungi Fattura</button>
-                        <button type="button" class="btn btn-success" onclick="exportToExcel('fatture')">📊 Esporta Excel</button>
-                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('importFatture').click()">📥 Importa Excel</button>
-                        <input type="file" id="importFatture" accept=".xlsx,.xls" style="display: none;" onchange="importFromExcel('fatture', this)">
-                    </div>
-                </form>
+                <h3>📄 Gestione Documenti</h3>
+                <div class="actions">
+                    <button type="button" class="btn btn-primary" onclick="showFatturaModal()">📄 Nuova Fattura</button>
+                    <button type="button" class="btn btn-warning" onclick="showProformaModal()">📋 Nuova Proforma</button>
+                    <button type="button" class="btn btn-info" onclick="showDDTModal()">🚚 Nuovo DDT</button>
+                    <button type="button" class="btn btn-success" onclick="exportToExcel('fatture')">📊 Esporta Excel</button>
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('importFatture').click()">📥 Importa Excel</button>
+                    <input type="file" id="importFatture" accept=".xlsx,.xls" style="display: none;" onchange="importFromExcel('fatture', this)">
+                </div>
             </div>
 
             <div class="export-section">
-                <h4>📋 Lista Fatture</h4>
+                <h4>📋 Lista Documenti</h4>
                 <table id="fattureTable" class="data-table">
                     <thead>
                         <tr>
+                            <th>Tipo</th>
                             <th>Numero</th>
                             <th>Cliente</th>
                             <th>Data</th>
                             <th>Scadenza</th>
-                            <th>Importo</th>
+                            <th>Imponibile</th>
+                            <th>IVA</th>
+                            <th>Totale</th>
                             <th>Stato</th>
                             <th>Note</th>
                             <th>Azioni</th>
@@ -1275,11 +1478,158 @@
         </div>
     </div>
 
+    <!-- Modal Fattura -->
+    <div id="fatturaModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📄 Nuova Fattura</h3>
+                <button class="modal-close" onclick="hideFatturaModal()">&times;</button>
+            </div>
+            <form id="fatturaFormModal">
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Tipo Documento *</label>
+                            <select name="tipoDocumento" required>
+                                <option value="fattura">Fattura</option>
+                                <option value="proforma">Proforma</option>
+                                <option value="ddt">DDT</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Numero Documento *</label>
+                            <input type="text" name="numero" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Cliente *</label>
+                            <select name="cliente" required>
+                                <option value="">Seleziona cliente...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Data Documento *</label>
+                            <input type="date" name="data" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Data Scadenza</label>
+                            <input type="date" name="scadenza">
+                        </div>
+                        <div class="form-group">
+                            <label>Aliquota IVA (%)</label>
+                            <select name="aliquotaIva" onchange="calcolaTotali()">
+                                <option value="22">22%</option>
+                                <option value="10">10%</option>
+                                <option value="5">5%</option>
+                                <option value="0">0%</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="prodotti-section">
+                        <h4>🛒 Prodotti/Servizi</h4>
+                        <div class="prodotti-controls">
+                            <button type="button" class="btn btn-sm btn-primary" onclick="aggiungiRigaProdotto()">➕ Aggiungi Prodotto</button>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="selezionaDaCatalogo()">📋 Seleziona da Catalogo</button>
+                        </div>
+                        <div class="prodotti-table-container">
+                            <table id="prodottiTable" class="prodotti-table">
+                                <thead>
+                                    <tr>
+                                        <th>Prodotto/Servizio</th>
+                                        <th>Quantità</th>
+                                        <th>Prezzo Unitario</th>
+                                        <th>Sconto %</th>
+                                        <th>Imponibile</th>
+                                        <th>Azioni</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="prodottiTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="totali-section">
+                        <div class="totali-grid">
+                            <div class="form-group">
+                                <label>Imponibile</label>
+                                <input type="number" name="imponibile" step="0.01" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>IVA</label>
+                                <input type="number" name="iva" step="0.01" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Totale</label>
+                                <input type="number" name="totale" step="0.01" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Note</label>
+                        <textarea name="note" placeholder="Note sul documento..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">💾 Salva Documento</button>
+                    <button type="button" class="btn btn-success" onclick="stampaDocumento()">🖨️ Stampa</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideFatturaModal()">❌ Annulla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Selezione Catalogo -->
+    <div id="catalogoModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📋 Selezione da Catalogo</h3>
+                <button class="modal-close" onclick="hideCatalogoModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="catalogo-tabs">
+                    <button class="catalogo-tab active" onclick="showCatalogoTab('prodotti')">🍺 Prodotti</button>
+                    <button class="catalogo-tab" onclick="showCatalogoTab('vini')">🍷 Vini</button>
+                </div>
+                <div class="catalogo-content">
+                    <div id="catalogoProdotti" class="catalogo-tab-content active">
+                        <table class="catalogo-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Categoria</th>
+                                    <th>Prezzo Ingrosso</th>
+                                    <th>Prezzo Dettaglio</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="catalogoProdottiBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="catalogoVini" class="catalogo-tab-content">
+                        <table class="catalogo-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Produttore</th>
+                                    <th>Prezzo Ingrosso</th>
+                                    <th>Prezzo Dettaglio</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="catalogoViniBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         // Dati in memoria
         let clienti = [];
-        let fatture = [];
+        let documenti = [];
         let prodotti = [];
         let vini = [];
         
@@ -1372,12 +1722,12 @@
                 
                 // Carica dati locali
                 const savedClienti = localStorage.getItem('tommy_clienti');
-                const savedFatture = localStorage.getItem('tommy_fatture');
+                const savedDocumenti = localStorage.getItem('tommy_documenti');
                 const savedProdotti = localStorage.getItem('tommy_prodotti');
                 const savedVini = localStorage.getItem('tommy_vini');
                 
                 if (savedClienti) clienti = JSON.parse(savedClienti);
-                if (savedFatture) fatture = JSON.parse(savedFatture);
+                if (savedDocumenti) documenti = JSON.parse(savedDocumenti);
                 if (savedProdotti) prodotti = JSON.parse(savedProdotti);
                 if (savedVini) vini = JSON.parse(savedVini);
                 
@@ -1413,13 +1763,13 @@
                         if (githubTime > localTime && githubData.deviceId !== deviceId) {
                             // Aggiorna i dati locali con quelli di GitHub
                             clienti = githubData.clienti || clienti;
-                            fatture = githubData.fatture || fatture;
+                            documenti = githubData.documenti || documenti;
                             prodotti = githubData.prodotti || prodotti;
                             vini = githubData.vini || vini;
                             
                             // Salva i dati aggiornati localmente
                             localStorage.setItem('tommy_clienti', JSON.stringify(clienti));
-                            localStorage.setItem('tommy_fatture', JSON.stringify(fatture));
+                            localStorage.setItem('tommy_documenti', JSON.stringify(documenti));
                             localStorage.setItem('tommy_prodotti', JSON.stringify(prodotti));
                             localStorage.setItem('tommy_vini', JSON.stringify(vini));
                             localStorage.setItem('tommy_last_sync', githubTime.toString());
@@ -1447,13 +1797,13 @@
                         if (cloudDataObj.deviceId !== deviceId) {
                             // Aggiorna i dati locali con quelli del cloud
                             clienti = cloudDataObj.clienti || clienti;
-                            fatture = cloudDataObj.fatture || fatture;
+                            documenti = cloudDataObj.documenti || documenti;
                             prodotti = cloudDataObj.prodotti || prodotti;
                             vini = cloudDataObj.vini || vini;
                             
                             // Salva i dati aggiornati localmente
                             localStorage.setItem('tommy_clienti', JSON.stringify(clienti));
-                            localStorage.setItem('tommy_fatture', JSON.stringify(fatture));
+                            localStorage.setItem('tommy_documenti', JSON.stringify(documenti));
                             localStorage.setItem('tommy_prodotti', JSON.stringify(prodotti));
                             localStorage.setItem('tommy_vini', JSON.stringify(vini));
                             localStorage.setItem('tommy_last_sync', cloudTimestamp);
@@ -1500,13 +1850,13 @@
                 // Aggiorna i dati se sono più recenti
                 if (timestamp > lastSyncTime) {
                     clienti = data.clienti || clienti;
-                    fatture = data.fatture || fatture;
+                    documenti = data.documenti || documenti;
                     prodotti = data.prodotti || prodotti;
                     vini = data.vini || vini;
                     
                     // Salva localmente
                     localStorage.setItem('tommy_clienti', JSON.stringify(clienti));
-                    localStorage.setItem('tommy_fatture', JSON.stringify(fatture));
+                    localStorage.setItem('tommy_documenti', JSON.stringify(documenti));
                     localStorage.setItem('tommy_prodotti', JSON.stringify(prodotti));
                     localStorage.setItem('tommy_vini', JSON.stringify(vini));
                     localStorage.setItem('tommy_last_sync', timestamp.toString());
@@ -1525,7 +1875,7 @@
                 const timestamp = Date.now();
                 const dataToSave = {
                     clienti: clienti,
-                    fatture: fatture,
+                    documenti: documenti,
                     prodotti: prodotti,
                     vini: vini,
                     lastModified: timestamp,
@@ -1533,7 +1883,7 @@
                 };
                 
                 localStorage.setItem('tommy_clienti', JSON.stringify(clienti));
-                localStorage.setItem('tommy_fatture', JSON.stringify(fatture));
+                localStorage.setItem('tommy_documenti', JSON.stringify(documenti));
                 localStorage.setItem('tommy_prodotti', JSON.stringify(prodotti));
                 localStorage.setItem('tommy_vini', JSON.stringify(vini));
                 localStorage.setItem('tommy_last_sync', timestamp.toString());
@@ -1592,7 +1942,7 @@
                             'tommy_data.json': {
                                 content: JSON.stringify({
                                     clienti: data.clienti,
-                                    fatture: data.fatture,
+                                    documenti: data.documenti,
                                     prodotti: data.prodotti,
                                     vini: data.vini,
                                     lastModified: data.lastModified,
@@ -1678,6 +2028,11 @@
                     }
                 });
             }
+            
+            // Aggiorna il select clienti se si è nella tab fatture
+            if (tabName === 'fatture') {
+                updateClientiSelect();
+            }
         }
 
         // Gestione form clienti migliorata
@@ -1715,6 +2070,8 @@
             const cliente = clienti.find(c => c.id === id);
             if (!cliente) return;
             const form = document.getElementById('clienteForm');
+            form.nomeAzienda.value = cliente.nomeAzienda || '';
+            form.tipologia.value = cliente.tipologia || 'privato';
             form.nome.value = cliente.nome;
             form.cognome.value = cliente.cognome;
             form.email.value = cliente.email;
@@ -1724,6 +2081,10 @@
             form.cap.value = cliente.cap;
             form.dataRegistrazione.value = cliente.dataRegistrazione;
             form.note.value = cliente.note;
+            
+            // Aggiorna la visibilità del campo Nome Azienda
+            toggleNomeAzienda();
+            
             if (!form.querySelector('[name="editId"]')) {
                 const hidden = document.createElement('input');
                 hidden.type = 'hidden';
@@ -1749,12 +2110,24 @@
         document.getElementById('clienteForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
+            
+            // Validazione per le aziende
+            const tipologia = formData.get('tipologia');
+            const nomeAzienda = formData.get('nomeAzienda');
+            
+            if (tipologia === 'azienda' && !nomeAzienda.trim()) {
+                alert('Per le aziende è obbligatorio inserire il nome dell\'azienda!');
+                return;
+            }
+            
             const editId = formData.get('editId');
             if (editId) {
                 const idx = clienti.findIndex(c => c.id == editId);
                 if (idx !== -1) {
                     clienti[idx] = {
                         ...clienti[idx],
+                        nomeAzienda: formData.get('nomeAzienda'),
+                        tipologia: formData.get('tipologia'),
                         nome: formData.get('nome'),
                         cognome: formData.get('cognome'),
                         email: formData.get('email'),
@@ -1776,6 +2149,8 @@
             // Inserimento nuovo cliente (comportamento originale)
             const cliente = {
                 id: Date.now(),
+                nomeAzienda: formData.get('nomeAzienda'),
+                tipologia: formData.get('tipologia'),
                 nome: formData.get('nome'),
                 cognome: formData.get('cognome'),
                 email: formData.get('email'),
@@ -1798,102 +2173,211 @@
             const tbody = document.getElementById('fattureTableBody');
             tbody.innerHTML = '';
             
-            fatture.forEach(fattura => {
-                const statusClass = fattura.stato === 'pagata' ? 'status-paid' : 
-                                  fattura.stato === 'in_attesa' ? 'status-pending' : 'status-overdue';
+            documenti.forEach(documento => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${fattura.numero}</td>
-                    <td>${fattura.cliente}</td>
-                    <td>${fattura.data}</td>
-                    <td>${fattura.scadenza}</td>
-                    <td>€${fattura.importo.toFixed(2)}</td>
-                    <td><span class="status-badge ${statusClass}">${fattura.stato}</span></td>
-                    <td>${fattura.note}</td>
+                    <td><span class="badge badge-${getTipoBadge(documento.tipo)}">${documento.tipo.toUpperCase()}</span></td>
+                    <td>${documento.numero}</td>
+                    <td>${documento.cliente}</td>
+                    <td>${documento.data}</td>
+                    <td>${documento.scadenza || '-'}</td>
+                    <td>€${documento.imponibile.toFixed(2)}</td>
+                    <td>€${documento.iva.toFixed(2)}</td>
+                    <td>€${documento.totale.toFixed(2)}</td>
+                    <td>${getStatoBadge(documento.stato)}</td>
+                    <td>${documento.note || '-'}</td>
                     <td>
-                        <button class="btn btn-sm btn-warning" onclick="editFattura(${fattura.id})">✏️ Modifica</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteFattura(${fattura.id})">🗑️ Elimina</button>
+                        <button class="btn btn-sm btn-primary" onclick="editDocumento(${documento.id})">✏️</button>
+                        <button class="btn btn-sm btn-success" onclick="stampaDocumentoSalvato(${documento.id})">🖨️</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteDocumento(${documento.id})">🗑️</button>
                     </td>
                 `;
                 tbody.appendChild(row);
             });
         }
 
-        function editFattura(id) {
-            const fattura = fatture.find(f => f.id === id);
-            if (!fattura) return;
-            const form = document.getElementById('fatturaForm');
-            form.numero.value = fattura.numero;
-            form.cliente.value = fattura.cliente;
-            form.data.value = fattura.data;
-            form.scadenza.value = fattura.scadenza;
-            form.importo.value = fattura.importo;
-            form.stato.value = fattura.stato;
-            form.note.value = fattura.note;
-            if (!form.querySelector('[name="editId"]')) {
-                const hidden = document.createElement('input');
-                hidden.type = 'hidden';
-                hidden.name = 'editId';
-                form.appendChild(hidden);
-            }
-            form.editId.value = fattura.id;
-            form.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function deleteFattura(id) {
-            if (confirm('Sei sicuro di voler eliminare questa fattura?')) {
-                const idx = fatture.findIndex(f => f.id === id);
-                if (idx !== -1) {
-                    fatture.splice(idx, 1);
-                    updateFattureTable();
-                    saveDataToStorage();
-                    alert('Fattura eliminata con successo!');
-                }
+        function getTipoBadge(tipo) {
+            switch(tipo) {
+                case 'fattura': return 'primary';
+                case 'proforma': return 'warning';
+                case 'ddt': return 'info';
+                default: return 'secondary';
             }
         }
 
-        document.getElementById('fatturaForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const editId = formData.get('editId');
-            if (editId) {
-                const idx = fatture.findIndex(f => f.id == editId);
-                if (idx !== -1) {
-                    fatture[idx] = {
-                        ...fatture[idx],
-                        numero: formData.get('numero'),
-                        cliente: formData.get('cliente'),
-                        data: formData.get('data'),
-                        scadenza: formData.get('scadenza'),
-                        importo: parseFloat(formData.get('importo')),
-                        stato: formData.get('stato'),
-                        note: formData.get('note')
-                    };
-                    updateFattureTable();
-                    saveDataToStorage();
-                    alert('Fattura modificata con successo!');
-                }
-                this.removeChild(this.querySelector('[name="editId"]'));
-                this.reset();
+        function editDocumento(id) {
+            const documento = documenti.find(d => d.id === id);
+            if (!documento) return;
+            
+            // Popola il modal con i dati del documento
+            const modal = document.getElementById('fatturaModal');
+            modal.style.display = 'flex';
+            
+            document.querySelector('#fatturaModal h3').textContent = `✏️ Modifica ${documento.tipo.toUpperCase()}`;
+            document.querySelector('#fatturaModal select[name="tipoDocumento"]').value = documento.tipo;
+            document.querySelector('#fatturaModal input[name="numero"]').value = documento.numero;
+            document.querySelector('#fatturaModal select[name="cliente"]').value = documento.cliente;
+            document.querySelector('#fatturaModal input[name="data"]').value = documento.data;
+            document.querySelector('#fatturaModal input[name="scadenza"]').value = documento.scadenza || '';
+            document.querySelector('#fatturaModal select[name="aliquotaIva"]').value = documento.aliquotaIva;
+            document.querySelector('#fatturaModal textarea[name="note"]').value = documento.note || '';
+            
+            // Popola le righe prodotto
+            righeProdotto = [...documento.prodotti];
+            updateProdottiTable();
+            calcolaTotali();
+            
+            // Modifica il comportamento del form per l'aggiornamento
+            const form = document.getElementById('fatturaFormModal');
+            form.onsubmit = function(e) {
+                e.preventDefault();
+                updateDocumento(id);
+            };
+        }
+
+        function updateDocumento(id) {
+            const formData = new FormData(document.getElementById('fatturaFormModal'));
+            
+            if (righeProdotto.length === 0) {
+                alert('Aggiungi almeno un prodotto/servizio!');
                 return;
             }
-            // Inserimento nuova fattura (comportamento originale)
-            const fattura = {
-                id: Date.now(),
+            
+            const documentoIndex = documenti.findIndex(d => d.id === id);
+            if (documentoIndex === -1) return;
+            
+            documenti[documentoIndex] = {
+                ...documenti[documentoIndex],
+                tipo: formData.get('tipoDocumento'),
                 numero: formData.get('numero'),
                 cliente: formData.get('cliente'),
                 data: formData.get('data'),
                 scadenza: formData.get('scadenza'),
-                importo: parseFloat(formData.get('importo')),
-                stato: formData.get('stato'),
+                aliquotaIva: parseFloat(formData.get('aliquotaIva')),
+                imponibile: parseFloat(formData.get('imponibile')),
+                iva: parseFloat(formData.get('iva')),
+                totale: parseFloat(formData.get('totale')),
+                prodotti: [...righeProdotto],
                 note: formData.get('note')
             };
-            fatture.push(fattura);
+            
             updateFattureTable();
             saveDataToStorage();
-            this.reset();
-            alert('Fattura aggiunta con successo!');
-        });
+            
+            alert('Documento aggiornato con successo!');
+            hideFatturaModal();
+            
+            // Ripristina il comportamento normale del form
+            const form = document.getElementById('fatturaFormModal');
+            form.onsubmit = null;
+        }
+
+        function deleteDocumento(id) {
+            if (confirm('Sei sicuro di voler eliminare questo documento?')) {
+                documenti = documenti.filter(d => d.id !== id);
+                updateFattureTable();
+                saveDataToStorage();
+            }
+        }
+
+        function stampaDocumentoSalvato(id) {
+            const documento = documenti.find(d => d.id === id);
+            if (!documento) return;
+            
+            // Crea il contenuto per la stampa
+            let printContent = `
+                <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
+                    <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
+                        <h1 style="margin: 0; color: #333;">Privilege Cafè&Wine</h1>
+                        <p style="margin: 5px 0; color: #666;">Via Roma 123, Milano - Tel: 02 1234567</p>
+                        <h2 style="margin: 20px 0; color: #ff6b6b;">${documento.tipo.toUpperCase()} N. ${documento.numero}</h2>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <div>
+                                <strong>Cliente:</strong> ${documento.cliente}<br>
+                                <strong>Data:</strong> ${documento.data}
+                            </div>
+                            <div style="text-align: right;">
+                                <strong>Numero:</strong> ${documento.numero}<br>
+                                <strong>Tipo:</strong> ${documento.tipo.toUpperCase()}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 12px; border: 1px solid #ddd; text-align: left;">Prodotto/Servizio</th>
+                                <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">Q.tà</th>
+                                <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">Prezzo Unit.</th>
+                                <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">Sconto</th>
+                                <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">Imponibile</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            documento.prodotti.forEach(riga => {
+                printContent += `
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd;">${riga.prodotto}</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${riga.quantita}</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${riga.prezzoUnitario.toFixed(2)}</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${riga.sconto}%</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${riga.imponibile.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            
+            printContent += `
+                        </tbody>
+                    </table>
+                    
+                    <div style="text-align: right; margin-top: 30px;">
+                        <div style="margin-bottom: 10px;">
+                            <strong>Imponibile:</strong> €${documento.imponibile.toFixed(2)}
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <strong>IVA:</strong> €${documento.iva.toFixed(2)}
+                        </div>
+                        <div style="font-size: 18px; font-weight: bold; border-top: 2px solid #333; padding-top: 10px;">
+                            <strong>TOTALE:</strong> €${documento.totale.toFixed(2)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Crea una nuova finestra per la stampa
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${documento.tipo.toUpperCase()} ${documento.numero}</title>
+                    <style>
+                        body { margin: 0; padding: 20px; }
+                        @media print {
+                            body { margin: 0; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            
+            // Stampa automatica
+            setTimeout(() => {
+                printWindow.print();
+            }, 500);
+        }
+
+
 
         // Gestione form prodotti
         document.getElementById('prodottoForm').addEventListener('submit', function(e) {
@@ -2090,7 +2574,11 @@
             
             clienti.forEach(cliente => {
                 const row = document.createElement('tr');
+                const tipologiaDisplay = cliente.tipologia === 'azienda' ? '🏢 Azienda' : '👤 Privato';
+                const nomeAziendaDisplay = cliente.nomeAzienda || '-';
                 row.innerHTML = `
+                    <td>${nomeAziendaDisplay}</td>
+                    <td><span class="status-badge ${cliente.tipologia === 'azienda' ? 'status-paid' : 'status-pending'}">${tipologiaDisplay}</span></td>
                     <td>${cliente.nome}</td>
                     <td>${cliente.cognome}</td>
                     <td>${cliente.email}</td>
@@ -2105,6 +2593,442 @@
                 `;
                 tbody.appendChild(row);
             });
+            
+            // Aggiorna anche il select delle fatture
+            updateClientiSelect();
+        }
+        
+        // Funzione per gestire la visibilità del campo Nome Azienda
+        function toggleNomeAzienda() {
+            const tipologiaSelect = document.querySelector('select[name="tipologia"]');
+            const nomeAziendaInput = document.querySelector('input[name="nomeAzienda"]');
+            
+            if (tipologiaSelect.value === 'azienda') {
+                nomeAziendaInput.required = true;
+                nomeAziendaInput.placeholder = 'Nome dell\'azienda (obbligatorio)';
+            } else {
+                nomeAziendaInput.required = false;
+                nomeAziendaInput.placeholder = 'Nome dell\'azienda (lasciare vuoto per privati)';
+            }
+        }
+        
+        // Funzione per aggiornare il select clienti nelle fatture (evita duplicati)
+        function updateClientiSelect() {
+            const clienteSelect = document.querySelector('select[name="cliente"]');
+            if (!clienteSelect) return;
+            
+            // Salva il valore selezionato
+            const selectedValue = clienteSelect.value;
+            
+            // Pulisci le opzioni esistenti
+            clienteSelect.innerHTML = '<option value="">Seleziona cliente...</option>';
+            
+            // Crea un Set per evitare duplicati
+            const clientiUnici = new Set();
+            
+            // Aggiungi i clienti unici
+            clienti.forEach(cliente => {
+                let displayValue, optionValue;
+                
+                if (cliente.tipologia === 'azienda' && cliente.nomeAzienda) {
+                    // Per le aziende, usa il nome azienda
+                    displayValue = cliente.nomeAzienda;
+                    optionValue = cliente.nomeAzienda;
+                } else {
+                    // Per i privati o aziende senza nome, usa nome e cognome
+                    displayValue = `${cliente.nome} ${cliente.cognome}`;
+                    optionValue = `${cliente.nome} ${cliente.cognome}`;
+                }
+                
+                // Aggiungi solo se non è già presente
+                if (!clientiUnici.has(optionValue)) {
+                    clientiUnici.add(optionValue);
+                    
+                    const option = document.createElement('option');
+                    option.value = optionValue;
+                    option.textContent = displayValue + (cliente.tipologia === 'azienda' ? ' (Azienda)' : ' (Privato)');
+                    clienteSelect.appendChild(option);
+                }
+            });
+            
+            // Ripristina il valore selezionato se era presente
+            if (selectedValue) {
+                clienteSelect.value = selectedValue;
+            }
+        }
+
+        // Variabili globali per i documenti
+        let righeProdotto = [];
+
+        // Funzioni per i modal
+        function showFatturaModal() {
+            const modal = document.getElementById('fatturaModal');
+            modal.style.display = 'flex';
+            
+            // Imposta la data di oggi
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelector('#fatturaModal input[name="data"]').value = today;
+            
+            // Aggiorna il select clienti
+            updateClientiSelect();
+            
+            // Pulisci le righe prodotto
+            righeProdotto = [];
+            updateProdottiTable();
+            
+            // Pulisci i totali
+            calcolaTotali();
+        }
+
+        function hideFatturaModal() {
+            const modal = document.getElementById('fatturaModal');
+            modal.style.display = 'none';
+        }
+
+        function showProformaModal() {
+            const modal = document.getElementById('fatturaModal');
+            modal.style.display = 'flex';
+            document.querySelector('#fatturaModal h3').textContent = '📋 Nuova Proforma';
+            document.querySelector('#fatturaModal select[name="tipoDocumento"]').value = 'proforma';
+            
+            // Imposta la data di oggi
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelector('#fatturaModal input[name="data"]').value = today;
+            
+            // Aggiorna il select clienti
+            updateClientiSelect();
+            
+            // Pulisci le righe prodotto
+            righeProdotto = [];
+            updateProdottiTable();
+            
+            // Pulisci i totali
+            calcolaTotali();
+        }
+
+        function showDDTModal() {
+            const modal = document.getElementById('fatturaModal');
+            modal.style.display = 'flex';
+            document.querySelector('#fatturaModal h3').textContent = '🚚 Nuovo DDT';
+            document.querySelector('#fatturaModal select[name="tipoDocumento"]').value = 'ddt';
+            
+            // Imposta la data di oggi
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelector('#fatturaModal input[name="data"]').value = today;
+            
+            // Aggiorna il select clienti
+            updateClientiSelect();
+            
+            // Pulisci le righe prodotto
+            righeProdotto = [];
+            updateProdottiTable();
+            
+            // Pulisci i totali
+            calcolaTotali();
+        }
+
+        // Funzioni per gestire le righe prodotto
+        function aggiungiRigaProdotto() {
+            const riga = {
+                id: Date.now() + Math.random(),
+                prodotto: '',
+                quantita: 1,
+                prezzoUnitario: 0,
+                sconto: 0,
+                imponibile: 0
+            };
+            
+            righeProdotto.push(riga);
+            updateProdottiTable();
+        }
+
+        function rimuoviRigaProdotto(id) {
+            righeProdotto = righeProdotto.filter(r => r.id !== id);
+            updateProdottiTable();
+            calcolaTotali();
+        }
+
+        function updateProdottiTable() {
+            const tbody = document.getElementById('prodottiTableBody');
+            tbody.innerHTML = '';
+            
+            righeProdotto.forEach(riga => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="text" value="${riga.prodotto}" onchange="aggiornaRiga(${riga.id}, 'prodotto', this.value)" placeholder="Nome prodotto/servizio"></td>
+                    <td><input type="number" value="${riga.quantita}" onchange="aggiornaRiga(${riga.id}, 'quantita', this.value)" min="1" step="1"></td>
+                    <td><input type="number" value="${riga.prezzoUnitario}" onchange="aggiornaRiga(${riga.id}, 'prezzoUnitario', this.value)" step="0.01"></td>
+                    <td><input type="number" value="${riga.sconto}" onchange="aggiornaRiga(${riga.id}, 'sconto', this.value)" min="0" max="100" step="0.01"></td>
+                    <td><input type="number" value="${riga.imponibile}" readonly></td>
+                    <td><button type="button" class="btn btn-sm btn-danger" onclick="rimuoviRigaProdotto(${riga.id})">🗑️</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function aggiornaRiga(id, campo, valore) {
+            const riga = righeProdotto.find(r => r.id === id);
+            if (riga) {
+                riga[campo] = parseFloat(valore) || 0;
+                calcolaImponibileRiga(riga);
+                updateProdottiTable();
+                calcolaTotali();
+            }
+        }
+
+        function calcolaImponibileRiga(riga) {
+            const quantita = parseFloat(riga.quantita) || 0;
+            const prezzoUnitario = parseFloat(riga.prezzoUnitario) || 0;
+            const sconto = parseFloat(riga.sconto) || 0;
+            
+            const subtotale = quantita * prezzoUnitario;
+            const scontoImporto = subtotale * (sconto / 100);
+            riga.imponibile = subtotale - scontoImporto;
+        }
+
+        function calcolaTotali() {
+            const aliquotaIva = parseFloat(document.querySelector('#fatturaModal select[name="aliquotaIva"]').value) || 22;
+            
+            let imponibile = 0;
+            righeProdotto.forEach(riga => {
+                imponibile += parseFloat(riga.imponibile) || 0;
+            });
+            
+            const iva = imponibile * (aliquotaIva / 100);
+            const totale = imponibile + iva;
+            
+            document.querySelector('#fatturaModal input[name="imponibile"]').value = imponibile.toFixed(2);
+            document.querySelector('#fatturaModal input[name="iva"]').value = iva.toFixed(2);
+            document.querySelector('#fatturaModal input[name="totale"]').value = totale.toFixed(2);
+        }
+
+        // Funzioni per il catalogo
+        function selezionaDaCatalogo() {
+            const modal = document.getElementById('catalogoModal');
+            modal.style.display = 'flex';
+            
+            // Popola le tabelle del catalogo
+            popolaCatalogoProdotti();
+            popolaCatalogoVini();
+        }
+
+        function hideCatalogoModal() {
+            const modal = document.getElementById('catalogoModal');
+            modal.style.display = 'none';
+        }
+
+        function showCatalogoTab(tab) {
+            // Nascondi tutte le tab
+            document.querySelectorAll('.catalogo-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.catalogo-tab').forEach(tabBtn => {
+                tabBtn.classList.remove('active');
+            });
+            
+            // Mostra la tab selezionata
+            document.getElementById(`catalogo${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function popolaCatalogoProdotti() {
+            const tbody = document.getElementById('catalogoProdottiBody');
+            tbody.innerHTML = '';
+            
+            prodotti.forEach(prodotto => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${prodotto.nome}</td>
+                    <td>${prodotto.categoriaPrincipale} - ${prodotto.sottocategoria}</td>
+                    <td>€${prodotto.prezzoVenditaIngrosso.toFixed(2)}</td>
+                    <td>€${prodotto.prezzoVenditaDettaglio.toFixed(2)}</td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-primary" onclick="selezionaProdotto('${prodotto.nome}', ${prodotto.prezzoVenditaDettaglio})">Seleziona</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function popolaCatalogoVini() {
+            const tbody = document.getElementById('catalogoViniBody');
+            tbody.innerHTML = '';
+            
+            vini.forEach(vino => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${vino.nome}</td>
+                    <td>${vino.produttore}</td>
+                    <td>€${vino.prezzoVenditaIngrosso.toFixed(2)}</td>
+                    <td>€${vino.prezzoVenditaDettaglio.toFixed(2)}</td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-primary" onclick="selezionaProdotto('${vino.nome}', ${vino.prezzoVenditaDettaglio})">Seleziona</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function selezionaProdotto(nome, prezzo) {
+            const riga = {
+                id: Date.now() + Math.random(),
+                prodotto: nome,
+                quantita: 1,
+                prezzoUnitario: prezzo,
+                sconto: 0,
+                imponibile: prezzo
+            };
+            
+            righeProdotto.push(riga);
+            updateProdottiTable();
+            calcolaTotali();
+            hideCatalogoModal();
+        }
+
+        // Gestione del form fattura
+        document.getElementById('fatturaFormModal').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            if (righeProdotto.length === 0) {
+                alert('Aggiungi almeno un prodotto/servizio!');
+                return;
+            }
+            
+            const documento = {
+                id: Date.now(),
+                tipo: formData.get('tipoDocumento'),
+                numero: formData.get('numero'),
+                cliente: formData.get('cliente'),
+                data: formData.get('data'),
+                scadenza: formData.get('scadenza'),
+                aliquotaIva: parseFloat(formData.get('aliquotaIva')),
+                imponibile: parseFloat(formData.get('imponibile')),
+                iva: parseFloat(formData.get('iva')),
+                totale: parseFloat(formData.get('totale')),
+                prodotti: [...righeProdotto],
+                note: formData.get('note'),
+                stato: 'in_attesa'
+            };
+            
+            documenti.push(documento);
+            updateFattureTable();
+            saveDataToStorage();
+            
+            alert('Documento salvato con successo!');
+            hideFatturaModal();
+            this.reset();
+        });
+
+        // Funzione per stampare il documento
+        function stampaDocumento() {
+            const formData = new FormData(document.getElementById('fatturaFormModal'));
+            
+            if (righeProdotto.length === 0) {
+                alert('Aggiungi almeno un prodotto/servizio!');
+                return;
+            }
+            
+            const tipo = formData.get('tipoDocumento');
+            const numero = formData.get('numero');
+            const cliente = formData.get('cliente');
+            const data = formData.get('data');
+            const imponibile = parseFloat(formData.get('imponibile'));
+            const iva = parseFloat(formData.get('iva'));
+            const totale = parseFloat(formData.get('totale'));
+            
+            // Crea il contenuto per la stampa
+            let printContent = `
+                <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
+                    <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
+                        <h1 style="margin: 0; color: #333;">Privilege Cafè&Wine</h1>
+                        <p style="margin: 5px 0; color: #666;">Via Roma 123, Milano - Tel: 02 1234567</p>
+                        <h2 style="margin: 20px 0; color: #ff6b6b;">${tipo.toUpperCase()} N. ${numero}</h2>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <div>
+                                <strong>Cliente:</strong> ${cliente}<br>
+                                <strong>Data:</strong> ${data}
+                            </div>
+                            <div style="text-align: right;">
+                                <strong>Numero:</strong> ${numero}<br>
+                                <strong>Tipo:</strong> ${tipo.toUpperCase()}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 12px; border: 1px solid #ddd; text-align: left;">Prodotto/Servizio</th>
+                                <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">Q.tà</th>
+                                <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">Prezzo Unit.</th>
+                                <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">Sconto</th>
+                                <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">Imponibile</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            righeProdotto.forEach(riga => {
+                printContent += `
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd;">${riga.prodotto}</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${riga.quantita}</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${riga.prezzoUnitario.toFixed(2)}</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${riga.sconto}%</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${riga.imponibile.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            
+            printContent += `
+                        </tbody>
+                    </table>
+                    
+                    <div style="text-align: right; margin-top: 30px;">
+                        <div style="margin-bottom: 10px;">
+                            <strong>Imponibile:</strong> €${imponibile.toFixed(2)}
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <strong>IVA:</strong> €${iva.toFixed(2)}
+                        </div>
+                        <div style="font-size: 18px; font-weight: bold; border-top: 2px solid #333; padding-top: 10px;">
+                            <strong>TOTALE:</strong> €${totale.toFixed(2)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Crea una nuova finestra per la stampa
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${tipo.toUpperCase()} ${numero}</title>
+                    <style>
+                        body { margin: 0; padding: 20px; }
+                        @media print {
+                            body { margin: 0; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            
+            // Stampa automatica
+            setTimeout(() => {
+                printWindow.print();
+            }, 500);
         }
 
         // Aggiorna tabella fatture
@@ -2391,8 +3315,10 @@
                 case 'clienti':
                     return {
                         id: Date.now() + Math.random(),
-                        nome: row['Nome'] || '',
-                        cognome: row['Cognome'] || '',
+                        nomeAzienda: row['Nome Azienda'] || '',
+                        tipologia: row['Tipologia'] || 'privato',
+                        nome: row['Nome Referente'] || row['Nome'] || '',
+                        cognome: row['Cognome Referente'] || row['Cognome'] || '',
                         email: row['Email'] || '',
                         telefono: row['Telefono'] || '',
                         indirizzo: row['Indirizzo'] || '',
@@ -2404,11 +3330,16 @@
                 case 'fatture':
                     return {
                         id: Date.now() + Math.random(),
+                        tipo: row['Tipo'] ? row['Tipo'].toLowerCase() : 'fattura',
                         numero: row['Numero'] || '',
                         cliente: row['Cliente'] || '',
                         data: row['Data'] || new Date().toISOString().split('T')[0],
-                        scadenza: row['Scadenza'] || new Date().toISOString().split('T')[0],
-                        importo: parseFloat(row['Importo']) || 0,
+                        scadenza: row['Scadenza'] || '',
+                        aliquotaIva: 22,
+                        imponibile: parseFloat(row['Imponibile']) || 0,
+                        iva: parseFloat(row['IVA']) || 0,
+                        totale: parseFloat(row['Totale']) || 0,
+                        prodotti: [],
                         stato: row['Stato'] || 'in_attesa',
                         note: row['Note'] || ''
                     };
@@ -2458,7 +3389,7 @@
                 case 'clienti':
                     return clienti.some(c => c.email === item.email && c.nome === item.nome);
                 case 'fatture':
-                    return fatture.some(f => f.numero === item.numero);
+                    return documenti.some(d => d.numero === item.numero);
                 case 'prodotti':
                     return prodotti.some(p => p.nome === item.nome && p.marca === item.marca);
                 case 'vini':
@@ -2475,7 +3406,7 @@
                     clienti.push(item);
                     break;
                 case 'fatture':
-                    fatture.push(item);
+                    documenti.push(item);
                     break;
                 case 'prodotti':
                     prodotti.push(item);
@@ -2503,8 +3434,10 @@
             switch(type) {
                 case 'clienti':
                     data = clienti.map(c => ({
-                        'Nome': c.nome,
-                        'Cognome': c.cognome,
+                        'Nome Azienda': c.nomeAzienda || '',
+                        'Tipologia': c.tipologia || 'privato',
+                        'Nome Referente': c.nome,
+                        'Cognome Referente': c.cognome,
                         'Email': c.email,
                         'Telefono': c.telefono,
                         'Indirizzo': c.indirizzo,
@@ -2514,21 +3447,24 @@
                         'Note': c.note
                     }));
                     filename = 'Clienti_Tommy.xlsx';
-                    columnWidths = [20, 20, 30, 15, 25, 15, 10, 15, 40];
+                    columnWidths = [25, 15, 20, 20, 30, 15, 25, 15, 10, 15, 40];
                     break;
                     
                 case 'fatture':
-                    data = fatture.map(f => ({
-                        'Numero': f.numero,
-                        'Cliente': f.cliente,
-                        'Data': f.data,
-                        'Scadenza': f.scadenza,
-                        'Importo': f.importo,
-                        'Stato': f.stato,
-                        'Note': f.note
+                    data = documenti.map(d => ({
+                        'Tipo': d.tipo.toUpperCase(),
+                        'Numero': d.numero,
+                        'Cliente': d.cliente,
+                        'Data': d.data,
+                        'Scadenza': d.scadenza || '',
+                        'Imponibile': d.imponibile,
+                        'IVA': d.iva,
+                        'Totale': d.totale,
+                        'Stato': d.stato,
+                        'Note': d.note || ''
                     }));
-                    filename = 'Fatture_Tommy.xlsx';
-                    columnWidths = [15, 25, 12, 12, 12, 15, 40];
+                    filename = 'Documenti_Tommy.xlsx';
+                    columnWidths = [15, 15, 25, 12, 12, 12, 12, 12, 15, 40];
                     break;
                     
                 case 'prodotti':
@@ -3008,6 +3944,11 @@
 
         // Inizializzazione migliorata
         document.addEventListener('DOMContentLoaded', async function() {
+            // Event listener per il campo tipologia
+            const tipologiaSelect = document.querySelector('select[name="tipologia"]');
+            if (tipologiaSelect) {
+                tipologiaSelect.addEventListener('change', toggleNomeAzienda);
+            }
             try {
                 // Pre-configurazione GitHub all'avvio
                 localStorage.setItem('tommy_gist_id', 'ed140f6366c097f54410d096017bb51b');
