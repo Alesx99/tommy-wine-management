@@ -1826,40 +1826,229 @@
             };
         }
 
-        // Carica dati dal localStorage all'avvio con sincronizzazione
+        // Carica dati dal localStorage all'avvio con sincronizzazione robusta
         async function loadDataFromStorage() {
             try {
                 showLoading(true);
+                console.log('🔄 Avvio caricamento dati...');
                 
-                // Carica dati locali
+                // Carica dati locali con validazione
                 const savedClienti = localStorage.getItem('tommy_clienti');
                 const savedDocumenti = localStorage.getItem('tommy_documenti');
                 const savedProdotti = localStorage.getItem('tommy_prodotti');
                 const savedVini = localStorage.getItem('tommy_vini');
                 
-                if (savedClienti) clienti = JSON.parse(savedClienti);
-                if (savedDocumenti) documenti = JSON.parse(savedDocumenti);
-                if (savedProdotti) prodotti = JSON.parse(savedProdotti);
-                if (savedVini) vini = JSON.parse(savedVini);
+                // Validazione e caricamento dati
+                if (savedClienti) {
+                    try {
+                        clienti = JSON.parse(savedClienti);
+                        console.log(`✅ Clienti caricati: ${clienti.length} record`);
+                    } catch (e) {
+                        console.error('❌ Errore parsing clienti:', e);
+                        clienti = [];
+                    }
+                }
                 
-                // Controlla se ci sono dati più recenti nel cloud
-                await checkForCloudUpdates();
+                if (savedDocumenti) {
+                    try {
+                        documenti = JSON.parse(savedDocumenti);
+                        console.log(`✅ Documenti caricati: ${documenti.length} record`);
+                    } catch (e) {
+                        console.error('❌ Errore parsing documenti:', e);
+                        documenti = [];
+                    }
+                }
+                
+                if (savedProdotti) {
+                    try {
+                        prodotti = JSON.parse(savedProdotti);
+                        console.log(`✅ Prodotti caricati: ${prodotti.length} record`);
+                    } catch (e) {
+                        console.error('❌ Errore parsing prodotti:', e);
+                        prodotti = [];
+                    }
+                }
+                
+                if (savedVini) {
+                    try {
+                        vini = JSON.parse(savedVini);
+                        console.log(`✅ Vini caricati: ${vini.length} record`);
+                    } catch (e) {
+                        console.error('❌ Errore parsing vini:', e);
+                        vini = [];
+                    }
+                }
+                
+                // Sync forzato all'avvio
+                console.log('🔄 Avvio sincronizzazione forzata...');
+                await forceSyncOnStartup();
                 
                 // Aggiorna le tabelle
                 updateAllTables();
-                showNotification('Dati caricati con successo!', 'success');
+                showNotification('✅ Dati caricati e sincronizzati con successo!', 'success');
                 
                 // Avvia il sistema di sincronizzazione
                 startSyncSystem();
                 
+                // Imposta il salvataggio automatico alla chiusura
+                setupAutoSaveOnClose();
+                
             } catch (error) {
-                console.error('Errore nel caricamento dati:', error);
-                showNotification('Errore nel caricamento dei dati salvati', 'error');
+                console.error('❌ Errore nel caricamento dati:', error);
+                showNotification('❌ Errore nel caricamento dei dati salvati', 'error');
             } finally {
                 showLoading(false);
             }
         }
         
+        // Sync forzato all'avvio con controllo completo
+        async function forceSyncOnStartup() {
+            try {
+                console.log('🔄 Controllo aggiornamenti cloud...');
+                
+                // Prima controlla GitHub Gist se configurato
+                if (GITHUB_CONFIG.enabled && GITHUB_CONFIG.token && GITHUB_CONFIG.gistId) {
+                    console.log('📡 Controllo GitHub Gist...');
+                    const githubData = await loadFromGitHubGist();
+                    if (githubData) {
+                        const localTimestamp = localStorage.getItem('tommy_last_sync');
+                        const githubTime = githubData.lastModified;
+                        const localTime = parseInt(localTimestamp) || 0;
+                        
+                        console.log(`📊 Timestamp locale: ${localTime}, GitHub: ${githubTime}`);
+                        
+                        if (githubTime > localTime && githubData.deviceId !== deviceId) {
+                            console.log('✅ Aggiornamento dati da GitHub...');
+                            
+                            // Aggiorna i dati locali con quelli di GitHub
+                            clienti = githubData.clienti || clienti;
+                            documenti = githubData.documenti || documenti;
+                            prodotti = githubData.prodotti || prodotti;
+                            vini = githubData.vini || vini;
+                            
+                            // Salva i dati aggiornati localmente
+                            saveAllDataToLocalStorage();
+                            localStorage.setItem('tommy_last_sync', githubTime.toString());
+                            
+                            console.log('✅ Sincronizzazione GitHub completata');
+                            showNotification('📡 Dati sincronizzati da GitHub!', 'success');
+                            return true;
+                        } else {
+                            console.log('ℹ️ Nessun aggiornamento necessario da GitHub');
+                        }
+                    }
+                }
+                
+                // Fallback: controlla localStorage cloud
+                console.log('📡 Controllo localStorage cloud...');
+                const cloudData = localStorage.getItem('tommy_cloud_data');
+                const cloudTimestamp = localStorage.getItem('tommy_cloud_timestamp');
+                const localTimestamp = localStorage.getItem('tommy_last_sync');
+                
+                if (cloudData && cloudTimestamp && localTimestamp) {
+                    const cloudTime = parseInt(cloudTimestamp);
+                    const localTime = parseInt(localTimestamp);
+                    
+                    console.log(`📊 Timestamp locale: ${localTime}, Cloud: ${cloudTime}`);
+                    
+                    if (cloudTime > localTime) {
+                        // Ci sono dati più recenti nel cloud
+                        const cloudDataObj = JSON.parse(cloudData);
+                        
+                        // Verifica che i dati non siano dello stesso dispositivo
+                        if (cloudDataObj.deviceId !== deviceId) {
+                            console.log('✅ Aggiornamento dati dal cloud...');
+                            
+                            // Aggiorna i dati locali con quelli del cloud
+                            clienti = cloudDataObj.clienti || clienti;
+                            documenti = cloudDataObj.documenti || documenti;
+                            prodotti = cloudDataObj.prodotti || prodotti;
+                            vini = cloudDataObj.vini || vini;
+                            
+                            // Salva i dati aggiornati localmente
+                            saveAllDataToLocalStorage();
+                            localStorage.setItem('tommy_last_sync', cloudTimestamp);
+                            
+                            console.log('✅ Sincronizzazione cloud completata');
+                            showNotification('📡 Dati sincronizzati dal cloud!', 'success');
+                            return true;
+                        }
+                    }
+                }
+                
+                console.log('ℹ️ Nessun aggiornamento necessario');
+                return false;
+                
+            } catch (error) {
+                console.error('❌ Errore nel sync forzato:', error);
+                showNotification('⚠️ Errore sincronizzazione - Dati locali mantenuti', 'warning');
+                return false;
+            }
+        }
+
+        // Salva tutti i dati nel localStorage con validazione
+        function saveAllDataToLocalStorage() {
+            try {
+                const timestamp = Date.now();
+                
+                // Validazione dati prima del salvataggio
+                const validatedClienti = Array.isArray(clienti) ? clienti : [];
+                const validatedDocumenti = Array.isArray(documenti) ? documenti : [];
+                const validatedProdotti = Array.isArray(prodotti) ? prodotti : [];
+                const validatedVini = Array.isArray(vini) ? vini : [];
+                
+                // Salvataggio con validazione
+                localStorage.setItem('tommy_clienti', JSON.stringify(validatedClienti));
+                localStorage.setItem('tommy_documenti', JSON.stringify(validatedDocumenti));
+                localStorage.setItem('tommy_prodotti', JSON.stringify(validatedProdotti));
+                localStorage.setItem('tommy_vini', JSON.stringify(validatedVini));
+                localStorage.setItem('tommy_last_sync', timestamp.toString());
+                localStorage.setItem('tommy_device_id', deviceId);
+                
+                console.log(`💾 Dati salvati: ${validatedClienti.length} clienti, ${validatedDocumenti.length} documenti, ${validatedProdotti.length} prodotti, ${validatedVini.length} vini`);
+                
+                return true;
+            } catch (error) {
+                console.error('❌ Errore salvataggio localStorage:', error);
+                return false;
+            }
+        }
+
+        // Imposta salvataggio automatico alla chiusura
+        function setupAutoSaveOnClose() {
+            // Salvataggio automatico alla chiusura della finestra
+            window.addEventListener('beforeunload', function(e) {
+                console.log('🔄 Salvataggio automatico alla chiusura...');
+                saveDataToStorage();
+                createBackup(); // Crea backup prima della chiusura
+                
+                // Mostra messaggio di conferma
+                e.preventDefault();
+                e.returnValue = 'I dati non salvati andranno persi. Sei sicuro di voler chiudere?';
+                return e.returnValue;
+            });
+            
+            // Salvataggio automatico quando la pagina perde il focus
+            window.addEventListener('blur', function() {
+                console.log('🔄 Salvataggio automatico (perdita focus)...');
+                saveDataToStorage();
+            });
+            
+            // Salvataggio automatico ogni 30 secondi
+            setInterval(() => {
+                console.log('🔄 Salvataggio automatico periodico...');
+                saveDataToStorage();
+            }, 30000);
+            
+            // Backup automatico ogni 5 minuti
+            setInterval(() => {
+                console.log('💾 Backup automatico...');
+                createBackup();
+            }, 300000); // 5 minuti
+            
+            console.log('✅ Sistema di salvataggio automatico configurato');
+        }
+
         // Controlla aggiornamenti dal cloud
         async function checkForCloudUpdates() {
             try {
@@ -1928,11 +2117,17 @@
             }
         }
         
-        // Avvia il sistema di sincronizzazione
+        // Avvia il sistema di sincronizzazione robusto
         function startSyncSystem() {
+            console.log('🔄 Avvio sistema di sincronizzazione...');
+            
+            // Verifica integrità dati all'avvio
+            verifyDataIntegrity();
+            
             // Controlla aggiornamenti ogni 30 secondi
             syncInterval = setInterval(async () => {
                 if (isOnline) {
+                    console.log('🔄 Controllo aggiornamenti periodico...');
                     await checkForCloudUpdates();
                 }
             }, 30000);
@@ -1940,6 +2135,7 @@
             // Ascolta eventi di connessione
             window.addEventListener('online', () => {
                 isOnline = true;
+                console.log('🌐 Connessione ripristinata');
                 showNotification('🌐 Connessione ripristinata - Sincronizzazione attiva', 'success');
                 checkForCloudUpdates();
                 updateSyncIndicator();
@@ -1947,6 +2143,7 @@
             
             window.addEventListener('offline', () => {
                 isOnline = false;
+                console.log('📡 Modalità offline');
                 showNotification('📡 Modalità offline - Dati salvati localmente', 'warning');
                 updateSyncIndicator();
             });
@@ -1958,6 +2155,8 @@
                 // Ignora le proprie modifiche
                 if (sourceDeviceId === deviceId) return;
                 
+                console.log('🔄 Dati ricevuti da altro dispositivo');
+                
                 // Aggiorna i dati se sono più recenti
                 if (timestamp > lastSyncTime) {
                     clienti = data.clienti || clienti;
@@ -1965,11 +2164,8 @@
                     prodotti = data.prodotti || prodotti;
                     vini = data.vini || vini;
                     
-                    // Salva localmente
-                    localStorage.setItem('tommy_clienti', JSON.stringify(clienti));
-                    localStorage.setItem('tommy_documenti', JSON.stringify(documenti));
-                    localStorage.setItem('tommy_prodotti', JSON.stringify(prodotti));
-                    localStorage.setItem('tommy_vini', JSON.stringify(vini));
+                    // Salva localmente con validazione
+                    saveAllDataToLocalStorage();
                     localStorage.setItem('tommy_last_sync', timestamp.toString());
                     
                     // Aggiorna le tabelle
@@ -1978,6 +2174,122 @@
                     showNotification('🔄 Dati aggiornati da altro dispositivo', 'info');
                 }
             });
+            
+            console.log('✅ Sistema di sincronizzazione avviato');
+        }
+
+        // Verifica integrità dei dati
+        function verifyDataIntegrity() {
+            console.log('🔍 Verifica integrità dati...');
+            
+            let issues = [];
+            
+            // Verifica che tutti i dati siano array
+            if (!Array.isArray(clienti)) {
+                issues.push('Clienti non è un array valido');
+                clienti = [];
+            }
+            
+            if (!Array.isArray(documenti)) {
+                issues.push('Documenti non è un array valido');
+                documenti = [];
+            }
+            
+            if (!Array.isArray(prodotti)) {
+                issues.push('Prodotti non è un array valido');
+                prodotti = [];
+            }
+            
+            if (!Array.isArray(vini)) {
+                issues.push('Vini non è un array valido');
+                vini = [];
+            }
+            
+            // Verifica ID univoci
+            const clientiIds = clienti.map(c => c.id).filter((id, index, arr) => arr.indexOf(id) !== index);
+            const documentiIds = documenti.map(d => d.id).filter((id, index, arr) => arr.indexOf(id) !== index);
+            const prodottiIds = prodotti.map(p => p.id).filter((id, index, arr) => arr.indexOf(id) !== index);
+            const viniIds = vini.map(v => v.id).filter((id, index, arr) => arr.indexOf(id) !== index);
+            
+            if (clientiIds.length > 0) issues.push(`ID duplicati nei clienti: ${clientiIds.join(', ')}`);
+            if (documentiIds.length > 0) issues.push(`ID duplicati nei documenti: ${documentiIds.join(', ')}`);
+            if (prodottiIds.length > 0) issues.push(`ID duplicati nei prodotti: ${prodottiIds.join(', ')}`);
+            if (viniIds.length > 0) issues.push(`ID duplicati nei vini: ${viniIds.join(', ')}`);
+            
+            if (issues.length > 0) {
+                console.warn('⚠️ Problemi di integrità trovati:', issues);
+                showNotification(`⚠️ ${issues.length} problemi di integrità risolti`, 'warning');
+                
+                // Salva i dati corretti
+                saveAllDataToLocalStorage();
+            } else {
+                console.log('✅ Integrità dati verificata - Nessun problema trovato');
+            }
+        }
+
+        // Backup automatico dei dati
+        function createBackup() {
+            try {
+                const backupData = {
+                    clienti: clienti,
+                    documenti: documenti,
+                    prodotti: prodotti,
+                    vini: vini,
+                    timestamp: Date.now(),
+                    deviceId: deviceId,
+                    version: '1.0'
+                };
+                
+                const backupKey = `tommy_backup_${Date.now()}`;
+                localStorage.setItem(backupKey, JSON.stringify(backupData));
+                
+                // Mantieni solo gli ultimi 5 backup
+                const backupKeys = Object.keys(localStorage).filter(key => key.startsWith('tommy_backup_'));
+                if (backupKeys.length > 5) {
+                    backupKeys.sort().slice(0, -5).forEach(key => localStorage.removeItem(key));
+                }
+                
+                console.log('💾 Backup creato:', backupKey);
+                return true;
+            } catch (error) {
+                console.error('❌ Errore creazione backup:', error);
+                return false;
+            }
+        }
+
+        // Ripristina da backup
+        function restoreFromBackup(backupKey) {
+            try {
+                const backupData = localStorage.getItem(backupKey);
+                if (!backupData) {
+                    throw new Error('Backup non trovato');
+                }
+                
+                const backup = JSON.parse(backupData);
+                
+                // Verifica integrità backup
+                if (!backup.clienti || !backup.documenti || !backup.prodotti || !backup.vini) {
+                    throw new Error('Backup corrotto');
+                }
+                
+                // Ripristina i dati
+                clienti = backup.clienti;
+                documenti = backup.documenti;
+                prodotti = backup.prodotti;
+                vini = backup.vini;
+                
+                // Salva i dati ripristinati
+                saveAllDataToLocalStorage();
+                updateAllTables();
+                
+                console.log('✅ Ripristino da backup completato:', backupKey);
+                showNotification('✅ Dati ripristinati da backup', 'success');
+                return true;
+            } catch (error) {
+                console.error('❌ Errore ripristino backup:', error);
+                showNotification('❌ Errore nel ripristino da backup', 'error');
+                return false;
+            }
         }
 
         // Funzione per aggiungere i dati dell'azienda di Tommaso
@@ -2026,10 +2338,19 @@
             updateAllTables();
         }
 
-                // Salva dati nel localStorage con gestione errori e sincronizzazione
+                // Salva dati nel localStorage con gestione errori e sincronizzazione robusta
         function saveDataToStorage() {
             try {
+                console.log('💾 Avvio salvataggio dati...');
                 const timestamp = Date.now();
+                
+                // Salvataggio validato nel localStorage
+                const saveSuccess = saveAllDataToLocalStorage();
+                if (!saveSuccess) {
+                    throw new Error('Errore nel salvataggio localStorage');
+                }
+                
+                // Prepara dati per il cloud
                 const dataToSave = {
                     clienti: clienti,
                     documenti: documenti,
@@ -2039,22 +2360,17 @@
                     deviceId: deviceId
                 };
                 
-                localStorage.setItem('tommy_clienti', JSON.stringify(clienti));
-                localStorage.setItem('tommy_documenti', JSON.stringify(documenti));
-                localStorage.setItem('tommy_prodotti', JSON.stringify(prodotti));
-                localStorage.setItem('tommy_vini', JSON.stringify(vini));
-                localStorage.setItem('tommy_last_sync', timestamp.toString());
-                localStorage.setItem('tommy_device_id', deviceId);
-                
                 // Salva anche nel cloud storage se disponibile
                 saveToCloudStorage(dataToSave);
                 
                 // Aggiorna il timestamp dell'ultima modifica
                 lastSyncTime = timestamp;
                 
+                console.log('✅ Salvataggio completato con successo');
+                
             } catch (error) {
-                console.error('Errore nel salvataggio:', error);
-                showNotification('Errore nel salvataggio dei dati', 'error');
+                console.error('❌ Errore nel salvataggio:', error);
+                showNotification('❌ Errore nel salvataggio dei dati', 'error');
             }
         }
         
@@ -4845,16 +5161,70 @@
                 indicator.style.color = '#ffc107';
             }
         }
+
+        // Mostra statistiche sincronizzazione
+        function showSyncStats() {
+            const stats = {
+                clienti: clienti.length,
+                documenti: documenti.length,
+                prodotti: prodotti.length,
+                vini: vini.length,
+                lastSync: localStorage.getItem('tommy_last_sync'),
+                deviceId: deviceId,
+                isOnline: isOnline,
+                backupCount: Object.keys(localStorage).filter(key => key.startsWith('tommy_backup_')).length
+            };
+            
+            console.log('📊 Statistiche sincronizzazione:', stats);
+            
+            const message = `
+                📊 Statistiche Sincronizzazione:
+                
+                📋 Dati:
+                • Clienti: ${stats.clienti}
+                • Documenti: ${stats.documenti}
+                • Prodotti: ${stats.prodotti}
+                • Vini: ${stats.vini}
+                
+                🔄 Sincronizzazione:
+                • Stato: ${stats.isOnline ? '🌐 Online' : '📡 Offline'}
+                • Ultimo sync: ${stats.lastSync ? new Date(parseInt(stats.lastSync)).toLocaleString() : 'Mai'}
+                • Device ID: ${stats.deviceId}
+                • Backup disponibili: ${stats.backupCount}
+            `;
+            
+            alert(message);
+        }
         
         // Funzione per forzare la sincronizzazione
         async function forceSync() {
             try {
                 showLoading(true);
-                await checkForCloudUpdates();
-                await saveDataToStorage();
-                showNotification('🔄 Sincronizzazione forzata completata!', 'success');
+                console.log('🔄 Avvio sincronizzazione forzata...');
+                
+                // Verifica integrità dati prima del sync
+                verifyDataIntegrity();
+                
+                // Controlla aggiornamenti dal cloud
+                const hasUpdates = await forceSyncOnStartup();
+                
+                // Salva i dati locali
+                saveDataToStorage();
+                
+                // Crea backup
+                createBackup();
+                
+                if (hasUpdates) {
+                    showNotification('🔄 Sincronizzazione completata con aggiornamenti!', 'success');
+                } else {
+                    showNotification('🔄 Sincronizzazione completata!', 'success');
+                }
+                
+                // Mostra statistiche
+                showSyncStats();
+                
             } catch (error) {
-                console.error('Errore nella sincronizzazione forzata:', error);
+                console.error('❌ Errore nella sincronizzazione forzata:', error);
                 showNotification('❌ Errore nella sincronizzazione', 'error');
             } finally {
                 showLoading(false);
