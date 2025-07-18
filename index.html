@@ -4249,6 +4249,16 @@
                 tab.classList.remove('active');
             });
 
+            // Assicurati che la sezione benvenuto sia sempre nascosta per admin
+            if (currentUser === 'admin') {
+                const benvenutoSection = document.getElementById('benvenuto');
+                if (benvenutoSection) {
+                    benvenutoSection.style.display = 'none';
+                    benvenutoSection.classList.remove('active');
+                    benvenutoSection.classList.remove('guest-only');
+                }
+            }
+
             // Mostra la tab selezionata
             document.getElementById(tabName).classList.add('active');
             
@@ -4338,6 +4348,14 @@
                 const benvenutoSection = document.getElementById('benvenuto');
                 if (benvenutoSection) {
                     benvenutoSection.style.display = 'none';
+                    benvenutoSection.classList.remove('active');
+                    benvenutoSection.classList.remove('guest-only');
+                }
+                
+                // Rimuovi la classe active dalla tab benvenuto per admin
+                const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
+                if (benvenutoTab) {
+                    benvenutoTab.classList.remove('active');
                 }
                 
                 // Mostra elementi admin
@@ -4374,12 +4392,14 @@
                 navTabs.appendChild(prodottiTab);
                 navTabs.appendChild(viniTab);
                 
-                // Imposta la scheda Benvenuto come attiva
-                benvenutoTab.classList.add('active');
-                document.querySelectorAll('.tab-content').forEach(tab => {
-                    tab.classList.remove('active');
-                });
-                document.getElementById('benvenuto').classList.add('active');
+                // Imposta la scheda Benvenuto come attiva solo per ospiti
+                if (currentUser === 'guest') {
+                    benvenutoTab.classList.add('active');
+                    document.querySelectorAll('.tab-content').forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                    document.getElementById('benvenuto').classList.add('active');
+                }
             }
         }
 
@@ -4422,6 +4442,15 @@
             } else {
                 // Per gli admin, comportamento normale
                 showTab(section);
+                
+                // Assicurati che la sezione benvenuto sia sempre nascosta per admin
+                if (section !== 'benvenuto') {
+                    const benvenutoSection = document.getElementById('benvenuto');
+                    if (benvenutoSection) {
+                        benvenutoSection.style.display = 'none';
+                        benvenutoSection.classList.remove('active');
+                    }
+                }
             }
         }
 
@@ -9200,6 +9229,14 @@
             const benvenutoTabElement = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
             if (benvenutoTabElement) benvenutoTabElement.style.display = 'none';
             
+            // Nascondi specificamente la sezione benvenuto per admin
+            const benvenutoSection = document.getElementById('benvenuto');
+            if (benvenutoSection) {
+                benvenutoSection.style.display = 'none';
+                benvenutoSection.classList.remove('active');
+                benvenutoSection.classList.remove('guest-only');
+            }
+            
             document.getElementById('securityToggle').style.display = 'block';
             
             // Mostra form di inserimento per admin
@@ -9274,16 +9311,17 @@
                 benvenutoTab.classList.add('guest-only');
             }
             
-                            // Mostra la sezione benvenuto per ospiti
-                const benvenutoSection = document.getElementById('benvenuto');
-                if (benvenutoSection) {
-                    benvenutoSection.style.display = 'block';
-                    benvenutoSection.classList.add('guest-only');
-                    // Aggiorna le statistiche della sezione benvenuto
-                    setTimeout(() => {
-                        updateWelcomeStats();
-                    }, 100);
-                }
+                                        // Mostra la sezione benvenuto per ospiti
+            const benvenutoSection = document.getElementById('benvenuto');
+            if (benvenutoSection) {
+                benvenutoSection.style.display = 'block';
+                benvenutoSection.classList.add('guest-only');
+                benvenutoSection.classList.add('active');
+                // Aggiorna le statistiche della sezione benvenuto
+                setTimeout(() => {
+                    updateWelcomeStats();
+                }, 100);
+            }
             
             // Riorganizza l'ordine delle schede per ospiti: Benvenuto, Prodotti, Vini
             organizeTabsForGuest();
