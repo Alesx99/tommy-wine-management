@@ -1562,6 +1562,80 @@
             }
         }
 
+        /* Clienti table specific styles */
+        #clientiTable {
+            min-width: 1100px;
+        }
+
+        #clientiTable th,
+        #clientiTable td {
+            padding: var(--spacing-md) var(--spacing-sm);
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        #clientiTable th {
+            background: var(--border-light);
+            font-weight: 600;
+            color: var(--text-primary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #clientiTable td {
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        #clientiTable tr:hover {
+            background: var(--border-light);
+        }
+
+        /* Sticky actions column for clienti table */
+        #clientiTable th:last-child,
+        #clientiTable td:last-child {
+            position: sticky;
+            right: 0;
+            background: var(--surface-color);
+            z-index: 15;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            min-width: 140px;
+        }
+
+        /* Ensure buttons are always visible and compact for clienti */
+        #clientiTable td:last-child .btn {
+            margin: 2px;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 0.75rem;
+            white-space: nowrap;
+            min-width: 60px;
+        }
+
+        /* Responsive adjustments for clienti table */
+        @media (max-width: 1200px) {
+            #clientiTable {
+                min-width: 900px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #clientiTable {
+                min-width: 700px;
+                font-size: 0.875rem;
+            }
+            
+            #clientiTable th,
+            #clientiTable td {
+                padding: var(--spacing-sm) var(--spacing-xs);
+            }
+
+            #clientiTable td:last-child .btn {
+                padding: var(--spacing-xs);
+                font-size: 0.7rem;
+                min-width: 50px;
+            }
+        }
+
         /* Censorship and Security System */
         .censored {
             color: transparent;
@@ -2302,26 +2376,24 @@
                 <h4>📋 Lista Clienti</h4>
                 
                 <!-- Tabella con scroll orizzontale -->
-                <div class="table-container">
-                    <div class="table-wrapper">
-                        <table id="clientiTable" class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Nome Azienda</th>
-                                    <th>Tipologia</th>
-                                    <th>Nome Referente</th>
-                                    <th>Cognome Referente</th>
-                                    <th>Email</th>
-                                    <th>Telefono</th>
-                                    <th>Città</th>
-                                    <th>Data Registrazione</th>
-                                    <th>Note</th>
-                                    <th>Azioni</th>
-                                </tr>
-                            </thead>
-                            <tbody id="clientiTableBody"></tbody>
-                        </table>
-                    </div>
+                <div class="table-scroll-container">
+                    <table id="clientiTable" class="data-table scrollable-table" role="table" aria-label="Tabella dati clienti">
+                        <thead>
+                            <tr role="row">
+                                <th role="columnheader">Nome Azienda</th>
+                                <th role="columnheader">Tipologia</th>
+                                <th role="columnheader">Nome Referente</th>
+                                <th role="columnheader">Cognome Referente</th>
+                                <th role="columnheader">Email</th>
+                                <th role="columnheader">Telefono</th>
+                                <th role="columnheader">Città</th>
+                                <th role="columnheader">Data Registrazione</th>
+                                <th role="columnheader">Note</th>
+                                <th role="columnheader">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientiTableBody"></tbody>
+                    </table>
                 </div>
                 
 
@@ -4465,19 +4537,20 @@
                 
                 clienti.forEach(cliente => {
                     const row = document.createElement('tr');
+                    row.setAttribute('role', 'row');
                     row.innerHTML = `
-                        <td>${cliente.nomeAzienda || '-'}</td>
-                        <td>${cliente.tipologia || 'privato'}</td>
-                        <td>${cliente.nome || ''}</td>
-                        <td>${cliente.cognome || ''}</td>
-                        <td>${cliente.email || ''}</td>
-                        <td>${cliente.telefono || ''}</td>
-                        <td>${cliente.citta || ''}</td>
-                        <td>${cliente.dataRegistrazione || ''}</td>
-                        <td>${cliente.note || ''}</td>
-                        <td>
-                            <button class="btn btn-sm btn-warning" onclick="editCliente(${cliente.id})">✏️ Modifica</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteCliente(${cliente.id})">🗑️ Elimina</button>
+                        <td role="cell">${cliente.nomeAzienda || '-'}</td>
+                        <td role="cell">${cliente.tipologia || 'privato'}</td>
+                        <td role="cell">${cliente.nome || ''}</td>
+                        <td role="cell">${cliente.cognome || ''}</td>
+                        <td role="cell">${cliente.email || ''}</td>
+                        <td role="cell">${cliente.telefono || ''}</td>
+                        <td role="cell">${cliente.citta || ''}</td>
+                        <td role="cell">${cliente.dataRegistrazione || ''}</td>
+                        <td role="cell">${cliente.note || ''}</td>
+                        <td role="cell">
+                            <button class="btn btn-sm btn-warning" onclick="editCliente(${cliente.id})" title="Modifica cliente">✏️ Modifica</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCliente(${cliente.id})" title="Elimina cliente">🗑️ Elimina</button>
                         </td>
                     `;
                     tbody.appendChild(row);
