@@ -2383,7 +2383,7 @@
         </div>
 
         <!-- TAB CLIENTI -->
-        <div id="clienti" class="tab-content active admin-only">
+        <div id="clienti" class="tab-content admin-only">
             <div class="form-section">
                 <h3>📝 Inserimento Nuovo Cliente</h3>
                 <form id="clienteForm">
@@ -4339,11 +4339,10 @@
                 return;
             }
             
-            // Nascondi tutte le tab e rimuovi le classi active
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-                tab.style.display = 'none';
-            });
+            // Forza il nascondimento di TUTTE le sezioni prima di mostrare quella selezionata
+            forceHideAllSections();
+            
+            // Rimuovi le classi active da tutte le tab
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -4356,6 +4355,7 @@
                     benvenutoSection.style.display = 'none';
                     benvenutoSection.classList.remove('active');
                     benvenutoSection.classList.remove('guest-only');
+                    benvenutoSection.setAttribute('style', 'display: none !important');
                 }
                 
                 // Nascondi la tab benvenuto per admin
@@ -4404,6 +4404,7 @@
                         section.style.display = 'none';
                         section.classList.remove('active');
                         section.classList.add('admin-only');
+                        section.setAttribute('style', 'display: none !important');
                     }
                 });
                 
@@ -4415,11 +4416,12 @@
                 });
             }
             
-            // Mostra la tab selezionata
+            // Mostra SOLO la tab selezionata
             const selectedTab = document.getElementById(tabName);
             if (selectedTab) {
                 selectedTab.style.display = 'block';
                 selectedTab.classList.add('active');
+                selectedTab.setAttribute('style', 'display: block !important');
             }
             
             // Attiva il pulsante della tab corrispondente
@@ -4461,6 +4463,15 @@
             preventTabDuplication();
         }
 
+        // Funzione per forzare il nascondimento di tutte le sezioni
+        function forceHideAllSections() {
+            document.querySelectorAll('.tab-content').forEach(section => {
+                section.classList.remove('active');
+                section.style.display = 'none';
+                section.setAttribute('style', 'display: none !important');
+            });
+        }
+
         // Funzione per navigare alle sezioni dalla scheda di benvenuto
         function navigateToSection(section) {
             showTab(section);
@@ -4498,6 +4509,7 @@
                     const section = document.getElementById(sectionId);
                     if (section) {
                         section.style.display = 'none';
+                        section.classList.remove('active');
                         section.classList.add('admin-only');
                         section.classList.add('hidden-for-guest');
                     }
@@ -9005,646 +9017,6 @@
         .nav-tab.hidden-for-guest {
             display: none !important;
         }
-        
-        .hidden-for-guest {
-            display: none !important;
-        }
-        }
-        
-        /* Nascondi le card su desktop */
-        .mobile-cards {
-            display: none;
-        }
-                    </style>
-                </head>
-                <body>
-                    ${printContent}
-                </body>
-                </html>
-            `);
-            
-            printWindow.document.close();
-            printWindow.focus();
-            
-            // Stampa automatica dopo un breve delay
-            setTimeout(() => {
-                printWindow.print();
-            }, 500);
-        }
-
-        // Funzione per i colori delle categorie
-        function getCategoriaColor(categoria) {
-            const colors = {
-                distillati: 'bg-amber-100 text-amber-800',
-                liquori: 'bg-blue-100 text-blue-800',
-                vini: 'bg-wine-100 text-wine-800',
-                birre: 'bg-orange-100 text-orange-800',
-                rum: 'bg-amber-100 text-amber-800',
-                gin: 'bg-blue-100 text-blue-800',
-                vodka: 'bg-gray-100 text-gray-800',
-                whisky: 'bg-orange-100 text-orange-800',
-                tequila: 'bg-green-100 text-green-800',
-                cognac: 'bg-purple-100 text-purple-800',
-                brandy: 'bg-red-100 text-red-800',
-                amari: 'bg-red-100 text-red-800',
-                digestivi: 'bg-green-100 text-green-800',
-                creme: 'bg-pink-100 text-pink-800',
-                premium: 'bg-purple-100 text-purple-800',
-                flavored: 'bg-blue-100 text-blue-800',
-                rossi: 'bg-red-100 text-red-800',
-                bianchi: 'bg-yellow-100 text-yellow-800',
-                spumanti: 'bg-pink-100 text-pink-800',
-                dessert: 'bg-purple-100 text-purple-800',
-                fortificati: 'bg-orange-100 text-orange-800',
-                lager: 'bg-yellow-100 text-yellow-800',
-                ale: 'bg-amber-100 text-amber-800',
-                speciali: 'bg-purple-100 text-purple-800',
-                italiane: 'bg-green-100 text-green-800',
-                liquore: 'bg-pink-100 text-pink-800',
-                altro: 'bg-gray-100 text-gray-800',
-            };
-            return colors[categoria] || colors.altro;
-        }
-
-        // Inizializzazione migliorata
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Event listener per il campo tipologia
-            const tipologiaSelect = document.querySelector('select[name="tipologia"]');
-            if (tipologiaSelect) {
-                tipologiaSelect.addEventListener('change', toggleNomeAzienda);
-            }
-            try {
-                // Pre-configurazione GitHub all'avvio
-                localStorage.setItem('tommy_gist_id', 'ed140f6366c097f54410d096017bb51b');
-                localStorage.setItem('tommy_github_enabled', 'true');
-                
-                // Carica la password di sicurezza
-                loadSecurityPassword();
-                
-                // Carica i dati salvati
-                await loadDataFromStorage();
-                
-                // Aggiungi i dati dell'azienda di Tommaso
-                addTommasoCompanyData();
-                
-                // Controlla se GitHub è già configurato
-                const hasGitHubToken = localStorage.getItem('tommy_github_token');
-                
-                if (!hasGitHubToken) {
-                    // Se non c'è il token, mostra la configurazione GitHub prima del login
-                    showGitHubSetup();
-                } else {
-                    // Se c'è già il token, mostra direttamente il login
-                    showLoginModal();
-                }
-                
-                // Imposta la data di oggi come default
-                const today = new Date().toISOString().split('T')[0];
-                const dataInputs = document.querySelectorAll('input[type="date"]');
-                dataInputs.forEach(input => {
-                    if (!input.value) {
-                        input.value = today;
-                    }
-                });
-                
-                // Mostra info dispositivo
-                document.getElementById('deviceIdDisplay').textContent = deviceId.substring(0, 8) + '...';
-                
-                // Aggiorna indicatore sincronizzazione
-                updateSyncIndicator();
-                
-                // Test automatico connessione GitHub
-                setTimeout(async () => {
-                    if (GITHUB_CONFIG.enabled && GITHUB_CONFIG.token && GITHUB_CONFIG.gistId) {
-                        const success = await testGitHubConnection();
-                        if (success) {
-                            showNotification('✅ GitHub configurato e connesso!', 'success');
-                        }
-                    }
-                }, 2000);
-
-                // Event listeners per la modale di setup GitHub
-                const githubTokenSetup = document.getElementById('githubTokenSetup');
-                const gistIdSetup = document.getElementById('gistIdSetup');
-                
-                if (githubTokenSetup) {
-                    githubTokenSetup.addEventListener('keypress', function(event) {
-                        if (event.key === 'Enter') {
-                            saveGitHubSetup();
-                        } else if (event.key === 'Escape') {
-                            skipGitHubSetup();
-                        }
-                    });
-                }
-                
-                if (gistIdSetup) {
-                    gistIdSetup.addEventListener('keypress', function(event) {
-                        if (event.key === 'Enter') {
-                            saveGitHubSetup();
-                        } else if (event.key === 'Escape') {
-                            skipGitHubSetup();
-                        }
-                    });
-                }
-                
-                // Event listeners per filtri vini con debounce
-                const filterInputs = ['filterNome', 'filterProduttore', 'filterRegione', 'filterVitigno'];
-                filterInputs.forEach(id => {
-                    const element = document.getElementById(id);
-                    if (element) {
-                        element.addEventListener('input', debouncedApplyFilters);
-                    }
-                });
-                
-                // Event listeners per select vini
-                const filterSelects = ['filterTipologia', 'filterStock'];
-                filterSelects.forEach(id => {
-                    const element = document.getElementById(id);
-                    if (element) {
-                        element.addEventListener('change', applyViniFilters);
-                    }
-                });
-                
-                // Event listeners per filtri prodotti con debounce
-                const filterInputsProdotti = ['filterNomeProdotti', 'filterMarca', 'filterFornitore'];
-                filterInputsProdotti.forEach(id => {
-                    const element = document.getElementById(id);
-                    if (element) {
-                        element.addEventListener('input', debouncedApplyProdottiFilters);
-                    }
-                });
-                
-                // Event listeners per select prodotti
-                const filterSelectsProdotti = ['filterCategoriaPrincipale', 'filterStockProdotti', 'filterPrezzo'];
-                filterSelectsProdotti.forEach(id => {
-                    const element = document.getElementById(id);
-                    if (element) {
-                        element.addEventListener('change', applyProdottiFilters);
-                    }
-                });
-
-                // Validazione form migliorata
-                const forms = document.querySelectorAll('form');
-                forms.forEach(form => {
-                    form.addEventListener('submit', function(e) {
-                        const requiredFields = form.querySelectorAll('[required]');
-                        let isValid = true;
-                        
-                        requiredFields.forEach(field => {
-                            if (!field.value.trim()) {
-                                field.style.borderColor = '#dc3545';
-                                isValid = false;
-                            } else {
-                                field.style.borderColor = '#e9ecef';
-                            }
-                        });
-                        
-                        if (!isValid) {
-                            e.preventDefault();
-                            showNotification('Compila tutti i campi obbligatori', 'error');
-                        }
-                    });
-                });
-
-                showNotification('Sistema caricato con successo!', 'success');
-            } catch (error) {
-                console.error('Errore nell\'inizializzazione:', error);
-                showNotification('Errore nell\'inizializzazione del sistema', 'error');
-            }
-        });
-
-
-
-        // Debounce per filtri vini
-        const debouncedApplyFilters = debounce(applyViniFilters, 300);
-        const debouncedApplyProdottiFilters = debounce(applyProdottiFilters, 300);
-
-        function applyViniFilters() {
-            try {
-                const filterNome = document.getElementById('filterNome').value.toLowerCase();
-                const filterProduttore = document.getElementById('filterProduttore').value.toLowerCase();
-                const filterTipologia = document.getElementById('filterTipologia').value;
-                const filterRegione = document.getElementById('filterRegione').value.toLowerCase();
-                const filterVitigno = document.getElementById('filterVitigno').value.toLowerCase();
-                const filterStock = document.getElementById('filterStock').value;
-
-                const tbody = document.getElementById('viniTableBody');
-                tbody.innerHTML = '';
-                
-                let filteredCount = 0;
-                
-                vini.forEach(vino => {
-                    // Applica filtri
-                    const matchesNome = !filterNome || vino.nome.toLowerCase().includes(filterNome);
-                    const matchesProduttore = !filterProduttore || vino.produttore.toLowerCase().includes(filterProduttore);
-                    const matchesTipologia = !filterTipologia || vino.tipologia === filterTipologia;
-                    const matchesRegione = !filterRegione || (vino.regione && vino.regione.toLowerCase().includes(filterRegione));
-                    const matchesVitigno = !filterVitigno || (vino.vitigno && vino.vitigno.toLowerCase().includes(filterVitigno));
-                    
-                    // Filtro stock
-                    const stockClass = vino.quantita <= 3 ? 'stock-low' : 'stock-ok';
-                    const stockText = vino.quantita <= 3 ? 'Scorte Basse' : 'OK';
-                    const matchesStock = !filterStock || 
-                        (filterStock === 'ok' && vino.quantita > 3) ||
-                        (filterStock === 'basso' && vino.quantita <= 3);
-
-                    if (matchesNome && matchesProduttore && matchesTipologia && matchesRegione && matchesVitigno && matchesStock) {
-                        // Gestione censura prezzi di acquisto nei filtri - solo per admin
-                        let prezzoAcquistoCell = '';
-                        if (currentUser === 'admin') {
-                            const prezzoAcquistoDisplay = isSecurityActive && !isSecurityUnlocked ? 
-                                `<span class="censored">€${vino.prezzoAcquisto.toFixed(2)}</span>` : 
-                                `€${vino.prezzoAcquisto.toFixed(2)}`;
-                            prezzoAcquistoCell = `<td class="table-censored">${prezzoAcquistoDisplay}</td>`;
-                        }
-                        
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${vino.nome}</td>
-                            <td>${vino.produttore}</td>
-                            <td>${vino.annata}</td>
-                            <td>${vino.tipologia}</td>
-                            <td>${vino.regione}</td>
-                            <td>${vino.vitigno || '-'}</td>
-                            ${prezzoAcquistoCell}
-                            <td>€${vino.prezzoVenditaIngrosso.toFixed(2)}</td>
-                            <td>€${vino.prezzoVenditaDettaglio.toFixed(2)}</td>
-                            <td>${vino.quantita}</td>
-                            <td>${vino.unitaMisura || 'bottiglie'}</td>
-                            <td><span class="status-badge ${stockClass}">${stockText}</span></td>
-                            <td>${vino.note}</td>
-                            <td>
-                                <button class="btn btn-sm btn-warning" onclick="editVino(${vino.id})">✏️ Modifica</button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteVino(${vino.id})">🗑️ Elimina</button>
-                            </td>
-                        `;
-                        tbody.appendChild(row);
-                        filteredCount++;
-                    }
-                });
-                
-                // Mostra risultati
-                const totalCount = vini.length;
-                document.getElementById('filterResults').textContent = 
-                    `Risultati: ${filteredCount} di ${totalCount} vini`;
-            } catch (error) {
-                console.error('Errore nell\'applicazione filtri:', error);
-                showNotification('Errore nell\'applicazione dei filtri', 'error');
-            }
-        }
-
-        function clearViniFilters() {
-            try {
-                document.getElementById('filterNome').value = '';
-                document.getElementById('filterProduttore').value = '';
-                document.getElementById('filterTipologia').value = '';
-                document.getElementById('filterRegione').value = '';
-                document.getElementById('filterVitigno').value = '';
-                document.getElementById('filterStock').value = '';
-                document.getElementById('filterResults').textContent = '';
-                updateViniTable();
-                showNotification('Filtri cancellati', 'success');
-            } catch (error) {
-                console.error('Errore nella cancellazione filtri:', error);
-                showNotification('Errore nella cancellazione dei filtri', 'error');
-            }
-        }
-
-        function applyProdottiFilters() {
-            try {
-                const filterNome = document.getElementById('filterNomeProdotti').value.toLowerCase();
-                const filterCategoria = document.getElementById('filterCategoriaPrincipale').value;
-                const filterMarca = document.getElementById('filterMarca').value.toLowerCase();
-                const filterFornitore = document.getElementById('filterFornitore').value.toLowerCase();
-                const filterStock = document.getElementById('filterStockProdotti').value;
-                const filterPrezzo = document.getElementById('filterPrezzo').value;
-
-                const tbody = document.getElementById('prodottiTableBody');
-                tbody.innerHTML = '';
-                
-                let filteredCount = 0;
-                
-                prodotti.forEach(prodotto => {
-                    // Applica filtri
-                    const matchesNome = !filterNome || prodotto.nome.toLowerCase().includes(filterNome);
-                    const matchesCategoria = !filterCategoria || prodotto.categoriaPrincipale === filterCategoria;
-                    const matchesMarca = !filterMarca || (prodotto.marca && prodotto.marca.toLowerCase().includes(filterMarca));
-                    const matchesFornitore = !filterFornitore || (prodotto.fornitore && prodotto.fornitore.toLowerCase().includes(filterFornitore));
-                    
-                    // Filtro stock
-                    const stockClass = prodotto.quantita <= prodotto.quantitaMinima ? 'stock-low' : 'stock-ok';
-                    const stockText = prodotto.quantita <= prodotto.quantitaMinima ? 'Scorte Basse' : 'OK';
-                    const matchesStock = !filterStock || 
-                        (filterStock === 'ok' && prodotto.quantita > prodotto.quantitaMinima) ||
-                        (filterStock === 'basso' && prodotto.quantita <= prodotto.quantitaMinima);
-                    
-                    // Filtro prezzo (usa prezzo dettaglio come riferimento)
-                    let matchesPrezzo = true;
-                    if (filterPrezzo) {
-                        const prezzo = prodotto.prezzoVenditaDettaglio;
-                        if (filterPrezzo === 'basso' && prezzo >= 10) matchesPrezzo = false;
-                        else if (filterPrezzo === 'medio' && (prezzo < 10 || prezzo > 30)) matchesPrezzo = false;
-                        else if (filterPrezzo === 'alto' && prezzo <= 30) matchesPrezzo = false;
-                    }
-
-                    if (matchesNome && matchesCategoria && matchesMarca && matchesFornitore && matchesStock && matchesPrezzo) {
-                        // Gestione censura prezzi di acquisto - solo per admin
-                        let prezzoAcquistoCell = '';
-                        if (currentUser === 'admin') {
-                            const prezzoAcquistoDisplay = isSecurityActive && !isSecurityUnlocked ? 
-                                `<span class="censored">€${prodotto.prezzoAcquisto.toFixed(2)}</span>` : 
-                                `€${prodotto.prezzoAcquisto.toFixed(2)}`;
-                            prezzoAcquistoCell = `<td role="cell" class="table-censored">${prezzoAcquistoDisplay}</td>`;
-                        }
-                        
-                        const row = document.createElement('tr');
-                        row.setAttribute('role', 'row');
-                        row.innerHTML = `
-                            <td role="cell">${prodotto.nome}</td>
-                            <td role="cell">
-                                <div>
-                                    <span class="status-badge ${getCategoriaColor(prodotto.categoriaPrincipale)}">${prodotto.categoriaPrincipale.toUpperCase()}</span>
-                                    <br>
-                                    <span class="status-badge ${getCategoriaColor(prodotto.sottocategoria)}">${getSottocategoriaDisplayName(prodotto.categoriaPrincipale, prodotto.sottocategoria)}</span>
-                                </div>
-                            </td>
-                            <td role="cell">${prodotto.marca}</td>
-                            ${prezzoAcquistoCell}
-                            <td role="cell">€${prodotto.prezzoVenditaIngrosso.toFixed(2)}</td>
-                            <td role="cell">€${prodotto.prezzoVenditaDettaglio.toFixed(2)}</td>
-                            <td role="cell">${prodotto.quantita}</td>
-                            <td role="cell">${prodotto.unitaMisura || 'bottiglie'}</td>
-                            <td role="cell"><span class="status-badge ${stockClass}">${stockText}</span></td>
-                            <td role="cell">${prodotto.fornitore}</td>
-                            <td role="cell">${prodotto.note}</td>
-                            <td role="cell">
-                                <button class="btn btn-sm btn-warning" onclick="editProdotto(${prodotto.id})" title="Modifica prodotto">✏️ Modifica</button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteProdotto(${prodotto.id})" title="Elimina prodotto">🗑️ Elimina</button>
-                            </td>
-                        `;
-                        tbody.appendChild(row);
-                        filteredCount++;
-                    }
-                });
-                
-                // Mostra risultati
-                const totalCount = prodotti.length;
-                document.getElementById('filterResultsProdotti').textContent = 
-                    `Risultati: ${filteredCount} di ${totalCount} prodotti`;
-                
-
-            } catch (error) {
-                console.error('Errore nell\'applicazione filtri prodotti:', error);
-                showNotification('Errore nell\'applicazione dei filtri prodotti', 'error');
-            }
-        }
-
-        function clearProdottiFilters() {
-            try {
-                document.getElementById('filterNomeProdotti').value = '';
-                document.getElementById('filterCategoriaPrincipale').value = '';
-                document.getElementById('filterMarca').value = '';
-                document.getElementById('filterFornitore').value = '';
-                document.getElementById('filterStockProdotti').value = '';
-                document.getElementById('filterPrezzo').value = '';
-                document.getElementById('filterResultsProdotti').textContent = '';
-                updateProdottiTable();
-                showNotification('Filtri prodotti cancellati', 'success');
-            } catch (error) {
-                console.error('Errore nella cancellazione filtri prodotti:', error);
-                showNotification('Errore nella cancellazione dei filtri prodotti', 'error');
-            }
-                }
-        
-
-        
-        // Funzioni per il sistema di sicurezza
-        function toggleSecurity() {
-            if (isSecurityActive && !isSecurityUnlocked) {
-                // Se la sicurezza è attiva ma bloccata, mostra il modal per sbloccare
-                showSecurityModal('unlock');
-            } else if (isSecurityActive && isSecurityUnlocked) {
-                // Se la sicurezza è attiva e sbloccata, riattiva la censura
-                activateSecurity();
-            } else {
-                // Se la sicurezza è disattivata, riattivala
-                activateSecurity();
-            }
-        }
-
-        function showSecurityModal(mode = 'unlock') {
-            const overlay = document.getElementById('securityOverlay');
-            const passwordInput = document.getElementById('securityPassword');
-            const modalTitle = document.getElementById('securityModalTitle');
-            const warning = document.getElementById('securityWarning');
-            const actionBtn = document.getElementById('securityActionBtn');
-            const currentPasswordDisplay = document.getElementById('currentPasswordDisplay');
-            
-            overlay.style.display = 'flex';
-            passwordInput.focus();
-            passwordInput.value = '';
-            
-            // Aggiorna il display della password attuale (nascosta)
-            currentPasswordDisplay.textContent = '•••••••';
-            
-            if (mode === 'unlock') {
-                modalTitle.textContent = '🔐 Accesso Sicurezza';
-                warning.innerHTML = '<strong>⚠️ ATTENZIONE:</strong><br>Inserisci la password per visualizzare i prezzi di acquisto';
-                actionBtn.textContent = '🔓 Sblocca';
-                actionBtn.onclick = validateSecurityPassword;
-            }
-        }
-
-        function hideSecurityModal() {
-            const overlay = document.getElementById('securityOverlay');
-            overlay.style.display = 'none';
-        }
-
-        function handleSecurityPassword(event) {
-            if (event.key === 'Enter') {
-                validateSecurityPassword();
-            } else if (event.key === 'Escape') {
-                cancelSecurity();
-            }
-        }
-
-        function validateSecurityPassword() {
-            const password = document.getElementById('securityPassword').value;
-            
-            if (password === SECURITY_PASSWORD) {
-                isSecurityUnlocked = true;
-                hideSecurityModal();
-                updateSecurityToggle();
-                updateAllTables();
-                showNotification('🔓 Sicurezza disattivata - Prezzi di acquisto visibili', 'success');
-                
-                // Auto-riattiva la sicurezza dopo 5 minuti
-                setTimeout(() => {
-                    if (isSecurityUnlocked) {
-                        activateSecurity();
-                        showNotification('🔒 Sicurezza riattivata automaticamente', 'warning');
-                    }
-                }, 300000); // 5 minuti
-            } else {
-                showNotification('❌ Password errata!', 'error');
-                document.getElementById('securityPassword').value = '';
-                document.getElementById('securityPassword').focus();
-            }
-        }
-
-        function cancelSecurity() {
-            hideSecurityModal();
-            document.getElementById('securityPassword').value = '';
-        }
-
-        function activateSecurity() {
-            isSecurityActive = true;
-            isSecurityUnlocked = false;
-            updateSecurityToggle();
-            updateAllTables();
-            showNotification('🔒 Sicurezza attivata - Prezzi di acquisto censurati', 'success');
-        }
-
-        function updateSecurityToggle() {
-            const toggle = document.getElementById('securityToggle');
-            if (isSecurityActive && !isSecurityUnlocked) {
-                toggle.textContent = '🔒 Sicurezza';
-                toggle.className = 'security-toggle';
-                toggle.title = '🔒 Sicurezza attiva - Clicca per sbloccare';
-            } else if (isSecurityActive && isSecurityUnlocked) {
-                toggle.textContent = '🔓 Sbloccato';
-                toggle.className = 'security-toggle active';
-                toggle.title = '🔓 Sicurezza sbloccata - Clicca per riattivare';
-            } else {
-                toggle.textContent = '⚠️ Disattivata';
-                toggle.className = 'security-toggle alert';
-                toggle.title = '⚠️ Sicurezza disattivata - Clicca per riattivare';
-            }
-            updateFormSecurity();
-        }
-
-        // Censura dinamica dei campi input nei form
-        function updateFormSecurity() {
-            // Prodotti
-            const inputProdotti = document.getElementById('prezzoAcquistoProdottiInput');
-            const labelProdotti = document.getElementById('securityLabelProdotti');
-            if (inputProdotti && labelProdotti) {
-                if (isSecurityActive && !isSecurityUnlocked) {
-                    inputProdotti.type = 'password';
-                    inputProdotti.placeholder = '***';
-                    inputProdotti.style.letterSpacing = '2px';
-                    labelProdotti.textContent = '🔒';
-                } else {
-                    inputProdotti.type = 'number';
-                    inputProdotti.placeholder = '';
-                    inputProdotti.style.letterSpacing = 'normal';
-                    labelProdotti.textContent = '🔓';
-                }
-            }
-            // Vini
-            const inputVini = document.getElementById('prezzoAcquistoViniInput');
-            const labelVini = document.getElementById('securityLabelVini');
-            if (inputVini && labelVini) {
-                if (isSecurityActive && !isSecurityUnlocked) {
-                    inputVini.type = 'password';
-                    inputVini.placeholder = '***';
-                    inputVini.style.letterSpacing = '2px';
-                    labelVini.textContent = '🔒';
-                } else {
-                    inputVini.type = 'number';
-                    inputVini.placeholder = '';
-                    inputVini.style.letterSpacing = 'normal';
-                    labelVini.textContent = '🔓';
-                }
-            }
-        }
-
-        // Aggiungi event listeners per ricerca in tempo reale
-        document.addEventListener('DOMContentLoaded', function() {
-            // ... existing code ...
-            
-            // Event listeners per filtri vini
-            const filterInputs = ['filterNome', 'filterProduttore', 'filterRegione', 'filterVitigno'];
-            filterInputs.forEach(id => {
-                document.getElementById(id).addEventListener('input', function() {
-                    if (this.value.length >= 2 || this.value.length === 0) {
-                        applyViniFilters();
-                    }
-                });
-            });
-            
-            // Event listeners per select
-            document.getElementById('filterTipologia').addEventListener('change', applyViniFilters);
-            document.getElementById('filterStock').addEventListener('change', applyViniFilters);
-            
-            // Inizializza il toggle di sicurezza
-            updateSecurityToggle();
-        });
-
-        // Funzioni per il cambio password
-        function showChangePasswordModal() {
-            hideSecurityModal();
-            const overlay = document.getElementById('changePasswordOverlay');
-            const currentPasswordInput = document.getElementById('currentPassword');
-            overlay.style.display = 'flex';
-            currentPasswordInput.focus();
-            currentPasswordInput.value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
-        }
-
-        function hideChangePasswordModal() {
-            const overlay = document.getElementById('changePasswordOverlay');
-            overlay.style.display = 'none';
-        }
-
-        function changePassword() {
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            if (currentPassword !== SECURITY_PASSWORD) {
-                showNotification('❌ Password attuale errata!', 'error');
-                return;
-            }
-            
-            if (newPassword.length < 4) {
-                showNotification('❌ La nuova password deve essere di almeno 4 caratteri!', 'error');
-                return;
-            }
-            
-            if (newPassword !== confirmPassword) {
-                showNotification('❌ Le password non coincidono!', 'error');
-                return;
-            }
-            
-            SECURITY_PASSWORD = newPassword;
-            hideChangePasswordModal();
-            showNotification('✅ Password cambiata con successo!', 'success');
-            
-            // Salva la nuova password nel localStorage
-            try {
-                localStorage.setItem('tommy_security_password', SECURITY_PASSWORD);
-            } catch (error) {
-                console.error('Errore nel salvataggio password:', error);
-            }
-        }
-
-        function cancelChangePassword() {
-            hideChangePasswordModal();
-        }
-
-        // Carica la password salvata all'avvio
-        function loadSecurityPassword() {
-            try {
-                const savedPassword = localStorage.getItem('tommy_security_password');
-                if (savedPassword) {
-                    SECURITY_PASSWORD = savedPassword;
-                }
-            } catch (error) {
-                console.error('Errore nel caricamento password:', error);
-            }
-        }
 
         // Ottimizzazione: Gestione eventi con cleanup
         function addEventListeners() {
@@ -11378,6 +10750,13 @@
             // Preveni la duplicazione delle schede
             preventTabDuplication();
             
+            // Forza il nascondimento di tutte le sezioni all'avvio
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+                tab.style.display = 'none';
+                tab.setAttribute('style', 'display: none !important');
+            });
+            
             // Imposta la visualizzazione corretta in base al tipo di utente
             if (currentUser === 'admin') {
                 // Mostra tutte le tab admin per admin
@@ -11460,6 +10839,9 @@
                     benvenutoSection.classList.remove('admin-only');
                 }
             }
+            
+            // Forza il nascondimento di tutte le sezioni all'avvio
+            forceHideAllSections();
             
             // Avvia il monitoraggio sicuro
             startSafeMonitoring();
