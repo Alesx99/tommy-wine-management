@@ -1218,6 +1218,9 @@
                         </table>
                     </div>
                 </div>
+                
+                <!-- Card mobile per clienti -->
+                <div class="mobile-cards" id="clientiMobileCards"></div>
             </div>
         </div>
 
@@ -1267,6 +1270,9 @@
                         </table>
                     </div>
                 </div>
+                
+                <!-- Card mobile per fatture -->
+                <div class="mobile-cards" id="fattureMobileCards"></div>
             </div>
         </div>
 
@@ -1430,6 +1436,9 @@
                         </table>
                     </div>
                 </div>
+                
+                <!-- Card mobile per prodotti -->
+                <div class="mobile-cards" id="prodottiMobileCards"></div>
             </div>
         </div>
 
@@ -1613,6 +1622,9 @@
                         </table>
                     </div>
                 </div>
+                
+                <!-- Card mobile per vini -->
+                <div class="mobile-cards" id="viniMobileCards"></div>
             </div>
         </div>
     </div>
@@ -2591,10 +2603,13 @@
                     tbody.appendChild(row);
                 });
                 
-                // Inizializza lo slider dopo l'aggiornamento della tabella
-                setTimeout(() => {
-                    initTableSlider('clienti');
-                }, 100);
+                            // Inizializza lo slider dopo l'aggiornamento della tabella
+            setTimeout(() => {
+                initTableSlider('clienti');
+            }, 100);
+            
+            // Aggiorna anche le card mobile
+            updateClientiMobileCards();
             } catch (error) {
                 console.error('Errore nell\'aggiornamento tabella clienti:', error);
                 showNotification('Errore nell\'aggiornamento della tabella clienti', 'error');
@@ -2734,6 +2749,9 @@
             setTimeout(() => {
                 initTableSlider('fatture');
             }, 100);
+            
+            // Aggiorna anche le card mobile
+            updateFattureMobileCards();
         }
 
         function getTipoBadge(tipo) {
@@ -3074,6 +3092,76 @@
                     </td>
                 `;
                 tbody.appendChild(row);
+            });
+        }
+        
+        // Funzione per aggiornare le card mobile dei vini
+        function updateViniMobileCards() {
+            const mobileCardsContainer = document.getElementById('viniMobileCards');
+            if (!mobileCardsContainer) return;
+            
+            mobileCardsContainer.innerHTML = '';
+            
+            vini.forEach(vino => {
+                const stockClass = vino.quantita <= 3 ? 'stock-low' : 'stock-ok';
+                const stockText = vino.quantita <= 3 ? 'Scorte Basse' : 'OK';
+                
+                const card = document.createElement('div');
+                card.className = 'mobile-card';
+                card.innerHTML = `
+                    <div class="mobile-card-header">
+                        <div class="mobile-card-title">
+                            ${vino.nome}
+                        </div>
+                        <div class="mobile-card-actions">
+                            <button class="btn btn-sm btn-warning" onclick="editVino(${vino.id})">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteVino(${vino.id})">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="mobile-card-content">
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Produttore</div>
+                            <div class="mobile-card-value">${vino.produttore}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Annata</div>
+                            <div class="mobile-card-value">${vino.annata}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Tipologia</div>
+                            <div class="mobile-card-value">${vino.tipologia}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Regione</div>
+                            <div class="mobile-card-value">${vino.regione}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Vitigno</div>
+                            <div class="mobile-card-value">${vino.vitigno || '-'}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Prezzo Ingrosso</div>
+                            <div class="mobile-card-value">€${vino.prezzoVenditaIngrosso.toFixed(2)}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Prezzo Dettaglio</div>
+                            <div class="mobile-card-value">€${vino.prezzoVenditaDettaglio.toFixed(2)}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Quantità</div>
+                            <div class="mobile-card-value">${vino.quantita}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Stato Stock</div>
+                            <div class="mobile-card-value">${stockText}</div>
+                        </div>
+                        <div class="mobile-card-field full-width">
+                            <div class="mobile-card-label">Note</div>
+                            <div class="mobile-card-value">${vino.note || '-'}</div>
+                        </div>
+                    </div>
+                `;
+                mobileCardsContainer.appendChild(card);
             });
         }
 
@@ -4349,6 +4437,125 @@
             }, 100);
         }
         
+        // Funzione per aggiornare le card mobile dei clienti
+        function updateClientiMobileCards() {
+            const mobileCardsContainer = document.getElementById('clientiMobileCards');
+            if (!mobileCardsContainer) return;
+            
+            mobileCardsContainer.innerHTML = '';
+            
+            clienti.forEach(cliente => {
+                const card = document.createElement('div');
+                card.className = 'mobile-card';
+                card.innerHTML = `
+                    <div class="mobile-card-header">
+                        <div class="mobile-card-title">
+                            ${cliente.tipologia === 'azienda' ? cliente.nomeAzienda : `${cliente.nome} ${cliente.cognome}`}
+                        </div>
+                        <div class="mobile-card-actions">
+                            <button class="btn btn-sm btn-warning" onclick="editCliente(${cliente.id})">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCliente(${cliente.id})">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="mobile-card-content">
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Tipologia</div>
+                            <div class="mobile-card-value">${cliente.tipologia || 'privato'}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Nome</div>
+                            <div class="mobile-card-value">${cliente.nome || '-'}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Cognome</div>
+                            <div class="mobile-card-value">${cliente.cognome || '-'}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Email</div>
+                            <div class="mobile-card-value">${cliente.email || '-'}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Telefono</div>
+                            <div class="mobile-card-value">${cliente.telefono || '-'}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Città</div>
+                            <div class="mobile-card-value">${cliente.citta || '-'}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Data Registrazione</div>
+                            <div class="mobile-card-value">${cliente.dataRegistrazione || '-'}</div>
+                        </div>
+                        <div class="mobile-card-field full-width">
+                            <div class="mobile-card-label">Note</div>
+                            <div class="mobile-card-value">${cliente.note || '-'}</div>
+                        </div>
+                    </div>
+                `;
+                mobileCardsContainer.appendChild(card);
+            });
+        }
+        
+        // Funzione per aggiornare le card mobile delle fatture
+        function updateFattureMobileCards() {
+            const mobileCardsContainer = document.getElementById('fattureMobileCards');
+            if (!mobileCardsContainer) return;
+            
+            mobileCardsContainer.innerHTML = '';
+            
+            documenti.forEach(documento => {
+                const card = document.createElement('div');
+                card.className = 'mobile-card';
+                card.innerHTML = `
+                    <div class="mobile-card-header">
+                        <div class="mobile-card-title">
+                            ${documento.tipo.toUpperCase()} - ${documento.numero}
+                        </div>
+                        <div class="mobile-card-actions">
+                            <button class="btn btn-sm btn-primary" onclick="editDocumento(${documento.id})">✏️</button>
+                            <button class="btn btn-sm btn-success" onclick="stampaDocumentoSalvato(${documento.id})">🖨️</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteDocumento(${documento.id})">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="mobile-card-content">
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Cliente</div>
+                            <div class="mobile-card-value">${documento.cliente}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Data</div>
+                            <div class="mobile-card-value">${documento.data}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Scadenza</div>
+                            <div class="mobile-card-value">${documento.scadenza || '-'}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Subtotale</div>
+                            <div class="mobile-card-value">€${documento.subtotale.toFixed(2)}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Sconto Extra</div>
+                            <div class="mobile-card-value">€${documento.scontoExtra.toFixed(2)}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Totale</div>
+                            <div class="mobile-card-value">€${documento.totale.toFixed(2)}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Stato</div>
+                            <div class="mobile-card-value">${getStatoBadge(documento.stato)}</div>
+                        </div>
+                        <div class="mobile-card-field full-width">
+                            <div class="mobile-card-label">Note</div>
+                            <div class="mobile-card-value">${documento.note || '-'}</div>
+                        </div>
+                    </div>
+                `;
+                mobileCardsContainer.appendChild(card);
+            });
+        }
+        
         // Funzione per stampare il listino vini - VERSIONE OTTIMIZZATA PER STAMPA B/N
         function printWineList() {
             if (vini.length === 0) {
@@ -4703,6 +4910,98 @@
             .slider-indicator {
                 font-size: 14px;
             }
+        }
+        
+        /* Visualizzazione mobile a card */
+        @media (max-width: 600px) {
+            .table-slider-container {
+                display: none; /* Nascondi lo slider su mobile */
+            }
+            
+            .data-table {
+                display: none; /* Nascondi le tabelle su mobile */
+            }
+            
+            /* Mostra le card mobile */
+            .mobile-cards {
+                display: block;
+            }
+            
+            .mobile-card {
+                background: white;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 15px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .mobile-card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            
+            .mobile-card-title {
+                font-weight: bold;
+                font-size: 16px;
+                color: #333;
+                flex: 1;
+            }
+            
+            .mobile-card-actions {
+                display: flex;
+                gap: 8px;
+            }
+            
+            .mobile-card-actions .btn {
+                padding: 6px 10px;
+                font-size: 12px;
+                min-width: auto;
+            }
+            
+            .mobile-card-content {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                font-size: 14px;
+            }
+            
+            .mobile-card-field {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .mobile-card-label {
+                font-weight: 600;
+                color: #666;
+                font-size: 12px;
+                margin-bottom: 2px;
+            }
+            
+            .mobile-card-value {
+                color: #333;
+                word-break: break-word;
+            }
+            
+            .mobile-card-field.full-width {
+                grid-column: 1 / -1;
+            }
+            
+            .mobile-card-field.actions-field {
+                grid-column: 1 / -1;
+                margin-top: 10px;
+                padding-top: 10px;
+                border-top: 1px solid #f0f0f0;
+            }
+        }
+        
+        /* Nascondi le card su desktop */
+        .mobile-cards {
+            display: none;
         }
                     </style>
                 </head>
@@ -5079,6 +5378,9 @@
                 const totalCount = prodotti.length;
                 document.getElementById('filterResultsProdotti').textContent = 
                     `Risultati: ${filteredCount} di ${totalCount} prodotti`;
+                
+                // Aggiorna anche le card mobile
+                updateProdottiMobileCards();
             } catch (error) {
                 console.error('Errore nell\'applicazione filtri prodotti:', error);
                 showNotification('Errore nell\'applicazione dei filtri prodotti', 'error');
@@ -5100,8 +5402,74 @@
                 console.error('Errore nella cancellazione filtri prodotti:', error);
                 showNotification('Errore nella cancellazione dei filtri prodotti', 'error');
             }
+                }
+        
+        // Funzione per aggiornare le card mobile dei prodotti
+        function updateProdottiMobileCards() {
+            const mobileCardsContainer = document.getElementById('prodottiMobileCards');
+            if (!mobileCardsContainer) return;
+            
+            mobileCardsContainer.innerHTML = '';
+            
+            prodotti.forEach(prodotto => {
+                const stockClass = prodotto.quantita <= prodotto.quantitaMinima ? 'stock-low' : 'stock-ok';
+                const stockText = prodotto.quantita <= prodotto.quantitaMinima ? 'Scorte Basse' : 'OK';
+                
+                const card = document.createElement('div');
+                card.className = 'mobile-card';
+                card.innerHTML = `
+                    <div class="mobile-card-header">
+                        <div class="mobile-card-title">
+                            ${prodotto.nome}
+                        </div>
+                        <div class="mobile-card-actions">
+                            <button class="btn btn-sm btn-warning" onclick="editProdotto(${prodotto.id})">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProdotto(${prodotto.id})">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="mobile-card-content">
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Categoria</div>
+                            <div class="mobile-card-value">${prodotto.categoriaPrincipale.toUpperCase()}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Sottocategoria</div>
+                            <div class="mobile-card-value">${getSottocategoriaDisplayName(prodotto.categoriaPrincipale, prodotto.sottocategoria)}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Marca</div>
+                            <div class="mobile-card-value">${prodotto.marca || '-'}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Prezzo Ingrosso</div>
+                            <div class="mobile-card-value">€${prodotto.prezzoVenditaIngrosso.toFixed(2)}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Prezzo Dettaglio</div>
+                            <div class="mobile-card-value">€${prodotto.prezzoVenditaDettaglio.toFixed(2)}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Quantità</div>
+                            <div class="mobile-card-value">${prodotto.quantita}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Stato Stock</div>
+                            <div class="mobile-card-value">${stockText}</div>
+                        </div>
+                        <div class="mobile-card-field">
+                            <div class="mobile-card-label">Fornitore</div>
+                            <div class="mobile-card-value">${prodotto.fornitore || '-'}</div>
+                        </div>
+                        <div class="mobile-card-field full-width">
+                            <div class="mobile-card-label">Note</div>
+                            <div class="mobile-card-value">${prodotto.note || '-'}</div>
+                        </div>
+                    </div>
+                `;
+                mobileCardsContainer.appendChild(card);
+            });
         }
-
+        
         // Funzioni per il sistema di sicurezza
         function toggleSecurity() {
             if (isSecurityActive && !isSecurityUnlocked) {
