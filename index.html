@@ -1488,6 +1488,80 @@
             }
         }
 
+        /* Prodotti table specific styles */
+        #prodottiTable {
+            min-width: 1200px;
+        }
+
+        #prodottiTable th,
+        #prodottiTable td {
+            padding: var(--spacing-md) var(--spacing-sm);
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        #prodottiTable th {
+            background: var(--border-light);
+            font-weight: 600;
+            color: var(--text-primary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #prodottiTable td {
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        #prodottiTable tr:hover {
+            background: var(--border-light);
+        }
+
+        /* Sticky actions column for prodotti table */
+        #prodottiTable th:last-child,
+        #prodottiTable td:last-child {
+            position: sticky;
+            right: 0;
+            background: var(--surface-color);
+            z-index: 15;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            min-width: 140px;
+        }
+
+        /* Ensure buttons are always visible and compact for prodotti */
+        #prodottiTable td:last-child .btn {
+            margin: 2px;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 0.75rem;
+            white-space: nowrap;
+            min-width: 60px;
+        }
+
+        /* Responsive adjustments for prodotti table */
+        @media (max-width: 1200px) {
+            #prodottiTable {
+                min-width: 1000px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #prodottiTable {
+                min-width: 800px;
+                font-size: 0.875rem;
+            }
+            
+            #prodottiTable th,
+            #prodottiTable td {
+                padding: var(--spacing-sm) var(--spacing-xs);
+            }
+
+            #prodottiTable td:last-child .btn {
+                padding: var(--spacing-xs);
+                font-size: 0.7rem;
+                min-width: 50px;
+            }
+        }
+
         /* Censorship and Security System */
         .censored {
             color: transparent;
@@ -2567,27 +2641,25 @@
                 
                 
                 <!-- Tabella con scroll orizzontale -->
-                <div class="table-container">
-                    <div class="table-wrapper">
-                        <table id="prodottiTable" class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Nome</th>
-                                    <th>Categoria</th>
-                                    <th>Marca</th>
-                                    <th id="prezzoAcquistoHeaderProdotti" style="display: none;">Prezzo Acquisto</th>
-                                    <th>Prezzo Ingrosso</th>
-                                    <th>Prezzo Dettaglio</th>
-                                    <th>Quantità</th>
-                                    <th>Stato Stock</th>
-                                    <th>Fornitore</th>
-                                    <th>Note</th>
-                                    <th>Azioni</th>
-                                </tr>
-                            </thead>
-                            <tbody id="prodottiTableBody"></tbody>
-                        </table>
-                    </div>
+                <div class="table-scroll-container">
+                    <table id="prodottiTable" class="data-table scrollable-table" role="table" aria-label="Tabella dati prodotti">
+                        <thead>
+                            <tr role="row">
+                                <th role="columnheader">Nome</th>
+                                <th role="columnheader">Categoria</th>
+                                <th role="columnheader">Marca</th>
+                                <th id="prezzoAcquistoHeaderProdotti" style="display: none;" role="columnheader">Prezzo Acquisto</th>
+                                <th role="columnheader">Prezzo Ingrosso</th>
+                                <th role="columnheader">Prezzo Dettaglio</th>
+                                <th role="columnheader">Quantità</th>
+                                <th role="columnheader">Stato Stock</th>
+                                <th role="columnheader">Fornitore</th>
+                                <th role="columnheader">Note</th>
+                                <th role="columnheader">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prodottiTableBody"></tbody>
+                    </table>
                 </div>
                 
 
@@ -8216,31 +8288,32 @@
                             const prezzoAcquistoDisplay = isSecurityActive && !isSecurityUnlocked ? 
                                 `<span class="censored">€${prodotto.prezzoAcquisto.toFixed(2)}</span>` : 
                                 `€${prodotto.prezzoAcquisto.toFixed(2)}`;
-                            prezzoAcquistoCell = `<td class="table-censored">${prezzoAcquistoDisplay}</td>`;
+                            prezzoAcquistoCell = `<td role="cell" class="table-censored">${prezzoAcquistoDisplay}</td>`;
                         }
                         
                         const row = document.createElement('tr');
+                        row.setAttribute('role', 'row');
                         row.innerHTML = `
-                            <td>${prodotto.nome}</td>
-                            <td>
+                            <td role="cell">${prodotto.nome}</td>
+                            <td role="cell">
                                 <div>
                                     <span class="status-badge ${getCategoriaColor(prodotto.categoriaPrincipale)}">${prodotto.categoriaPrincipale.toUpperCase()}</span>
                                     <br>
                                     <span class="status-badge ${getCategoriaColor(prodotto.sottocategoria)}">${getSottocategoriaDisplayName(prodotto.categoriaPrincipale, prodotto.sottocategoria)}</span>
                                 </div>
                             </td>
-                            <td>${prodotto.marca}</td>
+                            <td role="cell">${prodotto.marca}</td>
                             ${prezzoAcquistoCell}
-                            <td>€${prodotto.prezzoVenditaIngrosso.toFixed(2)}</td>
-                            <td>€${prodotto.prezzoVenditaDettaglio.toFixed(2)}</td>
-                            <td>${prodotto.quantita}</td>
-                            <td>${prodotto.unitaMisura || 'bottiglie'}</td>
-                            <td><span class="status-badge ${stockClass}">${stockText}</span></td>
-                            <td>${prodotto.fornitore}</td>
-                            <td>${prodotto.note}</td>
-                            <td>
-                                <button class="btn btn-sm btn-warning" onclick="editProdotto(${prodotto.id})">✏️ Modifica</button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteProdotto(${prodotto.id})">🗑️ Elimina</button>
+                            <td role="cell">€${prodotto.prezzoVenditaIngrosso.toFixed(2)}</td>
+                            <td role="cell">€${prodotto.prezzoVenditaDettaglio.toFixed(2)}</td>
+                            <td role="cell">${prodotto.quantita}</td>
+                            <td role="cell">${prodotto.unitaMisura || 'bottiglie'}</td>
+                            <td role="cell"><span class="status-badge ${stockClass}">${stockText}</span></td>
+                            <td role="cell">${prodotto.fornitore}</td>
+                            <td role="cell">${prodotto.note}</td>
+                            <td role="cell">
+                                <button class="btn btn-sm btn-warning" onclick="editProdotto(${prodotto.id})" title="Modifica prodotto">✏️ Modifica</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteProdotto(${prodotto.id})" title="Elimina prodotto">🗑️ Elimina</button>
                             </td>
                         `;
                         tbody.appendChild(row);
