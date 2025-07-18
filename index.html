@@ -1143,121 +1143,6 @@
             }
         }
     </style>
-            position: sticky;
-            right: 0;
-            background: white;
-            z-index: 10;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
-        }
-        
-        /* Assicura che i bottoni nelle azioni siano sempre visibili */
-        .data-table td:last-child .btn {
-            margin: 2px;
-            white-space: nowrap;
-        }
-
-        .data-table th {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .data-table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-paid {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-overdue {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .stock-low {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .stock-ok {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 30px;
-        }
-
-        .export-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        .export-section h4 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .nav-tabs {
-                flex-direction: row;
-                overflow-x: auto;
-                white-space: nowrap;
-                scrollbar-width: thin;
-                scrollbar-color: #1a5f3a #f8f9fa;
-            }
-            
-            .nav-tabs::-webkit-scrollbar {
-                height: 6px;
-            }
-            
-            .nav-tabs::-webkit-scrollbar-track {
-                background: #f8f9fa;
-                border-radius: 3px;
-            }
-            
-            .nav-tabs::-webkit-scrollbar-thumb {
-                background: #1a5f3a;
-                border-radius: 3px;
-            }
-            
-            .nav-tabs::-webkit-scrollbar-thumb:hover {
-                background: #2d5a3d;
-            }
-            
-            .nav-tab {
-                flex: 0 0 auto;
-                min-width: 120px;
-                white-space: nowrap;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-        }
 
         /* Stili per la stampa del listino vini */
         @media print {
@@ -1617,12 +1502,12 @@
         }
 
         .table-censored .censored {
-            background: #f8f9fa;
-            border-radius: 4px;
+            background: var(--border-light);
+            border-radius: var(--radius-sm);
             padding: 2px 6px;
         }
 
-        /* Stili per i modal */
+        /* Modal Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -1634,22 +1519,24 @@
             display: none;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(4px);
         }
 
         .modal-content {
-            background: white;
-            border-radius: 15px;
+            background: var(--surface-color);
+            border-radius: var(--radius-xl);
             max-width: 90%;
             max-height: 90%;
             width: 1200px;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-color);
         }
 
         .modal-header {
-            background: linear-gradient(135deg, #1a5f3a 0%, #2d5a3d 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 20px;
+            padding: var(--spacing-xl);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -1657,14 +1544,15 @@
 
         .modal-header h3 {
             margin: 0;
-            font-size: 1.5em;
+            font-size: 1.5rem;
+            font-weight: 600;
         }
 
         .modal-close {
             background: none;
             border: none;
             color: white;
-            font-size: 24px;
+            font-size: 1.5rem;
             cursor: pointer;
             padding: 0;
             width: 30px;
@@ -1672,38 +1560,43 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            transform: scale(1.1);
         }
 
         .modal-body {
-            padding: 30px;
+            padding: var(--spacing-xl);
             max-height: 70vh;
             overflow-y: auto;
         }
 
         .modal-footer {
-            padding: 20px 30px;
-            background: #f8f9fa;
-            border-top: 1px solid #e9ecef;
+            padding: var(--spacing-xl);
+            background: var(--border-light);
+            border-top: 1px solid var(--border-color);
             display: flex;
-            gap: 10px;
+            gap: var(--spacing-md);
             justify-content: flex-end;
         }
 
-        /* Stili per la sezione prodotti */
+        /* Product Section Styles */
         .prodotti-section {
-            margin: 30px 0;
+            margin: var(--spacing-xl) 0;
         }
 
         .prodotti-controls {
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-lg);
             display: flex;
-            gap: 10px;
+            gap: var(--spacing-md);
         }
 
         .prodotti-table-container {
             overflow-x: auto;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
         }
 
         .prodotti-table {
@@ -1714,74 +1607,99 @@
 
         .prodotti-table th,
         .prodotti-table td {
-            padding: 12px;
+            padding: var(--spacing-md);
             text-align: left;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid var(--border-light);
         }
 
         .prodotti-table th {
-            background: #f8f9fa;
+            background: var(--border-light);
             font-weight: 600;
+            color: var(--text-primary);
         }
 
         .prodotti-table input {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
+            padding: var(--spacing-sm);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-family: inherit;
         }
 
         .prodotti-table input:focus {
             outline: none;
-            border-color: #1a5f3a;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
         }
 
-        /* Stili per i totali */
+        /* Totals Section */
         .totali-section {
-            margin: 30px 0;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
+            margin: var(--spacing-xl) 0;
+            padding: var(--spacing-xl);
+            background: var(--border-light);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
         }
 
         .totali-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            gap: var(--spacing-lg);
         }
 
         .totali-grid input {
-            font-weight: bold;
-            font-size: 16px;
-            background: white;
+            font-weight: 600;
+            font-size: 1rem;
+            background: var(--surface-color);
         }
 
-        /* Stili per il catalogo */
+        /* Catalog Tabs */
         .catalogo-tabs {
             display: flex;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e9ecef;
+            margin-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--border-light);
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .catalogo-tabs::-webkit-scrollbar {
+            display: none;
         }
 
         .catalogo-tab {
-            padding: 15px 25px;
+            padding: var(--spacing-md) var(--spacing-xl);
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            color: #6c757d;
-            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            position: relative;
         }
 
         .catalogo-tab.active {
-            color: #1a5f3a;
-            border-bottom: 3px solid #1a5f3a;
+            color: var(--primary-color);
+            font-weight: 600;
         }
 
-        .catalogo-tab:hover {
-            background: #e9ecef;
+        .catalogo-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+        }
+
+        .catalogo-tab:hover:not(.active) {
+            background: var(--border-light);
+            color: var(--text-primary);
         }
 
         .catalogo-tab-content {
@@ -1790,6 +1708,7 @@
 
         .catalogo-tab-content.active {
             display: block;
+            animation: fadeIn 0.3s ease-in-out;
         }
 
         .catalogo-table {
@@ -1799,18 +1718,19 @@
 
         .catalogo-table th,
         .catalogo-table td {
-            padding: 12px;
+            padding: var(--spacing-md);
             text-align: left;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid var(--border-light);
         }
 
         .catalogo-table th {
-            background: #f8f9fa;
+            background: var(--border-light);
             font-weight: 600;
+            color: var(--text-primary);
         }
 
         .catalogo-table tr:hover {
-            background: #f8f9fa;
+            background: var(--border-light);
         }
 
         /* Stili per la tabella di anteprima */
