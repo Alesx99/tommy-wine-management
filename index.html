@@ -1533,8 +1533,9 @@
                                         <th>Prodotto/Servizio</th>
                                         <th>Quantità</th>
                                         <th>Prezzo Unitario (IVA Inclusa)</th>
-                                        <th>Sconto %</th>
-                                        <th>Imponibile</th>
+                                        <th>Tipo Sconto</th>
+                                        <th>Valore Sconto</th>
+                                        <th>Subtotale Riga</th>
                                         <th>Azioni</th>
                                     </tr>
                                 </thead>
@@ -2314,13 +2315,18 @@
             `;
             
             documento.prodotti.forEach(riga => {
+                const tipoSconto = riga.tipoSconto || 'percentuale';
+                const valoreSconto = riga.valoreSconto || 0;
+                const simboloSconto = tipoSconto === 'percentuale' ? '%' : '€';
+                
                 printContent += `
                     <tr>
                         <td style="padding: 12px; border: 1px solid #ddd;">${riga.prodotto}</td>
                         <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${riga.quantita}</td>
                         <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${riga.prezzoUnitario.toFixed(2)}</td>
-                        <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${riga.sconto}%</td>
-                        <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${riga.imponibile.toFixed(2)}</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${tipoSconto === 'percentuale' ? '%' : '€'}</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${valoreSconto}${simboloSconto}</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${riga.subtotaleRiga.toFixed(2)}</td>
                     </tr>
                 `;
             });
@@ -2728,8 +2734,9 @@
                 prodotto: '',
                 quantita: 1,
                 prezzoUnitario: 0,
-                sconto: 0,
-                imponibile: 0
+                tipoSconto: 'percentuale', // 'percentuale' o 'arbitrario'
+                valoreSconto: 0,
+                subtotaleRiga: 0
             };
             
             righeProdotto.push(riga);
@@ -2752,8 +2759,14 @@
                     <td><input type="text" value="${riga.prodotto}" onchange="aggiornaRiga(${riga.id}, 'prodotto', this.value)" placeholder="Nome prodotto/servizio"></td>
                     <td><input type="number" value="${riga.quantita}" onchange="aggiornaRiga(${riga.id}, 'quantita', this.value)" min="1" step="1"></td>
                     <td><input type="number" value="${riga.prezzoUnitario}" onchange="aggiornaRiga(${riga.id}, 'prezzoUnitario', this.value)" step="0.01"></td>
-                    <td><input type="number" value="${riga.sconto}" onchange="aggiornaRiga(${riga.id}, 'sconto', this.value)" min="0" max="100" step="0.01"></td>
-                    <td><input type="number" value="${riga.imponibile}" readonly></td>
+                    <td>
+                        <select onchange="aggiornaRiga(${riga.id}, 'tipoSconto', this.value)">
+                            <option value="percentuale" ${riga.tipoSconto === 'percentuale' ? 'selected' : ''}>%</option>
+                            <option value="arbitrario" ${riga.tipoSconto === 'arbitrario' ? 'selected' : ''}>€</option>
+                        </select>
+                    </td>
+                    <td><input type="number" value="${riga.valoreSconto}" onchange="aggiornaRiga(${riga.id}, 'valoreSconto', this.value)" step="0.01" min="0"></td>
+                    <td><input type="number" value="${riga.subtotaleRiga}" readonly></td>
                     <td><button type="button" class="btn btn-sm btn-danger" onclick="rimuoviRigaProdotto(${riga.id})">🗑️</button></td>
                 `;
                 tbody.appendChild(row);
@@ -2763,21 +2776,33 @@
         function aggiornaRiga(id, campo, valore) {
             const riga = righeProdotto.find(r => r.id === id);
             if (riga) {
-                riga[campo] = parseFloat(valore) || 0;
-                calcolaImponibileRiga(riga);
+                if (campo === 'tipoSconto') {
+                    riga[campo] = valore;
+                } else {
+                    riga[campo] = parseFloat(valore) || 0;
+                }
+                calcolaSubtotaleRiga(riga);
                 updateProdottiTable();
                 calcolaTotali();
             }
         }
 
-        function calcolaImponibileRiga(riga) {
+        function calcolaSubtotaleRiga(riga) {
             const quantita = parseFloat(riga.quantita) || 0;
             const prezzoUnitario = parseFloat(riga.prezzoUnitario) || 0;
-            const sconto = parseFloat(riga.sconto) || 0;
+            const tipoSconto = riga.tipoSconto || 'percentuale';
+            const valoreSconto = parseFloat(riga.valoreSconto) || 0;
             
             const subtotale = quantita * prezzoUnitario;
-            const scontoImporto = subtotale * (sconto / 100);
-            riga.imponibile = subtotale - scontoImporto;
+            let scontoImporto = 0;
+            
+            if (tipoSconto === 'percentuale') {
+                scontoImporto = subtotale * (valoreSconto / 100);
+            } else {
+                scontoImporto = valoreSconto;
+            }
+            
+            riga.subtotaleRiga = subtotale - scontoImporto;
         }
 
         function calcolaTotali() {
@@ -2785,7 +2810,7 @@
             
             let subtotale = 0;
             righeProdotto.forEach(riga => {
-                subtotale += parseFloat(riga.imponibile) || 0;
+                subtotale += parseFloat(riga.subtotaleRiga) || 0;
             });
             
             const totale = subtotale - scontoExtra;
@@ -2868,8 +2893,9 @@
                 prodotto: nome,
                 quantita: 1,
                 prezzoUnitario: prezzo,
-                sconto: 0,
-                imponibile: prezzo
+                tipoSconto: 'percentuale',
+                valoreSconto: 0,
+                subtotaleRiga: prezzo
             };
             
             righeProdotto.push(riga);
@@ -2966,13 +2992,18 @@
             `;
             
             righeProdotto.forEach(riga => {
+                const tipoSconto = riga.tipoSconto || 'percentuale';
+                const valoreSconto = riga.valoreSconto || 0;
+                const simboloSconto = tipoSconto === 'percentuale' ? '%' : '€';
+                
                 printContent += `
                     <tr>
                         <td style="padding: 12px; border: 1px solid #ddd;">${riga.prodotto}</td>
                         <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${riga.quantita}</td>
                         <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${riga.prezzoUnitario.toFixed(2)}</td>
-                        <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${riga.sconto}%</td>
-                        <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${riga.imponibile.toFixed(2)}</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${tipoSconto === 'percentuale' ? '%' : '€'}</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${valoreSconto}${simboloSconto}</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${riga.subtotaleRiga.toFixed(2)}</td>
                     </tr>
                 `;
             });
