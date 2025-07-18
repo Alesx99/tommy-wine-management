@@ -10110,7 +10110,7 @@
                         console.warn('GNews rate limit raggiunto - usando notizie simulate');
                         return null;
                     } else {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                        throw new Error('HTTP error! status: ' + response.status);
                     }
                 }
                 
@@ -10136,7 +10136,7 @@
                         return wineKeywords.some(keyword => content.includes(keyword));
                     });
                     
-                    console.log(`🍷 Trovati ${wineArticles.length} articoli sui vini su ${data.articles.length} totali`);
+                    console.log('🍷 Trovati ' + wineArticles.length + ' articoli sui vini su ' + data.articles.length + ' totali');
                     
                     return wineArticles.slice(0, 6).map(article => ({
                         title: article.title,
@@ -10174,7 +10174,7 @@
                 const response = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(randomSource));
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error('HTTP error! status: ' + response.status);
                 }
                 
                 const data = await response.json();
@@ -10294,11 +10294,11 @@
             const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
             
             if (diffInHours < 1) return 'Poco fa';
-            if (diffInHours < 24) return `${diffInHours} ore fa`;
+            if (diffInHours < 24) return diffInHours + ' ore fa';
             if (diffInHours < 48) return 'Ieri';
             
             const diffInDays = Math.floor(diffInHours / 24);
-            return `${diffInDays} giorni fa`;
+            return diffInDays + ' giorni fa';
         }
 
         function refreshNews() {
@@ -10310,7 +10310,7 @@
             currentNewsSource = currentNewsSource === 'gnews' ? 'alternative' : 'gnews';
             updateNewsSourceIndicator();
             loadWineNews();
-            showNotification(`📰 Fonte notizie cambiata: ${currentNewsSource === 'gnews' ? 'GNews' : 'Alternativa'}`, 'info');
+            showNotification('📰 Fonte notizie cambiata: ' + (currentNewsSource === 'gnews' ? 'GNews' : 'Alternativa'), 'info');
         }
 
         // Contatore errori API per auto-disabilitazione
@@ -10352,7 +10352,7 @@
             documenti.forEach((documento, index) => {
                 // Verifica se il documento ha il campo stato
                 if (!documento.hasOwnProperty('stato')) {
-                    console.log(`📋 Documento ${documento.numero} non ha campo stato - aggiungendo...`);
+                    console.log('📋 Documento ' + documento.numero + ' non ha campo stato - aggiungendo...');
                     documenti[index].stato = 'in_attesa';
                     updatedCount++;
                 }
@@ -10361,7 +10361,7 @@
                 if (documento.scadenza && documento.stato !== 'pagata') {
                     const scadenza = new Date(documento.scadenza);
                     if (scadenza < currentDate) {
-                        console.log(`⚠️ Fattura ${documento.numero} scaduta - aggiornando stato...`);
+                        console.log('⚠️ Fattura ' + documento.numero + ' scaduta - aggiornando stato...');
                         documenti[index].stato = 'scaduta';
                         updatedCount++;
                     }
@@ -10371,8 +10371,8 @@
             if (updatedCount > 0) {
                 updateFattureTable();
                 saveDataToStorage();
-                showNotification(`🔄 Aggiornati ${updatedCount} stati fatture`, 'info');
-                console.log(`✅ Aggiornati ${updatedCount} stati fatture`);
+                showNotification('🔄 Aggiornati ' + updatedCount + ' stati fatture', 'info');
+                console.log('✅ Aggiornati ' + updatedCount + ' stati fatture');
             }
 
             return updatedCount;
@@ -10403,8 +10403,8 @@
             updateFattureTable();
             saveDataToStorage();
             
-            showNotification(`✅ Stato fattura ${documenti[documentoIndex].numero} cambiato da "${oldStato}" a "${newStato}"`, 'success');
-            console.log(`🔄 Stato fattura ${documenti[documentoIndex].numero}: ${oldStato} → ${newStato}`);
+            showNotification('✅ Stato fattura ' + documenti[documentoIndex].numero + ' cambiato da "' + oldStato + '" a "' + newStato + '"', 'success');
+            console.log('🔄 Stato fattura ' + documenti[documentoIndex].numero + ': ' + oldStato + ' → ' + newStato);
         }
 
         // Funzione per abilitare/disabilitare la modifica dello stato
@@ -10412,8 +10412,8 @@
             enableStatoFatture = !enableStatoFatture;
             const status = enableStatoFatture ? 'abilitata' : 'disabilitata';
             updateToggleStatoButton();
-            showNotification(`🔧 Modifica stato fatture ${status}`, 'info');
-            console.log(`🔧 Modifica stato fatture: ${status}`);
+            showNotification('🔧 Modifica stato fatture ' + status, 'info');
+            console.log('🔧 Modifica stato fatture: ' + status);
         }
 
         // Funzione per aggiornare l'aspetto del pulsante toggle
@@ -10663,7 +10663,7 @@
             
             // Controlla se ci sono sezioni duplicate
             tabIds.forEach(sectionId => {
-                const sections = document.querySelectorAll(`#${sectionId}`);
+                const sections = document.querySelectorAll('#' + sectionId);
                 if (sections.length > 1) {
                     // Mantieni solo la prima sezione e rimuovi le duplicate
                     for (let i = 1; i < sections.length; i++) {
