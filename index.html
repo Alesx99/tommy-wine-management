@@ -1189,23 +1189,35 @@
 
             <div class="export-section">
                 <h4>📋 Lista Clienti</h4>
-                <table id="clientiTable" class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Nome Azienda</th>
-                            <th>Tipologia</th>
-                            <th>Nome Referente</th>
-                            <th>Cognome Referente</th>
-                            <th>Email</th>
-                            <th>Telefono</th>
-                            <th>Città</th>
-                            <th>Data Registrazione</th>
-                            <th>Note</th>
-                            <th>Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody id="clientiTableBody"></tbody>
-                </table>
+                
+                <!-- Slider per visualizzazione mobile -->
+                <div class="table-slider-container">
+                    <div class="slider-controls">
+                        <button type="button" class="slider-btn slider-prev" onclick="slideTable('left', 'clienti')">‹</button>
+                        <span class="slider-indicator" id="clienti-indicator">1/1</span>
+                        <button type="button" class="slider-btn slider-next" onclick="slideTable('right', 'clienti')">›</button>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table id="clientiTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome Azienda</th>
+                                    <th>Tipologia</th>
+                                    <th>Nome Referente</th>
+                                    <th>Cognome Referente</th>
+                                    <th>Email</th>
+                                    <th>Telefono</th>
+                                    <th>Città</th>
+                                    <th>Data Registrazione</th>
+                                    <th>Note</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientiTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1388,24 +1400,36 @@
                     </div>
                 </div>
                 
-                <table id="prodottiTable" class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Categoria</th>
-                            <th>Marca</th>
-                            <th id="prezzoAcquistoHeaderProdotti" style="display: none;">Prezzo Acquisto</th>
-                            <th>Prezzo Ingrosso</th>
-                            <th>Prezzo Dettaglio</th>
-                            <th>Quantità</th>
-                            <th>Stato Stock</th>
-                            <th>Fornitore</th>
-                            <th>Note</th>
-                            <th>Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody id="prodottiTableBody"></tbody>
-                </table>
+                
+                <!-- Slider per visualizzazione mobile -->
+                <div class="table-slider-container">
+                    <div class="slider-controls">
+                        <button type="button" class="slider-btn slider-prev" onclick="slideTable('left', 'prodotti')">‹</button>
+                        <span class="slider-indicator" id="prodotti-indicator">1/1</span>
+                        <button type="button" class="slider-btn slider-next" onclick="slideTable('right', 'prodotti')">›</button>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table id="prodottiTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Categoria</th>
+                                    <th>Marca</th>
+                                    <th id="prezzoAcquistoHeaderProdotti" style="display: none;">Prezzo Acquisto</th>
+                                    <th>Prezzo Ingrosso</th>
+                                    <th>Prezzo Dettaglio</th>
+                                    <th>Quantità</th>
+                                    <th>Stato Stock</th>
+                                    <th>Fornitore</th>
+                                    <th>Note</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prodottiTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1556,28 +1580,38 @@
                     </div>
                 </div>
                 
-                <div class="table-scroll-container">
-                    <table id="viniTable" class="data-table scrollable-table">
-                        <thead>
-                            <tr>
-                                                            <th>Nome</th>
-                            <th>Produttore</th>
-                            <th>Annata</th>
-                            <th>Tipologia</th>
-                            <th>Regione</th>
-                            <th>Vitigno</th>
-                            <th id="prezzoAcquistoHeaderVini" style="display: none;">Prezzo Acquisto</th>
-                            <th>Prezzo Ingrosso</th>
-                            <th>Prezzo Dettaglio</th>
-                            <th>Quantità</th>
-                            <th>Unità</th>
-                            <th>Stato Stock</th>
-                            <th>Note</th>
-                            <th>Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody id="viniTableBody"></tbody>
-                    </table>
+                
+                <!-- Slider per visualizzazione mobile -->
+                <div class="table-slider-container">
+                    <div class="slider-controls">
+                        <button type="button" class="slider-btn slider-prev" onclick="slideTable('left', 'vini')">‹</button>
+                        <span class="slider-indicator" id="vini-indicator">1/1</span>
+                        <button type="button" class="slider-btn slider-next" onclick="slideTable('right', 'vini')">›</button>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table id="viniTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Produttore</th>
+                                    <th>Annata</th>
+                                    <th>Tipologia</th>
+                                    <th>Regione</th>
+                                    <th>Vitigno</th>
+                                    <th id="prezzoAcquistoHeaderVini" style="display: none;">Prezzo Acquisto</th>
+                                    <th>Prezzo Ingrosso</th>
+                                    <th>Prezzo Dettaglio</th>
+                                    <th>Quantità</th>
+                                    <th>Unità</th>
+                                    <th>Stato Stock</th>
+                                    <th>Note</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="viniTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2519,9 +2553,14 @@
                 updateClientiSelect();
                 // Inizializza lo slider per la tabella fatture
                 setTimeout(() => {
-                    initTableSlider();
+                    initTableSlider('fatture');
                 }, 200);
             }
+            
+            // Inizializza lo slider per tutte le tabelle quando si cambia tab
+            setTimeout(() => {
+                initTableSlider(tabName);
+            }, 200);
         }
 
         // Gestione form clienti migliorata
@@ -2535,6 +2574,8 @@
                 clienti.forEach(cliente => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
+                        <td>${cliente.nomeAzienda || '-'}</td>
+                        <td>${cliente.tipologia || 'privato'}</td>
                         <td>${cliente.nome || ''}</td>
                         <td>${cliente.cognome || ''}</td>
                         <td>${cliente.email || ''}</td>
@@ -2549,6 +2590,11 @@
                     `;
                     tbody.appendChild(row);
                 });
+                
+                // Inizializza lo slider dopo l'aggiornamento della tabella
+                setTimeout(() => {
+                    initTableSlider('clienti');
+                }, 100);
             } catch (error) {
                 console.error('Errore nell\'aggiornamento tabella clienti:', error);
                 showNotification('Errore nell\'aggiornamento della tabella clienti', 'error');
@@ -2686,7 +2732,7 @@
             
             // Inizializza lo slider dopo l'aggiornamento della tabella
             setTimeout(() => {
-                initTableSlider();
+                initTableSlider('fatture');
             }, 100);
         }
 
@@ -4233,12 +4279,12 @@
         let slideWidth = 0;
         
         // Funzione per gestire lo slider delle tabelle
-        function slideTable(direction) {
-            const tableWrapper = document.querySelector('.table-wrapper');
-            const table = document.getElementById('fattureTable');
-            const indicator = document.querySelector('.slider-indicator');
-            const prevBtn = document.querySelector('.slider-prev');
-            const nextBtn = document.querySelector('.slider-next');
+        function slideTable(direction, tableType = 'fatture') {
+            const tableWrapper = document.querySelector(`#${tableType}Table`).closest('.table-wrapper');
+            const table = document.getElementById(`${tableType}Table`);
+            const indicator = document.getElementById(`${tableType}-indicator`);
+            const prevBtn = tableWrapper.querySelector('.slider-prev');
+            const nextBtn = tableWrapper.querySelector('.slider-next');
             
             if (!tableWrapper || !table) return;
             
@@ -4250,7 +4296,7 @@
             if (tableWidth <= containerWidth) {
                 currentSlide = 0;
                 totalSlides = 1;
-                updateSliderControls();
+                updateSliderControls(tableType);
                 return;
             }
             
@@ -4273,14 +4319,15 @@
             });
             
             // Aggiorna i controlli
-            updateSliderControls();
+            updateSliderControls(tableType);
         }
         
         // Funzione per aggiornare i controlli dello slider
-        function updateSliderControls() {
-            const indicator = document.querySelector('.slider-indicator');
-            const prevBtn = document.querySelector('.slider-prev');
-            const nextBtn = document.querySelector('.slider-next');
+        function updateSliderControls(tableType = 'fatture') {
+            const indicator = document.getElementById(`${tableType}-indicator`);
+            const tableWrapper = document.querySelector(`#${tableType}Table`).closest('.table-wrapper');
+            const prevBtn = tableWrapper.querySelector('.slider-prev');
+            const nextBtn = tableWrapper.querySelector('.slider-next');
             
             if (indicator) {
                 indicator.textContent = `${currentSlide + 1}/${totalSlides}`;
@@ -4296,9 +4343,9 @@
         }
         
         // Funzione per inizializzare lo slider quando si cambia tab
-        function initTableSlider() {
+        function initTableSlider(tableType = 'fatture') {
             setTimeout(() => {
-                slideTable('left'); // Reset alla prima slide
+                slideTable('left', tableType); // Reset alla prima slide
             }, 100);
         }
         
