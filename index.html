@@ -819,6 +819,62 @@
             background: #f8f9fa;
         }
 
+        /* Stili per la tabella di anteprima */
+        .anteprima-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .anteprima-section h5 {
+            margin: 0 0 15px 0;
+            color: #495057;
+            font-size: 16px;
+        }
+
+        .anteprima-table-container {
+            overflow-x: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .anteprima-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        .anteprima-table th,
+        .anteprima-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+        }
+
+        .anteprima-table th {
+            background: #e9ecef;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .anteprima-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .anteprima-table .sconto-cell {
+            font-weight: 600;
+            color: #dc3545;
+        }
+
+        .anteprima-table .subtotale-cell {
+            font-weight: 600;
+            color: #28a745;
+        }
+
         /* Stili per i badge */
         .badge {
             display: inline-block;
@@ -1526,6 +1582,8 @@
                             <button type="button" class="btn btn-sm btn-primary" onclick="aggiungiRigaProdotto()">➕ Aggiungi Prodotto</button>
                             <button type="button" class="btn btn-sm btn-secondary" onclick="selezionaDaCatalogo()">📋 Seleziona da Catalogo</button>
                         </div>
+                        
+                        <!-- Tabella di inserimento prodotti -->
                         <div class="prodotti-table-container">
                             <table id="prodottiTable" class="prodotti-table">
                                 <thead>
@@ -1541,6 +1599,25 @@
                                 </thead>
                                 <tbody id="prodottiTableBody"></tbody>
                             </table>
+                        </div>
+                        
+                        <!-- Tabella di anteprima prodotti -->
+                        <div class="anteprima-section">
+                            <h5>📋 Anteprima Prodotti Aggiunti</h5>
+                            <div class="anteprima-table-container">
+                                <table id="anteprimaTable" class="anteprima-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Prodotto</th>
+                                            <th>Q.tà</th>
+                                            <th>Prezzo Unit.</th>
+                                            <th>Sconto</th>
+                                            <th>Subtotale</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="anteprimaTableBody"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                     
@@ -1863,6 +1940,46 @@
                     showNotification('🔄 Dati aggiornati da altro dispositivo', 'info');
                 }
             });
+        }
+
+        // Funzione per aggiungere i dati dell'azienda di Tommaso
+        function addTommasoCompanyData() {
+            // Controlla se l'azienda di Tommaso esiste già
+            const existingCompany = clienti.find(cliente => 
+                cliente.nomeAzienda === 'Bar e Cantina Tommy' || 
+                (cliente.nome === 'Tommaso' && cliente.tipologia === 'azienda')
+            );
+            
+            if (existingCompany) {
+                // Aggiorna i dati esistenti
+                existingCompany.indirizzo = 'C.so Vittorio Emanuele II, 48 Bitonto (Ba) 70032';
+                existingCompany.telefono = '0803740786';
+                showNotification('✅ Dati azienda Tommaso aggiornati!', 'success');
+            } else {
+                // Aggiungi nuovo cliente azienda
+                const newCompany = {
+                    id: Date.now().toString(),
+                    nome: 'Tommaso',
+                    cognome: '',
+                    email: 'info@bar-cantina-tommy.it',
+                    telefono: '0803740786',
+                    indirizzo: 'C.so Vittorio Emanuele II, 48 Bitonto (Ba) 70032',
+                    citta: 'Bitonto',
+                    cap: '70032',
+                    provincia: 'BA',
+                    tipologia: 'azienda',
+                    nomeAzienda: 'Bar e Cantina Tommy',
+                    note: 'Azienda principale',
+                    dataRegistrazione: new Date().toISOString().split('T')[0]
+                };
+                
+                clienti.push(newCompany);
+                showNotification('✅ Azienda Tommaso aggiunta con successo!', 'success');
+            }
+            
+            // Salva i dati
+            saveDataToStorage();
+            updateAllTables();
         }
 
                 // Salva dati nel localStorage con gestione errori e sincronizzazione
@@ -2746,6 +2863,7 @@
         function rimuoviRigaProdotto(id) {
             righeProdotto = righeProdotto.filter(r => r.id !== id);
             updateProdottiTable();
+            updateAnteprimaTable();
             calcolaTotali();
         }
 
@@ -2771,6 +2889,9 @@
                 `;
                 tbody.appendChild(row);
             });
+            
+            // Aggiorna anche la tabella di anteprima
+            updateAnteprimaTable();
         }
 
         function aggiornaRiga(id, campo, valore) {
@@ -2783,6 +2904,7 @@
                 }
                 calcolaSubtotaleRiga(riga);
                 updateProdottiTable();
+                updateAnteprimaTable();
                 calcolaTotali();
             }
         }
@@ -2797,12 +2919,36 @@
             let scontoImporto = 0;
             
             if (tipoSconto === 'percentuale') {
+                // Sconto percentuale sul totale della riga
                 scontoImporto = subtotale * (valoreSconto / 100);
             } else {
+                // Sconto fisso in euro
                 scontoImporto = valoreSconto;
             }
             
-            riga.subtotaleRiga = subtotale - scontoImporto;
+            riga.subtotaleRiga = Math.max(0, subtotale - scontoImporto);
+        }
+
+        function updateAnteprimaTable() {
+            const tbody = document.getElementById('anteprimaTableBody');
+            tbody.innerHTML = '';
+            
+            righeProdotto.forEach(riga => {
+                const tipoSconto = riga.tipoSconto || 'percentuale';
+                const valoreSconto = riga.valoreSconto || 0;
+                const simboloSconto = tipoSconto === 'percentuale' ? '%' : '€';
+                const scontoDisplay = valoreSconto > 0 ? `${valoreSconto}${simboloSconto}` : '-';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${riga.prodotto}</td>
+                    <td>${riga.quantita}</td>
+                    <td>€${riga.prezzoUnitario.toFixed(2)}</td>
+                    <td class="sconto-cell">${scontoDisplay}</td>
+                    <td class="subtotale-cell">€${riga.subtotaleRiga.toFixed(2)}</td>
+                `;
+                tbody.appendChild(row);
+            });
         }
 
         function calcolaTotali() {
@@ -2900,6 +3046,7 @@
             
             righeProdotto.push(riga);
             updateProdottiTable();
+            updateAnteprimaTable();
             calcolaTotali();
             hideCatalogoModal();
         }
@@ -3981,6 +4128,9 @@
                 
                 // Carica i dati salvati
                 await loadDataFromStorage();
+                
+                // Aggiungi i dati dell'azienda di Tommaso
+                addTommasoCompanyData();
                 
                 // Controlla se GitHub è già configurato
                 const hasGitHubToken = localStorage.getItem('tommy_github_token');
