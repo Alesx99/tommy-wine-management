@@ -4206,7 +4206,7 @@
             XLSX.writeFile(wb, filename);
         }
 
-        // Funzione per stampare il listino vini
+        // Funzione per stampare il listino vini - VERSIONE MODERNA ED ELEGANTE
         function printWineList() {
             if (vini.length === 0) {
                 alert('Nessun vino disponibile per la stampa!');
@@ -4229,33 +4229,63 @@
                 viniPerTipologia[vino.tipologia].push(vino);
             });
 
-            // Crea il contenuto HTML per la stampa
+            // Crea il contenuto HTML per la stampa con design moderno
             let printContent = `
                 <div class="print-wine-list">
                     <div class="wine-header">
+                        <div class="header-decoration">
+                            <div class="decoration-line"></div>
+                            <div class="decoration-icon">🍷</div>
+                            <div class="decoration-line"></div>
+                        </div>
                         <h1 class="wine-title">Privilege Cafè&Wine</h1>
-                        <p class="wine-subtitle">Listino Vini - ${tipoText}</p>
-                        <p class="wine-date">Aggiornato al ${new Date().toLocaleDateString('it-IT')}</p>
+                        <div class="wine-subtitle-container">
+                            <p class="wine-subtitle">Listino Vini - ${tipoText}</p>
+                            <div class="price-type-badge">${tipoText}</div>
+                        </div>
+                        <p class="wine-date">Aggiornato al ${new Date().toLocaleDateString('it-IT', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        })}</p>
+                        <div class="header-footer-decoration">
+                            <div class="decoration-dots"></div>
+                        </div>
                     </div>
             `;
 
             // Aggiungi i vini raggruppati per tipologia
             Object.keys(viniPerTipologia).forEach((tipologia, index) => {
-                if (index > 0 && index % 8 === 0) {
+                if (index > 0 && index % 6 === 0) {
                     printContent += '<div class="page-break"></div>';
                 }
                 
-                printContent += `<div class="wine-category">${tipologia.charAt(0).toUpperCase() + tipologia.slice(1)}</div>`;
+                printContent += `
+                    <div class="wine-category">
+                        <div class="category-icon">🍇</div>
+                        <div class="category-title">${tipologia.charAt(0).toUpperCase() + tipologia.slice(1)}</div>
+                        <div class="category-decoration"></div>
+                    </div>
+                `;
                 
-                viniPerTipologia[tipologia].forEach(vino => {
+                viniPerTipologia[tipologia].forEach((vino, vinoIndex) => {
+                    const isLast = vinoIndex === viniPerTipologia[tipologia].length - 1;
                     printContent += `
-                        <div class="wine-item">
-                            <div class="wine-name">${vino.nome}</div>
-                            <div class="wine-producer">${vino.produttore}</div>
-                            <div class="wine-year">${vino.annata}</div>
-                            <div class="wine-unit">${vino.unitaMisura || 'bottiglie'}</div>
-                            <div class="wine-vitigno">${vino.vitigno || '-'}</div>
-                            <div class="wine-price">€${vino[prezzoField].toFixed(2)}</div>
+                        <div class="wine-item ${isLast ? 'last-item' : ''}">
+                            <div class="wine-info">
+                                <div class="wine-name">${vino.nome}</div>
+                                <div class="wine-details">
+                                    <span class="wine-producer">${vino.produttore}</span>
+                                    <span class="wine-separator">•</span>
+                                    <span class="wine-year">${vino.annata}</span>
+                                    ${vino.vitigno ? `<span class="wine-separator">•</span><span class="wine-vitigno">${vino.vitigno}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="wine-pricing">
+                                <div class="wine-unit">${vino.unitaMisura || 'bottiglie'}</div>
+                                <div class="wine-price">€${vino[prezzoField].toFixed(2)}</div>
+                            </div>
                         </div>
                     `;
                 });
@@ -4263,189 +4293,399 @@
 
             printContent += `
                     <div class="wine-footer">
-                        <p>Privilege Cafè&Wine - Listino prezzi al ${tipoText.toLowerCase()}</p>
-                        <p>I prezzi sono espressi in Euro e includono IVA</p>
+                        <div class="footer-decoration">
+                            <div class="footer-line"></div>
+                            <div class="footer-icon">🍷</div>
+                            <div class="footer-line"></div>
+                        </div>
+                        <div class="footer-content">
+                            <p class="footer-title">Privilege Cafè&Wine</p>
+                            <p class="footer-subtitle">Listino prezzi al ${tipoText.toLowerCase()}</p>
+                            <p class="footer-note">I prezzi sono espressi in Euro e includono IVA</p>
+                        </div>
                     </div>
                 </div>
             `;
 
-            // Crea una nuova finestra per la stampa
+            // Crea una nuova finestra per la stampa con design moderno
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
                 <!DOCTYPE html>
                 <html>
                 <head>
                     <title>Listino Vini ${tipoText} - Privilege Cafè&Wine</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
                     <style>
+                        * {
+                            box-sizing: border-box;
+                        }
+                        
                         body {
-                            font-family: 'Arial', sans-serif;
+                            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
                             margin: 0;
-                            padding: 20px;
-                            background: white;
+                            padding: 0;
+                            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+                            color: #2c3e50;
+                            line-height: 1.6;
                         }
                         
                         .print-wine-list {
-                            max-width: 800px;
+                            max-width: 900px;
                             margin: 0 auto;
+                            background: white;
+                            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                            border-radius: 16px;
+                            overflow: hidden;
                         }
                         
+                        /* Header Moderno */
                         .wine-header {
+                            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                            color: white;
+                            padding: 40px 30px;
                             text-align: center;
-                            margin-bottom: 30px;
-                            border-bottom: 3px solid #228B22;
-                            padding-bottom: 20px;
                             position: relative;
-                        }
-                        
-                        .wine-header::before,
-                        .wine-header::after {
-                            content: '🍷';
-                            font-size: 24px;
-                            position: absolute;
-                            top: 50%;
-                            transform: translateY(-50%);
+                            overflow: hidden;
                         }
                         
                         .wine-header::before {
-                            left: 20px;
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+                            opacity: 0.3;
                         }
                         
-                        .wine-header::after {
-                            right: 20px;
+                        .header-decoration {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-bottom: 20px;
+                            gap: 15px;
+                        }
+                        
+                        .decoration-line {
+                            height: 2px;
+                            width: 60px;
+                            background: linear-gradient(90deg, transparent, #e74c3c, transparent);
+                            border-radius: 1px;
+                        }
+                        
+                        .decoration-icon {
+                            font-size: 24px;
+                            opacity: 0.9;
                         }
                         
                         .wine-title {
-                            font-size: 36px;
-                            font-weight: bold;
-                            color: #228B22;
-                            margin: 0;
-                            font-family: 'Georgia', serif;
+                            font-family: 'Playfair Display', serif;
+                            font-size: 42px;
+                            font-weight: 700;
+                            margin: 0 0 10px 0;
+                            background: linear-gradient(135deg, #ffffff 0%, #ecf0f1 100%);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            background-clip: text;
+                            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        }
+                        
+                        .wine-subtitle-container {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 15px;
+                            margin: 15px 0;
                         }
                         
                         .wine-subtitle {
                             font-size: 18px;
-                            color: #666;
-                            margin: 10px 0 0 0;
-                            font-style: italic;
+                            font-weight: 400;
+                            margin: 0;
+                            opacity: 0.9;
+                        }
+                        
+                        .price-type-badge {
+                            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+                            color: white;
+                            padding: 8px 16px;
+                            border-radius: 20px;
+                            font-size: 14px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
                         }
                         
                         .wine-date {
                             font-size: 14px;
-                            color: #888;
-                            margin: 5px 0 0 0;
+                            opacity: 0.8;
+                            margin: 10px 0 0 0;
+                            font-weight: 300;
                         }
                         
+                        .header-footer-decoration {
+                            margin-top: 20px;
+                        }
+                        
+                        .decoration-dots {
+                            display: flex;
+                            justify-content: center;
+                            gap: 8px;
+                        }
+                        
+                        .decoration-dots::before,
+                        .decoration-dots::after {
+                            content: '';
+                            width: 4px;
+                            height: 4px;
+                            background: #e74c3c;
+                            border-radius: 50%;
+                            opacity: 0.6;
+                        }
+                        
+                        /* Categorie */
                         .wine-category {
-                            margin: 40px 0 20px 0;
-                            font-size: 24px;
-                            font-weight: bold;
-                            color: #228B22;
-                            border-bottom: 2px solid #228B22;
-                            padding-bottom: 12px;
-                            text-transform: uppercase;
-                            letter-spacing: 1px;
+                            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+                            margin: 30px 20px 20px 20px;
+                            padding: 20px;
+                            border-radius: 12px;
+                            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
                             position: relative;
-                            text-align: center;
+                            overflow: hidden;
                         }
                         
                         .wine-category::before {
                             content: '';
                             position: absolute;
-                            top: 50%;
+                            top: 0;
                             left: 0;
                             right: 0;
-                            height: 1px;
-                            background: linear-gradient(to right, transparent, #228B22, transparent);
+                            height: 3px;
+                            background: linear-gradient(90deg, #e74c3c, #f39c12, #e74c3c);
                         }
                         
-                        .wine-category::after {
-                            content: '🍇';
+                        .category-icon {
                             position: absolute;
-                            top: 50%;
-                            right: 10px;
-                            transform: translateY(-50%);
-                            font-size: 18px;
+                            top: 15px;
+                            right: 15px;
+                            font-size: 20px;
+                            opacity: 0.3;
                         }
                         
+                        .category-title {
+                            font-family: 'Playfair Display', serif;
+                            font-size: 28px;
+                            font-weight: 600;
+                            color: #2c3e50;
+                            text-transform: uppercase;
+                            letter-spacing: 2px;
+                            margin-bottom: 15px;
+                            position: relative;
+                        }
+                        
+                        .category-decoration {
+                            height: 2px;
+                            width: 60px;
+                            background: linear-gradient(90deg, #e74c3c, #f39c12);
+                            border-radius: 1px;
+                            margin-top: 10px;
+                        }
+                        
+                        /* Elementi vino */
                         .wine-item {
                             display: flex;
                             justify-content: space-between;
                             align-items: center;
-                            padding: 12px 0;
-                            border-bottom: 1px solid #f0f0f0;
-                            font-size: 16px;
+                            padding: 16px 20px;
+                            margin: 8px 0;
+                            background: white;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+                            transition: all 0.3s ease;
+                            border-left: 4px solid transparent;
                         }
                         
-                        .wine-item:last-child {
-                            border-bottom: 2px solid #ddd;
+                        .wine-item:hover {
+                            border-left-color: #e74c3c;
+                            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+                            transform: translateX(4px);
+                        }
+                        
+                        .wine-item.last-item {
+                            border-bottom: 2px solid #ecf0f1;
+                            margin-bottom: 0;
+                        }
+                        
+                        .wine-info {
+                            flex: 1;
+                            min-width: 0;
                         }
                         
                         .wine-name {
                             font-weight: 600;
-                            color: #333;
-                            flex: 2;
-                            min-width: 200px;
+                            font-size: 18px;
+                            color: #2c3e50;
+                            margin-bottom: 4px;
+                            line-height: 1.3;
+                        }
+                        
+                        .wine-details {
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            font-size: 14px;
+                            color: #7f8c8d;
+                            flex-wrap: wrap;
                         }
                         
                         .wine-producer {
                             font-weight: 500;
-                            color: #555;
-                            flex: 1;
-                            min-width: 120px;
-                            text-align: center;
+                            color: #34495e;
+                        }
+                        
+                        .wine-separator {
+                            color: #bdc3c7;
+                            font-weight: bold;
                         }
                         
                         .wine-year {
                             font-weight: 500;
-                            color: #666;
-                            flex: 0 0 60px;
-                            text-align: center;
+                            color: #e67e22;
+                        }
+                        
+                        .wine-vitigno {
+                            font-style: italic;
+                            color: #8e44ad;
+                        }
+                        
+                        .wine-pricing {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: flex-end;
+                            gap: 4px;
+                            min-width: 120px;
                         }
                         
                         .wine-unit {
                             font-size: 12px;
-                            color: #888;
-                            flex: 0 0 80px;
-                            text-align: center;
-                        }
-                        
-                        .wine-vitigno {
-                            font-size: 14px;
-                            color: #666;
-                            font-style: italic;
-                            flex: 0 0 100px;
-                            text-align: center;
+                            color: #95a5a6;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
                         }
                         
                         .wine-price {
-                            font-weight: bold;
-                            color: #228B22;
-                            font-size: 18px;
-                            min-width: 80px;
-                            text-align: right;
+                            font-weight: 700;
+                            font-size: 20px;
+                            color: #e74c3c;
+                            background: linear-gradient(135deg, #e74c3c, #c0392b);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            background-clip: text;
                         }
                         
+                        /* Footer */
+                        .wine-footer {
+                            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                            color: white;
+                            padding: 30px;
+                            text-align: center;
+                            margin-top: 40px;
+                        }
+                        
+                        .footer-decoration {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-bottom: 20px;
+                            gap: 15px;
+                        }
+                        
+                        .footer-line {
+                            height: 2px;
+                            width: 60px;
+                            background: linear-gradient(90deg, transparent, #e74c3c, transparent);
+                            border-radius: 1px;
+                        }
+                        
+                        .footer-icon {
+                            font-size: 20px;
+                            opacity: 0.8;
+                        }
+                        
+                        .footer-content {
+                            max-width: 500px;
+                            margin: 0 auto;
+                        }
+                        
+                        .footer-title {
+                            font-family: 'Playfair Display', serif;
+                            font-size: 24px;
+                            font-weight: 600;
+                            margin: 0 0 10px 0;
+                            opacity: 0.95;
+                        }
+                        
+                        .footer-subtitle {
+                            font-size: 16px;
+                            margin: 0 0 8px 0;
+                            opacity: 0.8;
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                        }
+                        
+                        .footer-note {
+                            font-size: 14px;
+                            margin: 0;
+                            opacity: 0.7;
+                            font-style: italic;
+                        }
+                        
+                        /* Page breaks */
                         .page-break {
                             page-break-before: always;
                         }
                         
-                        .wine-footer {
-                            margin-top: 40px;
-                            text-align: center;
-                            font-size: 12px;
-                            color: #888;
-                            border-top: 1px solid #ddd;
-                            padding-top: 20px;
-                        }
-                        
+                        /* Print styles */
                         @media print {
                             body {
                                 margin: 0;
                                 padding: 0;
+                                background: white;
+                            }
+                            
+                            .print-wine-list {
+                                box-shadow: none;
+                                border-radius: 0;
                             }
                             
                             .wine-item {
                                 page-break-inside: avoid;
+                            }
+                            
+                            .wine-category {
+                                page-break-inside: avoid;
+                            }
+                        }
+                        
+                        /* Responsive */
+                        @media (max-width: 768px) {
+                            .wine-item {
+                                flex-direction: column;
+                                align-items: flex-start;
+                                gap: 10px;
+                            }
+                            
+                            .wine-pricing {
+                                align-items: flex-start;
+                                width: 100%;
+                            }
+                            
+                            .wine-details {
+                                flex-direction: column;
+                                align-items: flex-start;
+                                gap: 4px;
                             }
                         }
                     </style>
