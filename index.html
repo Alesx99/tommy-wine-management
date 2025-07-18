@@ -2814,85 +2814,178 @@
 
         <!-- TAB BENVENUTO (Solo per ospiti) -->
         <div id="benvenuto" class="tab-content guest-only" style="display: none;">
-            <div class="welcome-section">
-                <div class="welcome-header">
-                    <h2>🏠 Benvenuto in Gestione Tommy</h2>
-                    <p class="welcome-subtitle">Privilege Cafè&Wine - Modalità Ospite</p>
+            <div class="modern-welcome-section">
+                <!-- Hero Section con Gradiente Animato -->
+                <div class="hero-section">
+                    <div class="hero-background">
+                        <div class="gradient-overlay"></div>
+                        <div class="floating-elements">
+                            <div class="floating-icon">🍷</div>
+                            <div class="floating-icon">🍺</div>
+                            <div class="floating-icon">🥃</div>
+                            <div class="floating-icon">🍾</div>
+                        </div>
+                    </div>
+                    <div class="hero-content">
+                        <div class="welcome-badge">
+                            <span class="badge-icon">👋</span>
+                            <span class="badge-text">Modalità Ospite</span>
+                        </div>
+                        <h1 class="hero-title">Benvenuto in <span class="highlight">Gestione Tommy</span></h1>
+                        <p class="hero-subtitle">Privilege Cafè&Wine - Il tuo catalogo digitale</p>
+                        <div class="hero-stats">
+                            <div class="stat-card">
+                                <div class="stat-icon">🍺</div>
+                                <div class="stat-info">
+                                    <span class="stat-number" id="prodottiCount">0</span>
+                                    <span class="stat-label">Prodotti</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">🍷</div>
+                                <div class="stat-info">
+                                    <span class="stat-number" id="viniCount">0</span>
+                                    <span class="stat-label">Vini</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">📊</div>
+                                <div class="stat-info">
+                                    <span class="stat-number" id="categorieCount">0</span>
+                                    <span class="stat-label">Categorie</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="welcome-content">
-                    <div class="welcome-info">
-                        <h3>👋 Ciao Ospite!</h3>
-                        <p>Benvenuto nel sistema di gestione di Privilege Cafè&Wine. In modalità ospite puoi visualizzare i cataloghi di prodotti e vini.</p>
-                        
-                        <div class="guest-features">
-                            <h4>🎯 Cosa puoi fare:</h4>
-                            <ul>
-                                <li>📋 Visualizzare il catalogo prodotti</li>
-                                <li>🍷 Consultare la lista vini</li>
-                                <li>🔍 Cercare e filtrare i prodotti</li>
-                                <li>📊 Esportare i dati in Excel</li>
-                            </ul>
-                        </div>
+
+                <!-- Sezione Azioni Principali -->
+                <div class="actions-section">
+                    <div class="section-header">
+                        <h2>🚀 Esplora i Cataloghi</h2>
+                        <p>Scegli cosa vuoi visualizzare</p>
                     </div>
                     
-                    <div class="welcome-menu">
-                        <h3>🚀 Inizia subito</h3>
-                        <div class="menu-cards">
-                            <div class="menu-card" onclick="navigateToSection('prodotti')">
-                                <div class="menu-card-icon">🍺</div>
-                                <h4>Prodotti</h4>
-                                <p>Catalogo completo di distillati, liquori, birre e altri prodotti</p>
-                                <div class="menu-card-stats">
-                                    <span class="stat-item">
-                                        <strong>${prodotti.length}</strong>
-                                        <small>Prodotti</small>
-                                    </span>
-                                    <span class="stat-item">
-                                        <strong>${new Set(prodotti.map(p => p.categoriaPrincipale)).size}</strong>
-                                        <small>Categorie</small>
-                                    </span>
+                    <div class="action-cards">
+                        <div class="action-card primary" onclick="navigateToSection('prodotti')">
+                            <div class="card-glow"></div>
+                            <div class="card-content">
+                                <div class="card-icon">
+                                    <span class="icon-emoji">🍺</span>
+                                    <div class="icon-background"></div>
                                 </div>
-                                <button class="btn btn-primary menu-card-btn">📋 Vai ai Prodotti</button>
+                                <div class="card-info">
+                                    <h3>Catalogo Prodotti</h3>
+                                    <p>Distillati, liquori, birre e molto altro</p>
+                                    <div class="card-stats">
+                                        <div class="stat">
+                                            <span class="stat-value" id="prodottiTotal">0</span>
+                                            <span class="stat-label">Prodotti</span>
+                                        </div>
+                                        <div class="stat">
+                                            <span class="stat-value" id="categorieTotal">0</span>
+                                            <span class="stat-label">Categorie</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-action">
+                                    <button class="modern-btn">
+                                        <span>Esplora</span>
+                                        <svg class="arrow-icon" viewBox="0 0 24 24">
+                                            <path d="M7 17l9.2-9.2M17 17V7H7"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
-                            
-                            <div class="menu-card" onclick="navigateToSection('vini')">
-                                <div class="menu-card-icon">🍷</div>
-                                <h4>Vini</h4>
-                                <p>Selezione di vini italiani e internazionali</p>
-                                <div class="menu-card-stats">
-                                    <span class="stat-item">
-                                        <strong>${vini.length}</strong>
-                                        <small>Vini</small>
-                                    </span>
-                                    <span class="stat-item">
-                                        <strong>${new Set(vini.map(v => v.tipologia)).size}</strong>
-                                        <small>Tipologie</small>
-                                    </span>
+                        </div>
+
+                        <div class="action-card secondary" onclick="navigateToSection('vini')">
+                            <div class="card-glow"></div>
+                            <div class="card-content">
+                                <div class="card-icon">
+                                    <span class="icon-emoji">🍷</span>
+                                    <div class="icon-background"></div>
                                 </div>
-                                <button class="btn btn-primary menu-card-btn">🍷 Vai ai Vini</button>
+                                <div class="card-info">
+                                    <h3>Selezione Vini</h3>
+                                    <p>Vini italiani e internazionali di qualità</p>
+                                    <div class="card-stats">
+                                        <div class="stat">
+                                            <span class="stat-value" id="viniTotal">0</span>
+                                            <span class="stat-label">Vini</span>
+                                        </div>
+                                        <div class="stat">
+                                            <span class="stat-value" id="tipologieTotal">0</span>
+                                            <span class="stat-label">Tipologie</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-action">
+                                    <button class="modern-btn">
+                                        <span>Esplora</span>
+                                        <svg class="arrow-icon" viewBox="0 0 24 24">
+                                            <path d="M7 17l9.2-9.2M17 17V7H7"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Sezione Azioni Rapide -->
+                <div class="quick-actions-section">
+                    <div class="section-header">
+                        <h2>⚡ Azioni Rapide</h2>
+                        <p>Accedi velocemente alle funzioni più utilizzate</p>
+                    </div>
                     
-                    <div class="welcome-footer">
-                        <div class="quick-actions">
-                            <h4>⚡ Azioni Rapide</h4>
-                            <div class="quick-actions-grid">
-                                <button class="btn btn-success" onclick="exportToExcel('prodotti')">
-                                    📊 Esporta Prodotti
-                                </button>
-                                <button class="btn btn-success" onclick="exportToExcel('vini')">
-                                    📊 Esporta Vini
-                                </button>
-                                <button class="btn btn-info" onclick="printWineList()">
-                                    🖨️ Stampa Listino Vini
-                                </button>
+                    <div class="quick-actions-grid">
+                        <div class="quick-action-card" onclick="exportToExcel('prodotti')">
+                            <div class="action-icon">📊</div>
+                            <div class="action-content">
+                                <h4>Esporta Prodotti</h4>
+                                <p>Scarica il catalogo completo</p>
                             </div>
+                            <div class="action-arrow">→</div>
                         </div>
-                        
-                        <div class="guest-note">
-                            <p><strong>💡 Nota:</strong> In modalità ospite non puoi modificare i dati. Per accedere alle funzioni complete, contatta l'amministratore.</p>
+
+                        <div class="quick-action-card" onclick="exportToExcel('vini')">
+                            <div class="action-icon">📊</div>
+                            <div class="action-content">
+                                <h4>Esporta Vini</h4>
+                                <p>Scarica la lista vini</p>
+                            </div>
+                            <div class="action-arrow">→</div>
+                        </div>
+
+                        <div class="quick-action-card" onclick="printWineList()">
+                            <div class="action-icon">🖨️</div>
+                            <div class="action-content">
+                                <h4>Stampa Listino</h4>
+                                <p>Genera listino vini</p>
+                            </div>
+                            <div class="action-arrow">→</div>
+                        </div>
+
+                        <div class="quick-action-card" onclick="showNotification('🔍 Funzione di ricerca avanzata disponibile nelle sezioni Prodotti e Vini', 'info')">
+                            <div class="action-icon">🔍</div>
+                            <div class="action-content">
+                                <h4>Ricerca Avanzata</h4>
+                                <p>Filtra e cerca prodotti</p>
+                            </div>
+                            <div class="action-arrow">→</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sezione Informazioni -->
+                <div class="info-section">
+                    <div class="info-card">
+                        <div class="info-icon">💡</div>
+                        <div class="info-content">
+                            <h4>Modalità Ospite</h4>
+                            <p>In questa modalità puoi visualizzare e consultare i cataloghi. Per modificare i dati o accedere alle funzioni complete, contatta l'amministratore del sistema.</p>
                         </div>
                     </div>
                 </div>
@@ -4517,43 +4610,36 @@
 
         // Funzione per aggiornare le statistiche della sezione benvenuto
         function updateWelcomeStats() {
-            // Aggiorna statistiche prodotti
-            const prodottiStats = document.querySelector('.menu-card[onclick="navigateToSection(\'prodotti\')"] .menu-card-stats');
-            if (prodottiStats) {
-                const prodottiCount = prodotti.length;
+            // Aggiorna statistiche hero section
+            const prodottiCount = document.getElementById('prodottiCount');
+            const viniCount = document.getElementById('viniCount');
+            const categorieCount = document.getElementById('categorieCount');
+            
+            if (prodottiCount) prodottiCount.textContent = prodotti.length;
+            if (viniCount) viniCount.textContent = vini.length;
+            if (categorieCount) {
+                const categorieTotal = new Set(prodotti.map(p => p.categoriaPrincipale)).size;
+                categorieCount.textContent = categorieTotal;
+            }
+
+            // Aggiorna statistiche action cards
+            const prodottiTotal = document.getElementById('prodottiTotal');
+            const categorieTotal = document.getElementById('categorieTotal');
+            const viniTotal = document.getElementById('viniTotal');
+            const tipologieTotal = document.getElementById('tipologieTotal');
+            
+            if (prodottiTotal) prodottiTotal.textContent = prodotti.length;
+            if (categorieTotal) {
                 const categorieCount = new Set(prodotti.map(p => p.categoriaPrincipale)).size;
-                
-                prodottiStats.innerHTML = `
-                    <span class="stat-item">
-                        <strong>${prodottiCount}</strong>
-                        <small>Prodotti</small>
-                    </span>
-                    <span class="stat-item">
-                        <strong>${categorieCount}</strong>
-                        <small>Categorie</small>
-                    </span>
-                `;
+                categorieTotal.textContent = categorieCount;
             }
-            
-            // Aggiorna statistiche vini
-            const viniStats = document.querySelector('.menu-card[onclick="navigateToSection(\'vini\')"] .menu-card-stats');
-            if (viniStats) {
-                const viniCount = vini.length;
+            if (viniTotal) viniTotal.textContent = vini.length;
+            if (tipologieTotal) {
                 const tipologieCount = new Set(vini.map(v => v.tipologia)).size;
-                
-                viniStats.innerHTML = `
-                    <span class="stat-item">
-                        <strong>${viniCount}</strong>
-                        <small>Vini</small>
-                    </span>
-                    <span class="stat-item">
-                        <strong>${tipologieCount}</strong>
-                        <small>Tipologie</small>
-                    </span>
-                `;
+                tipologieTotal.textContent = tipologieCount;
             }
             
-            console.log('📊 Statistiche benvenuto aggiornate');
+            console.log('📊 Statistiche benvenuto moderne aggiornate');
         }
 
         // Funzione per nascondere completamente i prezzi di acquisto per ospiti
@@ -7453,202 +7539,466 @@
             opacity: 1;
         }
 
-        /* Stili per la scheda di benvenuto */
+        /* ===== SEZIONE BENVENUTO MODERNA ===== */
+        .modern-welcome-section {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            padding: 60px 20px;
+            text-align: center;
+            color: white;
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 1;
+        }
+
+        .gradient-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
+            z-index: 2;
+        }
+
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 3;
+            overflow: hidden;
+        }
+
+        .floating-icon {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-icon:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .floating-icon:nth-child(2) { top: 20%; right: 15%; animation-delay: 2s; }
+        .floating-icon:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 4s; }
+        .floating-icon:nth-child(4) { bottom: 20%; right: 10%; animation-delay: 1s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 4;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .welcome-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .badge-icon {
+            font-size: 1.2rem;
+        }
+
+        .badge-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .highlight {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 120px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Actions Section */
+        .actions-section {
+            padding: 60px 20px;
+            background: white;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .action-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .action-card {
+            position: relative;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .action-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-card.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .action-card.secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .card-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .action-card:hover .card-glow {
+            transform: translateX(100%);
+        }
+
+        .card-content {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .card-icon {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .icon-emoji {
+            font-size: 3rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .icon-background {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .card-info {
+            flex: 1;
+        }
+
+        .card-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .card-info p {
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .card-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .card-action {
+            flex-shrink: 0;
+        }
+
+        .modern-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .modern-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .arrow-icon {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            transition: transform 0.3s ease;
+        }
+
+        .modern-btn:hover .arrow-icon {
+            transform: translateX(3px);
+        }
+
+        /* Quick Actions Section */
+        .quick-actions-section {
+            padding: 60px 20px;
+            background: #f8f9fa;
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .quick-action-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .action-content {
+            flex: 1;
+        }
+
+        .action-content h4 {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .action-content p {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .action-arrow {
+            font-size: 1.2rem;
+            color: #667eea;
+            transition: transform 0.3s ease;
+        }
+
+        .quick-action-card:hover .action-arrow {
+            transform: translateX(5px);
+        }
+
+        /* Info Section */
+        .info-section {
+            padding: 40px 20px;
+            background: white;
+        }
+
+        .info-card {
+            max-width: 800px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .info-icon {
+            font-size: 2.5rem;
+            flex-shrink: 0;
+        }
+
+        .info-content h4 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .info-content p {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .action-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .card-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .quick-actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-card {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* Stili legacy per compatibilità */
         .welcome-section {
             max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
         }
-
-        .welcome-header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 30px;
-            background: linear-gradient(135deg, #1a5f3a 0%, #2d5a3d 100%);
-            color: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .welcome-header h2 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .welcome-subtitle {
-            font-size: 1.2em;
-            opacity: 0.9;
-            margin: 0;
-        }
-
-        .welcome-content {
-            display: grid;
-            gap: 40px;
-        }
-
-        .welcome-info {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            border-left: 5px solid #1a5f3a;
-        }
-
-        .welcome-info h3 {
-            color: #1a5f3a;
-            font-size: 1.8em;
-            margin-bottom: 15px;
-        }
-
-        .welcome-info p {
-            font-size: 1.1em;
-            line-height: 1.6;
-            color: #555;
-            margin-bottom: 20px;
-        }
-
-        .guest-features {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-
-        .guest-features h4 {
-            color: #1a5f3a;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .guest-features ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .guest-features li {
-            padding: 8px 0;
-            border-bottom: 1px solid #e9ecef;
-            font-size: 1.1em;
-        }
-
-        .guest-features li:last-child {
-            border-bottom: none;
-        }
-
-        .welcome-menu {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        }
-
-        .welcome-menu h3 {
-            color: #1a5f3a;
-            font-size: 1.8em;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .menu-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-
-        .menu-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            border: 2px solid #e9ecef;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .menu-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-            border-color: #1a5f3a;
-        }
-
-        .menu-card-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-            display: block;
-        }
-
-        .menu-card h4 {
-            color: #1a5f3a;
-            font-size: 1.5em;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .menu-card p {
-            color: #666;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-
-        .menu-card-stats {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 25px;
-            padding: 15px;
-            background: rgba(26, 95, 58, 0.1);
-            border-radius: 10px;
-        }
-
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .stat-item strong {
-            font-size: 1.5em;
-            color: #1a5f3a;
-            font-weight: 700;
-        }
-
-        .stat-item small {
-            color: #666;
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-
-        .menu-card-btn {
-            width: 100%;
-            padding: 15px;
-            font-size: 1.1em;
-            font-weight: 600;
-        }
-
-        .welcome-footer {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        }
-
-        .quick-actions h4 {
-            color: #1a5f3a;
-            font-size: 1.5em;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .quick-actions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .guest-note {
             background: #fff3cd;
             border: 1px solid #ffeaa7;
             border-radius: 10px;
