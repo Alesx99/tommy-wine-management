@@ -4257,6 +4257,14 @@
                     benvenutoSection.classList.remove('active');
                     benvenutoSection.classList.remove('guest-only');
                 }
+                
+                // Nascondi anche la tab benvenuto per admin
+                const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
+                if (benvenutoTab) {
+                    benvenutoTab.style.display = 'none';
+                    benvenutoTab.classList.remove('active');
+                    benvenutoTab.classList.add('guest-only');
+                }
             }
 
             // Mostra la tab selezionata
@@ -4334,6 +4342,14 @@
                     }
                 });
                 
+                // Mostra la tab benvenuto per ospiti
+                const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
+                if (benvenutoTab) {
+                    benvenutoTab.style.display = 'block';
+                    benvenutoTab.classList.add('guest-only');
+                    benvenutoTab.classList.add('active');
+                }
+                
                 // Disabilita funzioni di modifica per ospiti
                 disableEditFunctions();
                 
@@ -4352,10 +4368,12 @@
                     benvenutoSection.classList.remove('guest-only');
                 }
                 
-                // Rimuovi la classe active dalla tab benvenuto per admin
+                // Nascondi la tab benvenuto per admin
                 const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
                 if (benvenutoTab) {
+                    benvenutoTab.style.display = 'none';
                     benvenutoTab.classList.remove('active');
+                    benvenutoTab.classList.add('guest-only');
                 }
                 
                 // Mostra elementi admin
@@ -8099,6 +8117,16 @@
             display: block;
         }
 
+        /* Nascondi tab benvenuto per admin */
+        .nav-tab.guest-only {
+            display: none !important;
+        }
+
+        /* Mostra tab benvenuto solo per ospiti */
+        .nav-tab.guest-only.active {
+            display: block !important;
+        }
+
         .welcome-section {
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
             border-radius: 20px;
@@ -9227,7 +9255,11 @@
             
             // Nascondi scheda di benvenuto per admin
             const benvenutoTabElement = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
-            if (benvenutoTabElement) benvenutoTabElement.style.display = 'none';
+            if (benvenutoTabElement) {
+                benvenutoTabElement.style.display = 'none';
+                benvenutoTabElement.classList.remove('active');
+                benvenutoTabElement.classList.add('guest-only');
+            }
             
             // Nascondi specificamente la sezione benvenuto per admin
             const benvenutoSection = document.getElementById('benvenuto');
@@ -9309,6 +9341,7 @@
             if (benvenutoTab) {
                 benvenutoTab.style.display = 'block';
                 benvenutoTab.classList.add('guest-only');
+                benvenutoTab.classList.add('active');
             }
             
                                         // Mostra la sezione benvenuto per ospiti
@@ -9400,6 +9433,14 @@
             if (benvenutoSection) {
                 benvenutoSection.style.display = 'none';
                 benvenutoSection.classList.remove('guest-only');
+            }
+            
+            // Nascondi specificamente la tab benvenuto
+            const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
+            if (benvenutoTab) {
+                benvenutoTab.style.display = 'none';
+                benvenutoTab.classList.remove('active');
+                benvenutoTab.classList.add('guest-only');
             }
             
             // Rimuovi note per ospiti
