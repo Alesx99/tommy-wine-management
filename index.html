@@ -8,11 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #2563eb;
-            --primary-dark: #1d4ed8;
-            --primary-light: #3b82f6;
+            --primary-color: #059669;
+            --primary-dark: #047857;
+            --primary-light: #10b981;
             --secondary-color: #64748b;
-            --success-color: #10b981;
+            --success-color: #059669;
             --warning-color: #f59e0b;
             --danger-color: #ef4444;
             --info-color: #06b6d4;
@@ -231,7 +231,7 @@
         .form-group textarea:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
             transform: translateY(-1px);
         }
 
@@ -937,7 +937,7 @@
         .security-modal input:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
         }
 
         .security-warning {
@@ -6686,7 +6686,7 @@
         }
         
         .slider-btn {
-            background: #007bff;
+            background: var(--primary-color);
             color: white;
             border: none;
             border-radius: 50%;
@@ -6702,7 +6702,7 @@
         }
         
         .slider-btn:hover {
-            background: #0056b3;
+            background: var(--primary-dark);
             transform: scale(1.1);
         }
         
@@ -7721,29 +7721,68 @@
 
         .news-item {
             border-bottom: 1px solid rgba(0,0,0,0.08);
-            padding: 20px;
+            padding: 0;
             transition: all 0.3s ease;
-            border-radius: 10px;
-            margin: 10px;
+            border-radius: 15px;
+            margin: 15px 0;
             background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
         }
 
         .news-item:hover {
             background: linear-gradient(135deg, #f8f9fa, #ffffff);
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
 
         .news-item:last-child {
             border-bottom: none;
         }
 
+        .news-content {
+            display: flex;
+            align-items: stretch;
+            min-height: 120px;
+        }
+
+        .news-image {
+            flex: 0 0 200px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .news-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .news-item:hover .news-image img {
+            transform: scale(1.05);
+        }
+
+        .news-text {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .news-item:not(:has(.news-image)) .news-text {
+            padding: 25px;
+        }
+
         .news-title {
             font-weight: 700;
             color: #2c3e50;
             margin-bottom: 12px;
-            font-size: 1.2em;
+            font-size: 1.1em;
             line-height: 1.4;
         }
 
@@ -7751,6 +7790,7 @@
             color: #1a5f3a;
             text-decoration: none;
             transition: color 0.3s ease;
+            display: block;
         }
 
         .news-title a:hover {
@@ -7760,9 +7800,10 @@
 
         .news-description {
             color: #5a6c7d;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             line-height: 1.6;
-            font-size: 1em;
+            font-size: 0.95em;
+            flex: 1;
         }
 
         .news-meta {
@@ -7878,6 +7919,37 @@
             background: rgba(26, 95, 58, 0.1);
             border-radius: 12px;
             font-size: 0.8em;
+        }
+
+        /* Responsive per le notizie */
+        @media (max-width: 768px) {
+            .news-content {
+                flex-direction: column;
+                min-height: auto;
+            }
+
+            .news-image {
+                flex: 0 0 150px;
+                width: 100%;
+            }
+
+            .news-text {
+                padding: 15px;
+            }
+
+            .news-title {
+                font-size: 1em;
+            }
+
+            .news-description {
+                font-size: 0.9em;
+            }
+
+            .news-meta {
+                flex-direction: column;
+                gap: 5px;
+                align-items: flex-start;
+            }
         }
 
         /* Widget Grid Styles */
@@ -9218,7 +9290,7 @@
 
         // Dashboard Functions for Tommaso
         let currentTimeFilter = 'all';
-        let currentNewsSource = 'newsapi';
+        let currentNewsSource = 'gnews';
         let dashboardCharts = {};
 
         function loadTommasoDashboard() {
@@ -9610,7 +9682,7 @@
                 let news = null;
                 let apiError = false;
                 
-                if (currentNewsSource === 'newsapi') {
+                if (currentNewsSource === 'gnews') {
                     try {
                         news = await fetchWineNewsFromAPI();
                         if (!news) {
@@ -9640,16 +9712,25 @@
                     apiError = true;
                 }
                 
-                // Renderizza le notizie con design moderno
+                // Renderizza le notizie con design moderno e immagini
                 newsContainer.innerHTML = news.map((news, index) => `
                     <div class="news-item" style="animation: fadeInUp 0.5s ease ${index * 0.1}s both;">
-                        <div class="news-title">
-                            <a href="${news.url}" target="_blank" rel="noopener noreferrer">${news.title}</a>
-                        </div>
-                        <div class="news-description">${news.description}</div>
-                        <div class="news-meta">
-                            <span class="news-date">${news.publishedAt}</span>
-                            <span class="news-source">${news.source || (apiError ? 'Notizie simulate' : 'Fonte esterna')}</span>
+                        <div class="news-content">
+                            ${news.image ? `
+                                <div class="news-image">
+                                    <img src="${news.image}" alt="${news.title}" onerror="this.style.display='none'">
+                                </div>
+                            ` : ''}
+                            <div class="news-text">
+                                <div class="news-title">
+                                    <a href="${news.url}" target="_blank" rel="noopener noreferrer">${news.title}</a>
+                                </div>
+                                <div class="news-description">${news.description}</div>
+                                <div class="news-meta">
+                                    <span class="news-date">${news.publishedAt}</span>
+                                    <span class="news-source">${news.source || (apiError ? 'Notizie simulate' : 'GNews')}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `).join('');
@@ -9666,13 +9747,17 @@
                 // Fallback a notizie simulate in caso di errore
                 newsContainer.innerHTML = getMockWineNews().map((news, index) => `
                     <div class="news-item" style="animation: fadeInUp 0.5s ease ${index * 0.1}s both;">
-                        <div class="news-title">
-                            <a href="${news.url}" target="_blank">${news.title}</a>
-                        </div>
-                        <div class="news-description">${news.description}</div>
-                        <div class="news-meta">
-                            <span class="news-date">${news.publishedAt}</span>
-                            <span class="news-source">Notizie simulate</span>
+                        <div class="news-content">
+                            <div class="news-text">
+                                <div class="news-title">
+                                    <a href="${news.url}" target="_blank">${news.title}</a>
+                                </div>
+                                <div class="news-description">${news.description}</div>
+                                <div class="news-meta">
+                                    <span class="news-date">${news.publishedAt}</span>
+                                    <span class="news-source">Notizie simulate</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `).join('');
@@ -9685,56 +9770,51 @@
 
         async function fetchWineNewsFromAPI() {
             try {
-                // Usa NewsAPI per ottenere notizie specifiche sui vini
-                // Nota: In produzione, dovresti usare una API key valida
-                const apiKey = 'demo'; // Sostituisci con una API key reale
+                // Usa GNews API per ottenere notizie specifiche sui vini
+                const apiKey = '03f58ed7bfc0ac51ff02e00ae8bfc2c4'; // Chiave GNews
                 
-                // Query più specifiche per notizie sui vini
+                // Query specifiche per notizie sui vini in italiano
                 const wineQueries = [
-                    '"vino italiano" OR "italian wine"',
-                    '"cantina" OR "winery"',
-                    '"viticoltura" OR "viticulture"',
-                    '"enologia" OR "enology"',
-                    '"sommelier" OR "wine expert"',
-                    '"DOC" OR "DOCG" OR "IGT"',
-                    '"Barolo" OR "Chianti" OR "Brunello" OR "Amarone"',
-                    '"vino rosso" OR "vino bianco" OR "vino spumante"',
-                    '"wine tasting" OR "degustazione vini"',
-                    '"wine industry" OR "industria del vino"'
+                    'vino italiano',
+                    'cantina italiana',
+                    'viticoltura',
+                    'enologia',
+                    'sommelier',
+                    'DOC vino',
+                    'Barolo Chianti Brunello',
+                    'vino rosso bianco spumante',
+                    'degustazione vini',
+                    'industria del vino'
                 ];
                 
                 // Seleziona una query casuale per varietà
                 const randomQuery = wineQueries[Math.floor(Math.random() * wineQueries.length)];
                 const language = 'it';
-                const sortBy = 'publishedAt';
+                const country = 'it';
+                const max = 10;
                 
-                const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(randomQuery)}&language=${language}&sortBy=${sortBy}&apiKey=${apiKey}&pageSize=10`;
+                const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(randomQuery)}&lang=${language}&country=${country}&max=${max}&apikey=${apiKey}`;
+                
+                console.log('🔍 Ricerca notizie GNews:', randomQuery);
                 
                 const response = await fetch(url);
                 
                 if (!response.ok) {
                     // Gestisci errori specifici dell'API
-                    if (response.status === 426) {
-                        console.warn('NewsAPI ha cambiato le sue policy - usando notizie simulate');
-                        handleNewsApiError();
-                        return null; // Forza l'uso delle notizie simulate
-                    } else if (response.status === 401) {
-                        console.warn('API key non valida - usando notizie simulate');
-                        handleNewsApiError();
+                    if (response.status === 401) {
+                        console.warn('GNews API key non valida - usando notizie simulate');
                         return null;
                     } else if (response.status === 429) {
-                        console.warn('Rate limit raggiunto - usando notizie simulate');
-                        handleNewsApiError();
+                        console.warn('GNews rate limit raggiunto - usando notizie simulate');
                         return null;
                     } else {
-                        handleNewsApiError();
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
                 }
                 
                 const data = await response.json();
                 
-                if (data.status === 'ok' && data.articles) {
+                if (data.articles && data.articles.length > 0) {
                     // Filtra articoli più rilevanti
                     const wineArticles = data.articles.filter(article => {
                         const title = article.title.toLowerCase();
@@ -9747,28 +9827,30 @@
                             'enologia', 'enology', 'sommelier', 'degustazione', 'tasting',
                             'barolo', 'chianti', 'brunello', 'amarone', 'doc', 'docg',
                             'rosso', 'bianco', 'spumante', 'red wine', 'white wine', 'sparkling',
-                            'uva', 'grape', 'vendemmia', 'harvest', 'bottiglia', 'bottle'
+                            'uva', 'grape', 'vendemmia', 'harvest', 'bottiglia', 'bottle',
+                            'prosecco', 'champagne', 'franciacorta', 'valpolicella'
                         ];
                         
                         return wineKeywords.some(keyword => content.includes(keyword));
                     });
                     
-                    // Reset error counter on success
-                    newsApiErrorCount = 0;
+                    console.log(`🍷 Trovati ${wineArticles.length} articoli sui vini su ${data.articles.length} totali`);
                     
-                    return wineArticles.slice(0, 5).map(article => ({
+                    return wineArticles.slice(0, 6).map(article => ({
                         title: article.title,
                         description: article.description || 'Nessuna descrizione disponibile',
                         url: article.url,
                         publishedAt: formatDate(article.publishedAt),
-                        source: 'NewsAPI'
+                        source: article.source.name || 'GNews',
+                        image: article.image || null
                     }));
                 }
                 
+                console.log('📰 Nessun articolo trovato su GNews');
                 return null;
                 
             } catch (error) {
-                console.error('Errore API NewsAPI:', error);
+                console.error('Errore API GNews:', error);
                 return null;
             }
         }
@@ -9923,10 +10005,10 @@
         }
 
         function toggleNewsSource() {
-            currentNewsSource = currentNewsSource === 'newsapi' ? 'alternative' : 'newsapi';
+            currentNewsSource = currentNewsSource === 'gnews' ? 'alternative' : 'gnews';
             updateNewsSourceIndicator();
             loadWineNews();
-            showNotification(`📰 Fonte notizie cambiata: ${currentNewsSource === 'newsapi' ? 'NewsAPI' : 'Alternativa'}`, 'info');
+            showNotification(`📰 Fonte notizie cambiata: ${currentNewsSource === 'gnews' ? 'GNews' : 'Alternativa'}`, 'info');
         }
 
         // Contatore errori API per auto-disabilitazione
@@ -9936,7 +10018,7 @@
         function updateNewsSourceIndicator() {
             const currentSourceElement = document.getElementById('currentSource');
             if (currentSourceElement) {
-                currentSourceElement.textContent = currentNewsSource === 'newsapi' ? 'NewsAPI' : 'Alternativa';
+                currentSourceElement.textContent = currentNewsSource === 'gnews' ? 'GNews' : 'Alternativa';
             }
         }
         
