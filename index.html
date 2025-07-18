@@ -2374,16 +2374,16 @@
         </div>
 
         <div class="nav-tabs">
-            <button class="nav-tab" onclick="showTab('dashboard', event)" style="display: none;">📊 Dashboard</button>
-            <button class="nav-tab active" onclick="showTab('clienti', event)">👥 Clienti</button>
-            <button class="nav-tab" onclick="showTab('fatture', event)">📄 Fatture</button>
+            <button class="nav-tab admin-only" onclick="showTab('dashboard', event)" style="display: none;">📊 Dashboard</button>
+            <button class="nav-tab admin-only" onclick="showTab('clienti', event)">👥 Clienti</button>
+            <button class="nav-tab admin-only" onclick="showTab('fatture', event)">📄 Fatture</button>
             <button class="nav-tab guest-only" onclick="showTab('benvenuto', event)" style="display: none;">🏠 Benvenuto</button>
             <button class="nav-tab" onclick="showTab('prodotti', event)">🍺 Prodotti</button>
             <button class="nav-tab" onclick="showTab('vini', event)">🍷 Vini</button>
         </div>
 
         <!-- TAB CLIENTI -->
-        <div id="clienti" class="tab-content active">
+        <div id="clienti" class="tab-content active admin-only">
             <div class="form-section">
                 <h3>📝 Inserimento Nuovo Cliente</h3>
                 <form id="clienteForm">
@@ -2475,7 +2475,7 @@
         </div>
 
         <!-- TAB DASHBOARD -->
-        <div id="dashboard" class="tab-content">
+        <div id="dashboard" class="tab-content admin-only">
             <div class="dashboard-container">
                 <div class="dashboard-header">
                     <h2>🎯 Dashboard Tommaso</h2>
@@ -2611,7 +2611,7 @@
         </div>
 
         <!-- TAB FATTURE -->
-        <div id="fatture" class="tab-content">
+        <div id="fatture" class="tab-content admin-only">
             <div class="form-section">
                 <h3>📄 Gestione Documenti</h3>
                 <div class="actions">
@@ -4241,6 +4241,10 @@
 
         // Funzione per mostrare le tab
         function showTab(tabName, event = null) {
+            // Controlla l'accesso alle sezioni admin-only per ospiti
+            if (!handleAdminSectionAccessForGuest(tabName)) {
+                return;
+            }
             // Nascondi tutte le tab
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
@@ -4267,8 +4271,31 @@
                 }
             }
 
+            // Nascondi le tab admin-only per ospiti
+            if (currentUser === 'guest') {
+                const adminTabs = document.querySelectorAll('.nav-tab.admin-only');
+                adminTabs.forEach(tab => {
+                    tab.style.display = 'none';
+                    tab.classList.remove('active');
+                    tab.classList.add('admin-only');
+                });
+            }
+
             // Mostra la tab selezionata
             document.getElementById(tabName).classList.add('active');
+
+            // Nascondi le sezioni admin-only per ospiti
+            if (currentUser === 'guest') {
+                const adminSections = ['dashboard', 'clienti', 'fatture'];
+                adminSections.forEach(sectionId => {
+                    const section = document.getElementById(sectionId);
+                    if (section && sectionId !== tabName) {
+                        section.style.display = 'none';
+                        section.classList.remove('active');
+                        section.classList.add('admin-only');
+                    }
+                });
+            }
             
             // Se l'evento è disponibile, attiva il pulsante cliccato
             if (event && event.target) {
@@ -4349,6 +4376,12 @@
                     benvenutoTab.classList.add('guest-only');
                     benvenutoTab.classList.add('active');
                 }
+
+                // Nascondi le tab admin-only per ospiti
+                hideAdminTabsForGuest();
+                
+                // Avvia il monitoraggio delle tab admin-only per ospiti
+                monitorAdminTabsForGuest();
                 
                 // Disabilita funzioni di modifica per ospiti
                 disableEditFunctions();
@@ -8147,6 +8180,26 @@
             display: block !important;
         }
 
+        /* Nascondi tab admin-only per ospiti */
+        body.guest-mode .nav-tab.admin-only {
+            display: none !important;
+        }
+
+        /* Mostra tab admin-only solo per admin */
+        body:not(.guest-mode) .nav-tab.admin-only {
+            display: block !important;
+        }
+
+        /* Nascondi sezioni admin-only per ospiti */
+        body.guest-mode .tab-content.admin-only {
+            display: none !important;
+        }
+
+        /* Mostra sezioni admin-only solo per admin */
+        body:not(.guest-mode) .tab-content.admin-only {
+            display: block !important;
+        }
+
         .welcome-section {
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
             border-radius: 20px;
@@ -9280,6 +9333,11 @@
                     tab.style.display = 'block';
                     tab.classList.remove('hidden-for-guest');
                 }
+                // Mostra specificamente le tab admin-only
+                if (tab.classList.contains('admin-only')) {
+                    tab.style.display = 'block';
+                    tab.classList.remove('hidden-for-guest');
+                }
             });
             
             // Mostra la tab dashboard per Tommaso
@@ -9352,7 +9410,7 @@
             // Aggiungi classe guest-mode al body
             document.body.classList.add('guest-mode');
             
-            // Nascondi completamente sezioni non accessibili ai clienti
+            // Nascondi completamente tab admin-only per ospiti
             const clientiTab = document.querySelector('.nav-tab[onclick="showTab(\'clienti\')"]');
             const fattureTab = document.querySelector('.nav-tab[onclick="showTab(\'fatture\')"]');
             const dashboardTab = document.querySelector('.nav-tab[onclick="showTab(\'dashboard\')"]');
@@ -10602,6 +10660,58 @@
                     }
                 }, 1000); // Controlla ogni secondo
             }
+        }
+
+        // Funzione per nascondere le tab admin-only per ospiti
+        function hideAdminTabsForGuest() {
+            if (currentUser === 'guest') {
+                const adminTabs = document.querySelectorAll('.nav-tab.admin-only');
+                adminTabs.forEach(tab => {
+                    tab.style.display = 'none';
+                    tab.classList.remove('active');
+                    tab.classList.add('admin-only');
+                });
+            }
+        }
+
+        // Funzione per monitorare e nascondere le tab admin-only per ospiti
+        function monitorAdminTabsForGuest() {
+            if (currentUser === 'guest') {
+                setInterval(() => {
+                    const adminTabs = document.querySelectorAll('.nav-tab.admin-only');
+                    adminTabs.forEach(tab => {
+                        if (tab.style.display !== 'none') {
+                            tab.style.display = 'none';
+                            tab.classList.remove('active');
+                            tab.classList.add('admin-only');
+                            console.log('🔒 Tab admin nascosta per ospite');
+                        }
+                    });
+
+                    // Nascondi anche le sezioni admin-only per ospiti
+                    const adminSections = document.querySelectorAll('.tab-content.admin-only');
+                    adminSections.forEach(section => {
+                        if (section.style.display !== 'none' && !section.classList.contains('active')) {
+                            section.style.display = 'none';
+                            section.classList.remove('active');
+                            section.classList.add('admin-only');
+                            console.log('🔒 Sezione admin nascosta per ospite');
+                        }
+                    });
+                }, 1000); // Controlla ogni secondo
+            }
+        }
+
+        // Funzione per gestire l'accesso alle sezioni admin-only per ospiti
+        function handleAdminSectionAccessForGuest(sectionName) {
+            if (currentUser === 'guest') {
+                const adminSections = ['dashboard', 'clienti', 'fatture'];
+                if (adminSections.includes(sectionName)) {
+                    showNotification('🔒 Accesso negato: Sezione riservata agli amministratori', 'error');
+                    return false;
+                }
+            }
+            return true;
         }
     </script>
 </body>
