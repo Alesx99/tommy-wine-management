@@ -9406,15 +9406,15 @@
             const message = 
                 '📊 Statistiche Sincronizzazione:\n\n' +
                 '📋 Dati:\n' +
-                `• Clienti: ${stats.clienti}\n` +
-                `• Documenti: ${stats.documenti}\n` +
-                `• Prodotti: ${stats.prodotti}\n` +
-                `• Vini: ${stats.vini}\n\n` +
+                '• Clienti: ' + stats.clienti + '\n' +
+                '• Documenti: ' + stats.documenti + '\n' +
+                '• Prodotti: ' + stats.prodotti + '\n' +
+                '• Vini: ' + stats.vini + '\n\n' +
                 '🔄 Sincronizzazione:\n' +
-                `• Stato: ${stats.isOnline ? '🌐 Online' : '📡 Offline'}\n` +
-                `• Ultimo sync: ${stats.lastSync ? new Date(parseInt(stats.lastSync)).toLocaleString() : 'Mai'}\n` +
-                `• Device ID: ${stats.deviceId}\n` +
-                `• Backup disponibili: ${stats.backupCount}`;
+                '• Stato: ' + (stats.isOnline ? '🌐 Online' : '📡 Offline') + '\n' +
+                '• Ultimo sync: ' + (stats.lastSync ? new Date(parseInt(stats.lastSync)).toLocaleString() : 'Mai') + '\n' +
+                '• Device ID: ' + stats.deviceId + '\n' +
+                '• Backup disponibili: ' + stats.backupCount;
             
             alert(message);
         }
@@ -9616,7 +9616,7 @@
             document.getElementById('totalFatture').textContent = filteredDocs.length;
             
             const totalRevenue = filteredDocs.reduce((sum, doc) => sum + (doc.totale || 0), 0);
-            document.getElementById('totalRevenue').textContent = `€${totalRevenue.toFixed(2)}`;
+            document.getElementById('totalRevenue').textContent = '€' + totalRevenue.toFixed(2);
             
             document.getElementById('totalClienti').textContent = clienti.length;
             document.getElementById('totalVini').textContent = vini.length;
@@ -9625,7 +9625,7 @@
         function updateSystemWidgets() {
             // Calcola storage utilizzato
             const storageUsed = calculateStorageUsage();
-            document.getElementById('storageInfo').textContent = `${storageUsed.toFixed(2)} MB`;
+            document.getElementById('storageInfo').textContent = storageUsed.toFixed(2) + ' MB';
             
             // Ultimo sync
             const lastSync = localStorage.getItem('tommy_last_sync');
@@ -9641,7 +9641,7 @@
             // Alert di sistema
             const alerts = checkSystemAlerts();
             document.getElementById('alertInfo').textContent = alerts.length > 0 ? 
-                `${alerts.length} problema/i` : 'Nessun problema';
+                alerts.length + ' problema/i' : 'Nessun problema';
         }
 
         function filterDocumentsByTime(documents, filter) {
@@ -9705,7 +9705,7 @@
             });
             
             if (scadute.length > 0) {
-                alerts.push(`${scadute.length} fattura/e scaduta/e`);
+                alerts.push(scadute.length + ' fattura/e scaduta/e');
             }
             
             // Controlla prodotti con stock basso
@@ -9714,7 +9714,7 @@
             });
             
             if (lowStock.length > 0) {
-                alerts.push(`${lowStock.length} prodotto/i con stock basso`);
+                alerts.push(lowStock.length + ' prodotto/i con stock basso');
             }
             
             return alerts;
@@ -10095,7 +10095,7 @@
                 const country = 'it';
                 const max = 10;
                 
-                const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(randomQuery)}&lang=${language}&country=${country}&max=${max}&apikey=${apiKey}`;
+                const url = 'https://gnews.io/api/v4/search?q=' + encodeURIComponent(randomQuery) + '&lang=' + language + '&country=' + country + '&max=' + max + '&apikey=' + apiKey;
                 
                 console.log('🔍 Ricerca notizie GNews:', randomQuery);
                 
