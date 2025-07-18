@@ -1636,6 +1636,80 @@
             }
         }
 
+        /* Fatture table specific styles */
+        #fattureTable {
+            min-width: 1200px;
+        }
+
+        #fattureTable th,
+        #fattureTable td {
+            padding: var(--spacing-md) var(--spacing-sm);
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        #fattureTable th {
+            background: var(--border-light);
+            font-weight: 600;
+            color: var(--text-primary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #fattureTable td {
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        #fattureTable tr:hover {
+            background: var(--border-light);
+        }
+
+        /* Sticky actions column for fatture table */
+        #fattureTable th:last-child,
+        #fattureTable td:last-child {
+            position: sticky;
+            right: 0;
+            background: var(--surface-color);
+            z-index: 15;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            min-width: 160px;
+        }
+
+        /* Ensure buttons are always visible and compact for fatture */
+        #fattureTable td:last-child .btn {
+            margin: 2px;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 0.75rem;
+            white-space: nowrap;
+            min-width: 50px;
+        }
+
+        /* Responsive adjustments for fatture table */
+        @media (max-width: 1400px) {
+            #fattureTable {
+                min-width: 1000px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #fattureTable {
+                min-width: 800px;
+                font-size: 0.875rem;
+            }
+            
+            #fattureTable th,
+            #fattureTable td {
+                padding: var(--spacing-sm) var(--spacing-xs);
+            }
+
+            #fattureTable td:last-child .btn {
+                padding: var(--spacing-xs);
+                font-size: 0.7rem;
+                min-width: 40px;
+            }
+        }
+
         /* Censorship and Security System */
         .censored {
             color: transparent;
@@ -2554,27 +2628,25 @@
                 <h4>📋 Lista Documenti</h4>
                 
                 <!-- Tabella con scroll orizzontale -->
-                <div class="table-container">
-                    <div class="table-wrapper">
-                        <table id="fattureTable" class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Tipo</th>
-                                    <th>Numero</th>
-                                    <th>Cliente</th>
-                                    <th>Data</th>
-                                    <th>Scadenza</th>
-                                    <th>Subtotale</th>
-                                    <th>Sconto Extra</th>
-                                    <th>Totale</th>
-                                    <th>Stato</th>
-                                    <th>Note</th>
-                                    <th>Azioni</th>
-                                </tr>
-                            </thead>
-                            <tbody id="fattureTableBody"></tbody>
-                        </table>
-                    </div>
+                <div class="table-scroll-container">
+                    <table id="fattureTable" class="data-table scrollable-table" role="table" aria-label="Tabella dati fatture">
+                        <thead>
+                            <tr role="row">
+                                <th role="columnheader">Tipo</th>
+                                <th role="columnheader">Numero</th>
+                                <th role="columnheader">Cliente</th>
+                                <th role="columnheader">Data</th>
+                                <th role="columnheader">Scadenza</th>
+                                <th role="columnheader">Subtotale</th>
+                                <th role="columnheader">Sconto Extra</th>
+                                <th role="columnheader">Totale</th>
+                                <th role="columnheader">Stato</th>
+                                <th role="columnheader">Note</th>
+                                <th role="columnheader">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fattureTableBody"></tbody>
+                    </table>
                 </div>
                 
 
@@ -4677,21 +4749,22 @@
             
             documenti.forEach(documento => {
                 const row = document.createElement('tr');
+                row.setAttribute('role', 'row');
                 row.innerHTML = `
-                    <td><span class="badge badge-${getTipoBadge(documento.tipo)}">${documento.tipo.toUpperCase()}</span></td>
-                    <td>${documento.numero}</td>
-                    <td>${documento.cliente}</td>
-                    <td>${documento.data}</td>
-                    <td>${documento.scadenza || '-'}</td>
-                    <td>€${documento.subtotale.toFixed(2)}</td>
-                    <td>€${documento.scontoExtra.toFixed(2)}</td>
-                    <td>€${documento.totale.toFixed(2)}</td>
-                    <td>${getStatoBadge(documento.stato)}</td>
-                    <td>${documento.note || '-'}</td>
-                    <td>
-                        <button class="btn btn-sm btn-primary" onclick="editDocumento(${documento.id})">✏️</button>
-                        <button class="btn btn-sm btn-success" onclick="stampaDocumentoSalvato(${documento.id})">🖨️</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteDocumento(${documento.id})">🗑️</button>
+                    <td role="cell"><span class="badge badge-${getTipoBadge(documento.tipo)}">${documento.tipo.toUpperCase()}</span></td>
+                    <td role="cell">${documento.numero}</td>
+                    <td role="cell">${documento.cliente}</td>
+                    <td role="cell">${documento.data}</td>
+                    <td role="cell">${documento.scadenza || '-'}</td>
+                    <td role="cell">€${documento.subtotale.toFixed(2)}</td>
+                    <td role="cell">€${documento.scontoExtra.toFixed(2)}</td>
+                    <td role="cell">€${documento.totale.toFixed(2)}</td>
+                    <td role="cell">${getStatoBadge(documento.stato)}</td>
+                    <td role="cell">${documento.note || '-'}</td>
+                    <td role="cell">
+                        <button class="btn btn-sm btn-primary" onclick="editDocumento(${documento.id})" title="Modifica documento">✏️</button>
+                        <button class="btn btn-sm btn-success" onclick="stampaDocumentoSalvato(${documento.id})" title="Stampa documento">🖨️</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteDocumento(${documento.id})" title="Elimina documento">🗑️</button>
                     </td>
                 `;
                 tbody.appendChild(row);
