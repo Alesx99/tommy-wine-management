@@ -2620,6 +2620,8 @@
                     <button type="button" class="btn btn-info" onclick="showDDTModal()">🚚 Nuovo DDT</button>
                     <button type="button" class="btn btn-success" onclick="exportToExcel('fatture')">📊 Esporta Excel</button>
                     <button type="button" class="btn btn-secondary" onclick="document.getElementById('importFatture').click()">📥 Importa Excel</button>
+                    <button type="button" class="btn btn-info" onclick="checkAndUpdateStatoFatture()" title="Verifica e aggiorna stati fatture">🔄 Verifica Stati</button>
+                    <button type="button" class="btn btn-outline" onclick="toggleStatoFatture()" id="toggleStatoBtn" title="Abilita/Disabilita modifica stati">🔧 Gestione Stati</button>
                     <input type="file" id="importFatture" accept=".xlsx,.xls" style="display: none;" onchange="importFromExcel('fatture', this)">
                 </div>
             </div>
@@ -4765,6 +4767,13 @@
                         <button class="btn btn-sm btn-primary" onclick="editDocumento(${documento.id})" title="Modifica documento">✏️</button>
                         <button class="btn btn-sm btn-success" onclick="stampaDocumentoSalvato(${documento.id})" title="Stampa documento">🖨️</button>
                         <button class="btn btn-sm btn-danger" onclick="deleteDocumento(${documento.id})" title="Elimina documento">🗑️</button>
+                        ${enableStatoFatture ? `
+                            <div class="stato-actions" style="margin-top: 5px;">
+                                <button class="btn btn-xs btn-warning" onclick="changeStatoFattura(${documento.id}, 'in_attesa')" title="Imposta In Attesa" ${documento.stato === 'in_attesa' ? 'disabled' : ''}>⏳</button>
+                                <button class="btn btn-xs btn-success" onclick="changeStatoFattura(${documento.id}, 'pagata')" title="Imposta Pagata" ${documento.stato === 'pagata' ? 'disabled' : ''}>✅</button>
+                                <button class="btn btn-xs btn-danger" onclick="changeStatoFattura(${documento.id}, 'scaduta')" title="Imposta Scaduta" ${documento.stato === 'scaduta' ? 'disabled' : ''}>⚠️</button>
+                            </div>
+                        ` : ''}
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -7952,6 +7961,52 @@
             }
         }
 
+        /* Stili per gestione stati fatture */
+        .stato-actions {
+            display: flex;
+            gap: 2px;
+            flex-wrap: wrap;
+        }
+
+        .stato-actions .btn-xs {
+            padding: 2px 6px;
+            font-size: 0.7em;
+            min-width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stato-actions .btn-xs:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-paid {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .status-pending {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+        }
+
+        .status-overdue {
+            background: linear-gradient(135deg, #dc3545, #e83e8c);
+            color: white;
+        }
+
         /* Widget Grid Styles */
         .widgets-container {
             margin-bottom: 40px;
@@ -8962,6 +9017,9 @@
             
             // Inizializza l'aggiornamento automatico
             initializeDashboardAutoUpdate();
+            
+            // Inizializza la gestione stati fatture
+            initializeStatoFatture();
         }
 
         function showGuestInterface() {
@@ -10015,6 +10073,9 @@
         let newsApiErrorCount = 0;
         const MAX_NEWS_API_ERRORS = 3;
         
+        // Flag per gestione stato fatture
+        let enableStatoFatture = true; // Flag per abilitare/disabilitare modifica stato
+        
         function updateNewsSourceIndicator() {
             const currentSourceElement = document.getElementById('currentSource');
             if (currentSourceElement) {
@@ -10034,6 +10095,99 @@
             }
         }
 
+        // Funzione per verificare e aggiornare lo stato delle fatture
+        function checkAndUpdateStatoFatture() {
+            if (!enableStatoFatture) {
+                console.log('🔒 Modifica stato fatture disabilitata');
+                return;
+            }
+
+            let updatedCount = 0;
+            const currentDate = new Date();
+
+            documenti.forEach((documento, index) => {
+                // Verifica se il documento ha il campo stato
+                if (!documento.hasOwnProperty('stato')) {
+                    console.log(`📋 Documento ${documento.numero} non ha campo stato - aggiungendo...`);
+                    documenti[index].stato = 'in_attesa';
+                    updatedCount++;
+                }
+
+                // Controlla se la fattura è scaduta
+                if (documento.scadenza && documento.stato !== 'pagata') {
+                    const scadenza = new Date(documento.scadenza);
+                    if (scadenza < currentDate) {
+                        console.log(`⚠️ Fattura ${documento.numero} scaduta - aggiornando stato...`);
+                        documenti[index].stato = 'scaduta';
+                        updatedCount++;
+                    }
+                }
+            });
+
+            if (updatedCount > 0) {
+                updateFattureTable();
+                saveDataToStorage();
+                showNotification(`🔄 Aggiornati ${updatedCount} stati fatture`, 'info');
+                console.log(`✅ Aggiornati ${updatedCount} stati fatture`);
+            }
+
+            return updatedCount;
+        }
+
+        // Funzione per cambiare lo stato di una fattura
+        function changeStatoFattura(id, newStato) {
+            if (!enableStatoFatture) {
+                showNotification('🔒 Modifica stato fatture disabilitata', 'warning');
+                return;
+            }
+
+            const documentoIndex = documenti.findIndex(d => d.id === id);
+            if (documentoIndex === -1) {
+                showNotification('❌ Fattura non trovata', 'error');
+                return;
+            }
+
+            const statiValidi = ['in_attesa', 'pagata', 'scaduta'];
+            if (!statiValidi.includes(newStato)) {
+                showNotification('❌ Stato non valido', 'error');
+                return;
+            }
+
+            const oldStato = documenti[documentoIndex].stato;
+            documenti[documentoIndex].stato = newStato;
+            
+            updateFattureTable();
+            saveDataToStorage();
+            
+            showNotification(`✅ Stato fattura ${documenti[documentoIndex].numero} cambiato da "${oldStato}" a "${newStato}"`, 'success');
+            console.log(`🔄 Stato fattura ${documenti[documentoIndex].numero}: ${oldStato} → ${newStato}`);
+        }
+
+        // Funzione per abilitare/disabilitare la modifica dello stato
+        function toggleStatoFatture() {
+            enableStatoFatture = !enableStatoFatture;
+            const status = enableStatoFatture ? 'abilitata' : 'disabilitata';
+            updateToggleStatoButton();
+            showNotification(`🔧 Modifica stato fatture ${status}`, 'info');
+            console.log(`🔧 Modifica stato fatture: ${status}`);
+        }
+
+        // Funzione per aggiornare l'aspetto del pulsante toggle
+        function updateToggleStatoButton() {
+            const toggleBtn = document.getElementById('toggleStatoBtn');
+            if (toggleBtn) {
+                if (enableStatoFatture) {
+                    toggleBtn.textContent = '🔒 Disabilita Stati';
+                    toggleBtn.className = 'btn btn-outline btn-warning';
+                    toggleBtn.title = 'Disabilita modifica stati fatture';
+                } else {
+                    toggleBtn.textContent = '🔓 Abilita Stati';
+                    toggleBtn.className = 'btn btn-outline btn-success';
+                    toggleBtn.title = 'Abilita modifica stati fatture';
+                }
+            }
+        }
+
         // Aggiornamento automatico della dashboard
         function startDashboardAutoUpdate() {
             // Aggiorna la dashboard ogni 5 minuti
@@ -10049,6 +10203,15 @@
         // Inizializza l'aggiornamento automatico quando Tommaso accede
         function initializeDashboardAutoUpdate() {
             startDashboardAutoUpdate();
+        }
+
+        // Inizializza la gestione stati fatture
+        function initializeStatoFatture() {
+            updateToggleStatoButton();
+            // Verifica automatica degli stati all'avvio
+            setTimeout(() => {
+                checkAndUpdateStatoFatture();
+            }, 1000);
         }
     </script>
 </body>
