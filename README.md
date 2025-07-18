@@ -68,7 +68,7 @@ tommy-wine-management/
 
 ## 🔄 Funzionalità di Sincronizzazione
 
-- Salvataggio automatico ogni 30 secondi
+- Salvataggio automatico ogni 30 minuti
 - Sincronizzazione tra dispositivi tramite GitHub Gist
 - Fallback a localStorage in caso di errore
 - Indicatori di stato sincronizzazione

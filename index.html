@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gestione Tommy - Privilege Cafè&Wine</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -21,11 +21,13 @@
 
         .container {
             max-width: 1200px;
+            width: 100%;
             margin: 0 auto;
             background: white;
             border-radius: 15px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
+            box-sizing: border-box;
         }
 
         .header {
@@ -96,8 +98,9 @@
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
+            width: 100%;
         }
 
         .form-group {
@@ -176,12 +179,12 @@
 
         .data-table {
             width: 100%;
-            min-width: 800px; /* Larghezza minima per assicurare scroll */
             border-collapse: collapse;
             margin-top: 20px;
             background: white;
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow-x: auto;
         }
 
         .data-table th,
@@ -2065,9 +2068,30 @@
         // Configurazione GitHub
         const GITHUB_CONFIG = {
             token: localStorage.getItem('tommy_github_token') || '',
-            gistId: localStorage.getItem('tommy_gist_id') || 'ed140f6366c097f54410d096017bb51b',
+            gistId: localStorage.getItem('tommy_gist_id') || '',
             enabled: localStorage.getItem('tommy_github_enabled') === 'true'
         };
+        
+        // Contatore errori GitHub per auto-disabilitazione
+        let githubErrorCount = 0;
+        const MAX_GITHUB_ERRORS = 3;
+        
+        // Funzione per disabilitare GitHub sync se ci sono errori persistenti
+        function disableGitHubSync() {
+            GITHUB_CONFIG.enabled = false;
+            localStorage.setItem('tommy_github_enabled', 'false');
+            console.log('GitHub sync disabilitato automaticamente');
+            showNotification('⚠️ GitHub sync disabilitato per evitare errori', 'warning');
+        }
+        
+        // Funzione per gestire errori GitHub persistenti
+        function handleGitHubError() {
+            githubErrorCount++;
+            if (githubErrorCount >= MAX_GITHUB_ERRORS) {
+                disableGitHubSync();
+                githubErrorCount = 0; // Reset counter
+            }
+        }
         
         // Genera ID univoco per il dispositivo
         function generateDeviceId() {
@@ -2522,11 +2546,11 @@
                 saveDataToStorage();
             });
             
-            // Salvataggio automatico ogni 30 secondi
+            // Salvataggio automatico ogni 30 minuti
             setInterval(() => {
                 console.log('🔄 Salvataggio automatico periodico...');
                 saveDataToStorage();
-            }, 30000);
+            }, 1800000);
             
             // Backup automatico ogni 5 minuti
             setInterval(() => {
@@ -2612,13 +2636,13 @@
             // Verifica integrità dati all'avvio
             verifyDataIntegrity();
             
-            // Controlla aggiornamenti ogni 30 secondi
+            // Controlla aggiornamenti ogni 30 minuti
             syncInterval = setInterval(async () => {
                 if (isOnline) {
                     console.log('🔄 Controllo aggiornamenti periodico...');
                     await checkForCloudUpdates();
                 }
-            }, 30000);
+            }, 1800000);
             
             // Ascolta eventi di connessione
             window.addEventListener('online', () => {
@@ -2871,11 +2895,17 @@
                 
                 // Se GitHub è configurato, salva anche lì
                 if (GITHUB_CONFIG.enabled && GITHUB_CONFIG.token && GITHUB_CONFIG.gistId) {
-                    const success = await saveToGitHubGist(data);
-                    if (success) {
-                        showNotification('📡 Dati sincronizzati su GitHub!', 'success');
-                    } else {
-                        showNotification('⚠️ Errore sincronizzazione GitHub - Dati salvati localmente', 'warning');
+                    try {
+                        const success = await saveToGitHubGist(data);
+                        if (success) {
+                            showNotification('📡 Dati sincronizzati su GitHub!', 'success');
+                        } else {
+                            // Non mostrare warning per errori GitHub - i dati sono salvati localmente
+                            console.log('Salvataggio locale completato - GitHub sync fallito');
+                        }
+                    } catch (error) {
+                        console.error('Errore durante il salvataggio GitHub:', error);
+                        // I dati sono già salvati localmente, quindi non è critico
                     }
                 }
                 
@@ -2890,6 +2920,12 @@
         // Salva dati su GitHub Gist
         async function saveToGitHubGist(data) {
             try {
+                // Verifica che la configurazione sia valida
+                if (!GITHUB_CONFIG.token || !GITHUB_CONFIG.gistId) {
+                    console.warn('Configurazione GitHub incompleta - salvataggio locale only');
+                    return false;
+                }
+
                 const response = await fetch(`https://api.github.com/gists/${GITHUB_CONFIG.gistId}`, {
                     method: 'PATCH',
                     headers: {
@@ -2914,7 +2950,29 @@
                     })
                 });
                 
-                return response.ok;
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`GitHub API error ${response.status}: ${errorText}`);
+                    
+                    // Gestisci errori specifici
+                    if (response.status === 403) {
+                        console.error('Accesso negato - verifica token e permessi Gist');
+                    } else if (response.status === 404) {
+                        console.error('Gist non trovato - verifica ID Gist');
+                    } else if (response.status === 401) {
+                        console.error('Token non valido - verifica autenticazione');
+                    }
+                    
+                    // Gestisci errori persistenti
+                    handleGitHubError();
+                    
+                    return false;
+                }
+                
+                // Reset error counter on success
+                githubErrorCount = 0;
+                
+                return true;
             } catch (error) {
                 console.error('Errore nel salvataggio su GitHub Gist:', error);
                 return false;
@@ -2925,6 +2983,7 @@
         async function loadFromGitHubGist() {
             try {
                 if (!GITHUB_CONFIG.enabled || !GITHUB_CONFIG.token || !GITHUB_CONFIG.gistId) {
+                    console.log('GitHub sync disabilitato o configurazione incompleta');
                     return null;
                 }
                 
@@ -2940,6 +2999,20 @@
                     const file = gist.files['tommy_data.json'];
                     if (file && file.content) {
                         return JSON.parse(file.content);
+                    } else {
+                        console.log('Nessun file tommy_data.json trovato nel Gist');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    console.error(`GitHub API error ${response.status}: ${errorText}`);
+                    
+                    // Gestisci errori specifici
+                    if (response.status === 403) {
+                        console.error('Accesso negato al Gist - verifica token e permessi');
+                    } else if (response.status === 404) {
+                        console.error('Gist non trovato - verifica ID Gist');
+                    } else if (response.status === 401) {
+                        console.error('Token non valido - verifica autenticazione');
                     }
                 }
                 
@@ -3032,6 +3105,16 @@
                     el.style.display = 'block';
                 });
                 
+                // Nascondi schede non accessibili agli ospiti
+                const hiddenTabs = ['clienti', 'fatture', 'dashboard'];
+                hiddenTabs.forEach(tabId => {
+                    const tab = document.querySelector(`.nav-tab[onclick="showTab('${tabId}')"]`);
+                    if (tab) {
+                        tab.style.display = 'none';
+                        tab.classList.add('hidden-for-guest');
+                    }
+                });
+                
                 // Disabilita funzioni di modifica per ospiti
                 disableEditFunctions();
                 
@@ -3045,6 +3128,12 @@
                 // Mostra elementi admin
                 document.querySelectorAll('.admin-only').forEach(el => {
                     el.style.display = 'block';
+                });
+                
+                // Mostra tutte le schede per admin
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.style.display = 'block';
+                    tab.classList.remove('hidden-for-guest');
                 });
             }
         }
@@ -3118,6 +3207,132 @@
             } else {
                 // Per gli admin, comportamento normale
                 showTab(section);
+            }
+        }
+
+        // Funzione per nascondere completamente i prezzi di acquisto per ospiti
+        function hidePurchasePricesForGuests() {
+            // Nascondi intestazioni prezzi di acquisto
+            const prezzoAcquistoHeaders = document.querySelectorAll('#prezzoAcquistoHeaderProdotti, #prezzoAcquistoHeaderVini');
+            prezzoAcquistoHeaders.forEach(header => {
+                header.style.display = 'none';
+                header.classList.add('hidden-for-guest');
+            });
+            
+            // Nascondi celle con prezzi di acquisto nelle tabelle
+            const prodottiTable = document.getElementById('prodottiTable');
+            const viniTable = document.getElementById('viniTable');
+            
+            if (prodottiTable) {
+                const rows = prodottiTable.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    // La colonna prezzo acquisto è la 4a (indice 3)
+                    if (cells[3]) {
+                        cells[3].style.display = 'none';
+                        cells[3].classList.add('hidden-for-guest');
+                    }
+                });
+            }
+            
+            if (viniTable) {
+                const rows = viniTable.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    // La colonna prezzo acquisto è la 7a (indice 6)
+                    if (cells[6]) {
+                        cells[6].style.display = 'none';
+                        cells[6].classList.add('hidden-for-guest');
+                    }
+                });
+            }
+            
+            // Nascondi input prezzi di acquisto nei form
+            const prezzoAcquistoInputs = document.querySelectorAll('input[name="prezzoAcquisto"], input[name="prezzoAcquistoProdotti"], input[name="prezzoAcquistoVini"]');
+            prezzoAcquistoInputs.forEach(input => {
+                const formGroup = input.closest('.form-group');
+                if (formGroup) {
+                    formGroup.style.display = 'none';
+                    formGroup.classList.add('hidden-for-guest');
+                }
+            });
+        }
+
+        // Funzione per mostrare i prezzi di acquisto per admin
+        function showPurchasePricesForAdmin() {
+            // Mostra intestazioni prezzi di acquisto
+            const prezzoAcquistoHeaders = document.querySelectorAll('#prezzoAcquistoHeaderProdotti, #prezzoAcquistoHeaderVini');
+            prezzoAcquistoHeaders.forEach(header => {
+                header.style.display = 'table-cell';
+                header.classList.remove('hidden-for-guest');
+            });
+            
+            // Mostra celle con prezzi di acquisto nelle tabelle
+            const prodottiTable = document.getElementById('prodottiTable');
+            const viniTable = document.getElementById('viniTable');
+            
+            if (prodottiTable) {
+                const rows = prodottiTable.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    // La colonna prezzo acquisto è la 4a (indice 3)
+                    if (cells[3]) {
+                        cells[3].style.display = 'table-cell';
+                        cells[3].classList.remove('hidden-for-guest');
+                    }
+                });
+            }
+            
+            if (viniTable) {
+                const rows = viniTable.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    // La colonna prezzo acquisto è la 7a (indice 6)
+                    if (cells[6]) {
+                        cells[6].style.display = 'table-cell';
+                        cells[6].classList.remove('hidden-for-guest');
+                    }
+                });
+            }
+            
+            // Mostra input prezzi di acquisto nei form
+            const prezzoAcquistoInputs = document.querySelectorAll('input[name="prezzoAcquisto"], input[name="prezzoAcquistoProdotti"], input[name="prezzoAcquistoVini"]');
+            prezzoAcquistoInputs.forEach(input => {
+                const formGroup = input.closest('.form-group');
+                if (formGroup) {
+                    formGroup.style.display = 'block';
+                    formGroup.classList.remove('hidden-for-guest');
+                }
+            });
+        }
+
+        // Funzione per verificare la modalità ospite
+        function verifyGuestMode() {
+            if (currentUser === 'guest') {
+                console.log('🔍 Verifica modalità ospite:');
+                
+                // Verifica schede nascoste
+                const hiddenTabs = ['clienti', 'fatture', 'dashboard'];
+                hiddenTabs.forEach(tabId => {
+                    const tab = document.querySelector(`.nav-tab[onclick="showTab('${tabId}')"]`);
+                    if (tab && tab.style.display !== 'none') {
+                        console.warn(`⚠️ Scheda ${tabId} ancora visibile per ospiti`);
+                    } else {
+                        console.log(`✅ Scheda ${tabId} correttamente nascosta`);
+                    }
+                });
+                
+                // Verifica prezzi di acquisto nascosti
+                const prezzoHeaders = document.querySelectorAll('#prezzoAcquistoHeaderProdotti, #prezzoAcquistoHeaderVini');
+                prezzoHeaders.forEach(header => {
+                    if (header.style.display !== 'none') {
+                        console.warn('⚠️ Intestazione prezzo acquisto ancora visibile');
+                    } else {
+                        console.log('✅ Intestazioni prezzi acquisto correttamente nascoste');
+                    }
+                });
+                
+                console.log('✅ Verifica modalità ospite completata');
             }
         }
 
@@ -4675,9 +4890,12 @@
             updateProdottiTable();
             updateViniTable();
             
-            // Aggiorna statistiche scheda benvenuto se l'utente è ospite
+            // Gestisci prezzi di acquisto per ospiti
             if (currentUser === 'guest') {
+                hidePurchasePricesForGuests();
                 updateWelcomeStats();
+            } else {
+                showPurchasePricesForAdmin();
             }
         }
 
@@ -5306,12 +5524,14 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             max-width: 100%;
             position: relative;
+            width: 100%;
         }
         
         /* Assicura che le tabelle mantengano la loro larghezza minima */
         .table-wrapper .data-table {
             margin-top: 0;
             border-radius: 0;
+            min-width: 100%;
         }
         
         /* Stili per il nuovo contenitore delle tabelle */
@@ -5320,28 +5540,285 @@
             position: relative;
         }
         
-        /* Miglioramenti per la responsività */
+        /* Sistema responsive completo */
+        @media (max-width: 1200px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .tab-content {
+                padding: 20px;
+            }
+            
+            .form-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 15px;
+            }
+        }
+        
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                margin: 5px;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .header p {
+                font-size: 1em;
+            }
+            
+            .nav-tabs {
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 0 10px;
+            }
+            
+            .nav-tab {
+                flex: 0 0 auto;
+                min-width: 100px;
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+            
+            .tab-content {
+                padding: 15px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            
             .table-container {
-                margin: 15px 0;
+                margin: 10px 0;
             }
             
             .table-wrapper {
                 border-radius: 4px;
+                overflow-x: auto;
             }
             
             .data-table {
-                min-width: 600px; /* Riduce la larghezza minima su mobile */
                 font-size: 12px;
+                min-width: 600px;
             }
             
             .data-table th,
             .data-table td {
-                padding: 8px 6px;
+                padding: 6px 4px;
+                font-size: 11px;
             }
             
             .data-table td:last-child .btn {
-                padding: 4px 6px;
+                padding: 3px 5px;
+                font-size: 10px;
+                margin: 1px;
+            }
+            
+            .actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .actions .btn {
+                width: 100%;
+                margin: 2px 0;
+            }
+            
+            .export-section {
+                padding: 15px;
+            }
+            
+            .export-section h4 {
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                margin: 2px;
+                border-radius: 8px;
+            }
+            
+            .header {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .header p {
+                font-size: 0.9em;
+            }
+            
+            .nav-tabs {
+                padding: 0 5px;
+            }
+            
+            .nav-tab {
+                min-width: 80px;
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+            
+            .tab-content {
+                padding: 10px;
+            }
+            
+            .form-grid {
+                gap: 8px;
+            }
+            
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            
+            .btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            
+            .data-table {
+                font-size: 11px;
+                min-width: 500px;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 4px 3px;
+                font-size: 10px;
+            }
+            
+            .data-table td:last-child .btn {
+                padding: 2px 4px;
+                font-size: 9px;
+            }
+            
+            .actions {
+                gap: 5px;
+            }
+            
+            .actions .btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+        
+        /* Gestione per schermi molto piccoli */
+        @media (max-width: 360px) {
+            body {
+                padding: 2px;
+            }
+            
+            .container {
+                margin: 1px;
+                border-radius: 6px;
+            }
+            
+            .header {
+                padding: 8px;
+            }
+            
+            .header h1 {
+                font-size: 1.3em;
+            }
+            
+            .header p {
+                font-size: 0.8em;
+            }
+            
+            .nav-tabs {
+                padding: 0 2px;
+            }
+            
+            .nav-tab {
+                min-width: 70px;
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+            
+            .tab-content {
+                padding: 8px;
+            }
+            
+            .form-grid {
+                gap: 6px;
+            }
+            
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+            
+            .btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .data-table {
+                font-size: 10px;
+                min-width: 400px;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 3px 2px;
+                font-size: 9px;
+            }
+            
+            .data-table td:last-child .btn {
+                padding: 1px 3px;
+                font-size: 8px;
+            }
+            
+            .actions {
+                gap: 3px;
+            }
+            
+            .actions .btn {
+                padding: 4px 8px;
                 font-size: 11px;
             }
         }
@@ -5357,6 +5834,117 @@
             pointer-events: none;
             z-index: 5;
             transition: opacity 0.3s ease;
+        }
+        
+        /* Miglioramenti per dispositivi touch */
+        @media (hover: none) and (pointer: coarse) {
+            .table-wrapper {
+                -webkit-overflow-scrolling: touch;
+                scroll-behavior: smooth;
+            }
+            
+            .data-table th,
+            .data-table td {
+                min-height: 44px; /* Altezza minima per touch */
+                display: flex;
+                align-items: center;
+            }
+            
+            .btn {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .nav-tab {
+                min-height: 44px;
+            }
+        }
+        
+        /* Gestione per schermi orizzontali */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .header {
+                padding: 10px 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+                margin-bottom: 5px;
+            }
+            
+            .header p {
+                font-size: 0.9em;
+                margin: 0;
+            }
+            
+            .tab-content {
+                padding: 15px;
+            }
+            
+            .form-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 10px;
+            }
+            
+            .data-table {
+                font-size: 11px;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 6px 8px;
+            }
+        }
+        
+        /* Gestione per schermi molto grandi */
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1400px;
+            }
+            
+            .form-grid {
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 25px;
+            }
+            
+            .data-table {
+                font-size: 16px;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 15px 20px;
+            }
+            
+            .btn {
+                padding: 15px 30px;
+                font-size: 18px;
+            }
+        }
+        
+        /* Gestione per schermi ultra-wide */
+        @media (min-width: 1920px) {
+            .container {
+                max-width: 1800px;
+            }
+            
+            .form-grid {
+                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+                gap: 30px;
+            }
+            
+            .data-table {
+                font-size: 18px;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 18px 25px;
+            }
+            
+            .btn {
+                padding: 18px 35px;
+                font-size: 20px;
+            }
         }
         
         .table-wrapper.has-scroll::before {
@@ -6042,6 +6630,10 @@
         }
         
         .nav-tab.hidden-for-guest {
+            display: none !important;
+        }
+        
+        .hidden-for-guest {
             display: none !important;
         }
         }
@@ -6790,6 +7382,7 @@
             // Mostra tutte le sezioni per l'admin
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.style.display = 'block';
+                tab.classList.remove('hidden-for-guest');
             });
             
             // Mostra la tab dashboard per Tommaso
@@ -6821,7 +7414,11 @@
             const prezzoAcquistoHeaders = document.querySelectorAll('#prezzoAcquistoHeaderProdotti, #prezzoAcquistoHeaderVini');
             prezzoAcquistoHeaders.forEach(header => {
                 header.style.display = 'table-cell';
+                header.classList.remove('hidden-for-guest');
             });
+            
+            // Mostra celle prezzi di acquisto nelle tabelle
+            showPurchasePricesForAdmin();
             
             // Mostra info utente
             document.getElementById('userInfo').style.display = 'block';
@@ -6842,14 +7439,23 @@
         }
 
         function showGuestInterface() {
-            // Nascondi sezioni non accessibili ai clienti
+            // Nascondi completamente sezioni non accessibili ai clienti
             const clientiTab = document.querySelector('.nav-tab[onclick="showTab(\'clienti\')"]');
             const fattureTab = document.querySelector('.nav-tab[onclick="showTab(\'fatture\')"]');
             const dashboardTab = document.querySelector('.nav-tab[onclick="showTab(\'dashboard\')"]');
             
-            if (clientiTab) clientiTab.style.display = 'none';
-            if (fattureTab) fattureTab.style.display = 'none';
-            if (dashboardTab) dashboardTab.style.display = 'none';
+            if (clientiTab) {
+                clientiTab.style.display = 'none';
+                clientiTab.classList.add('hidden-for-guest');
+            }
+            if (fattureTab) {
+                fattureTab.style.display = 'none';
+                fattureTab.classList.add('hidden-for-guest');
+            }
+            if (dashboardTab) {
+                dashboardTab.style.display = 'none';
+                dashboardTab.classList.add('hidden-for-guest');
+            }
             
             // Mostra scheda di benvenuto per ospiti
             const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
@@ -6880,11 +7486,8 @@
                 });
             });
             
-            // Nascondi intestazioni prezzi di acquisto per clienti
-            const prezzoAcquistoHeaders = document.querySelectorAll('#prezzoAcquistoHeaderProdotti, #prezzoAcquistoHeaderVini');
-            prezzoAcquistoHeaders.forEach(header => {
-                header.style.display = 'none';
-            });
+            // Nascondi completamente prezzi di acquisto per clienti
+            hidePurchasePricesForGuests();
             
             // Mostra info utente
             document.getElementById('userInfo').style.display = 'block';
@@ -6899,6 +7502,11 @@
             
             // Attiva la modalità ospite
             setupGuestMode();
+            
+            // Verifica che tutto sia corretto
+            setTimeout(() => {
+                verifyGuestMode();
+            }, 500);
         }
 
         function logout() {
@@ -7125,6 +7733,13 @@
         async function testGitHubConnection() {
             try {
                 showLoading(true);
+                
+                // Verifica configurazione
+                if (!GITHUB_CONFIG.token || !GITHUB_CONFIG.gistId) {
+                    showNotification('❌ Configurazione GitHub incompleta - imposta token e Gist ID', 'error');
+                    return;
+                }
+                
                 const success = await saveToGitHubGist({
                     clienti: [],
                     fatture: [],
@@ -7137,7 +7752,7 @@
                 if (success) {
                     showNotification('✅ Connessione GitHub testata con successo!', 'success');
                 } else {
-                    showNotification('❌ Errore nella connessione GitHub', 'error');
+                    showNotification('❌ Errore nella connessione GitHub - verifica token e permessi', 'error');
                 }
             } catch (error) {
                 console.error('Errore nel test GitHub:', error);

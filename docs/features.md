@@ -134,7 +134,7 @@ Documentazione completa delle funzionalità del sistema Gestione Tommy.
 ### Sistema Multi-Dispositivo
 - **GitHub Gist**: Sincronizzazione cloud
 - **Device ID**: Identificazione dispositivi
-- **Auto-sync**: Sincronizzazione ogni 30 secondi
+- **Auto-sync**: Sincronizzazione ogni 30 minuti
 - **Fallback**: localStorage come backup
 
 ### Configurazione GitHub
