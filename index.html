@@ -875,6 +875,43 @@
             color: #28a745;
         }
 
+        /* Stili per i controlli nell'anteprima */
+        .anteprima-table input[type="number"],
+        .anteprima-table select {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .anteprima-table input[type="number"]:focus,
+        .anteprima-table select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        .anteprima-table .sconto-cell .flex-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Stili per il pulsante elimina nell'anteprima */
+        .anteprima-table .btn-danger {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .anteprima-table .btn-danger:hover {
+            background: #c82333;
+        }
+
         /* Stili per i badge */
         .badge {
             display: inline-block;
@@ -1613,6 +1650,7 @@
                                             <th>Prezzo Unit.</th>
                                             <th>Sconto</th>
                                             <th>Subtotale</th>
+                                            <th>Azioni</th>
                                         </tr>
                                     </thead>
                                     <tbody id="anteprimaTableBody"></tbody>
@@ -2850,6 +2888,8 @@
             
             righeProdotto.push(riga);
             updateProdottiTable();
+            updateAnteprimaTable();
+            calcolaTotali();
         }
 
         function rimuoviRigaProdotto(id) {
@@ -2889,7 +2929,7 @@
         function aggiornaRiga(id, campo, valore) {
             const riga = righeProdotto.find(r => r.id === id);
             if (riga) {
-                if (campo === 'tipoSconto') {
+                if (campo === 'tipoSconto' || campo === 'prodotto') {
                     riga[campo] = valore;
                 } else {
                     riga[campo] = parseFloat(valore) || 0;
@@ -2934,10 +2974,33 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${riga.prodotto}</td>
-                    <td>${riga.quantita}</td>
+                    <td>
+                        <input type="number" value="${riga.quantita}" min="1" step="1" 
+                               style="width: 60px; text-align: center;"
+                               onchange="modificaQuantitaAnteprima(${riga.id}, this.value)">
+                    </td>
                     <td>€${riga.prezzoUnitario.toFixed(2)}</td>
-                    <td class="sconto-cell">${scontoDisplay}</td>
+                    <td class="sconto-cell">
+                        <div class="flex-container">
+                            <select onchange="modificaTipoScontoAnteprima(${riga.id}, this.value)" 
+                                    style="width: 50px;">
+                                <option value="percentuale" ${tipoSconto === 'percentuale' ? 'selected' : ''}>%</option>
+                                <option value="arbitrario" ${tipoSconto === 'arbitrario' ? 'selected' : ''}>€</option>
+                            </select>
+                            <input type="number" value="${valoreSconto}" min="0" step="0.01" 
+                                   style="width: 60px; text-align: center;"
+                                   onchange="modificaValoreScontoAnteprima(${riga.id}, this.value)">
+                        </div>
+                    </td>
                     <td class="subtotale-cell">€${riga.subtotaleRiga.toFixed(2)}</td>
+                    <td style="text-align: center;">
+                        <button type="button" class="btn btn-sm btn-danger" 
+                                onclick="eliminaRigaAnteprima(${riga.id})" 
+                                style="padding: 2px 6px; font-size: 12px;" 
+                                title="Elimina prodotto">
+                            🗑️
+                        </button>
+                    </td>
                 `;
                 tbody.appendChild(row);
             });
@@ -2956,6 +3019,48 @@
             document.querySelector('#fatturaModal input[name="subtotale"]').value = subtotale.toFixed(2);
             document.querySelector('#fatturaModal input[name="scontoExtraDisplay"]').value = scontoExtra.toFixed(2);
             document.querySelector('#fatturaModal input[name="totale"]').value = totale.toFixed(2);
+        }
+
+        // Funzioni per modificare dall'anteprima
+        function modificaQuantitaAnteprima(id, nuovaQuantita) {
+            const riga = righeProdotto.find(r => r.id === id);
+            if (riga) {
+                riga.quantita = parseInt(nuovaQuantita) || 1;
+                calcolaSubtotaleRiga(riga);
+                updateAnteprimaTable();
+                calcolaTotali();
+            }
+        }
+
+        function modificaTipoScontoAnteprima(id, nuovoTipo) {
+            const riga = righeProdotto.find(r => r.id === id);
+            if (riga) {
+                riga.tipoSconto = nuovoTipo;
+                calcolaSubtotaleRiga(riga);
+                updateAnteprimaTable();
+                calcolaTotali();
+            }
+        }
+
+        function modificaValoreScontoAnteprima(id, nuovoValore) {
+            const riga = righeProdotto.find(r => r.id === id);
+            if (riga) {
+                riga.valoreSconto = parseFloat(nuovoValore) || 0;
+                calcolaSubtotaleRiga(riga);
+                updateAnteprimaTable();
+                calcolaTotali();
+            }
+        }
+
+        function eliminaRigaAnteprima(id) {
+            const riga = righeProdotto.find(r => r.id === id);
+            if (riga && confirm(`Sei sicuro di voler eliminare "${riga.prodotto}" dalla fattura?`)) {
+                righeProdotto = righeProdotto.filter(r => r.id !== id);
+                updateProdottiTable();
+                updateAnteprimaTable();
+                calcolaTotali();
+                showNotification('Prodotto eliminato dalla fattura', 'success');
+            }
         }
 
         // Funzioni per il catalogo
@@ -3033,8 +3138,11 @@
                 prezzoUnitario: prezzo,
                 tipoSconto: 'percentuale',
                 valoreSconto: 0,
-                subtotaleRiga: prezzo
+                subtotaleRiga: 0
             };
+            
+            // Calcola il subtotale iniziale
+            calcolaSubtotaleRiga(riga);
             
             righeProdotto.push(riga);
             updateProdottiTable();
