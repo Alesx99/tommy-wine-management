@@ -1225,24 +1225,36 @@
 
             <div class="export-section">
                 <h4>📋 Lista Documenti</h4>
-                <table id="fattureTable" class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Tipo</th>
-                            <th>Numero</th>
-                            <th>Cliente</th>
-                            <th>Data</th>
-                            <th>Scadenza</th>
-                            <th>Subtotale</th>
-                            <th>Sconto Extra</th>
-                            <th>Totale</th>
-                            <th>Stato</th>
-                            <th>Note</th>
-                            <th>Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody id="fattureTableBody"></tbody>
-                </table>
+                
+                <!-- Slider per visualizzazione mobile -->
+                <div class="table-slider-container">
+                    <div class="slider-controls">
+                        <button type="button" class="slider-btn slider-prev" onclick="slideTable('left')">‹</button>
+                        <span class="slider-indicator">1/1</span>
+                        <button type="button" class="slider-btn slider-next" onclick="slideTable('right')">›</button>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table id="fattureTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Numero</th>
+                                    <th>Cliente</th>
+                                    <th>Data</th>
+                                    <th>Scadenza</th>
+                                    <th>Subtotale</th>
+                                    <th>Sconto Extra</th>
+                                    <th>Totale</th>
+                                    <th>Stato</th>
+                                    <th>Note</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fattureTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -2505,6 +2517,10 @@
             // Aggiorna il select clienti se si è nella tab fatture
             if (tabName === 'fatture') {
                 updateClientiSelect();
+                // Inizializza lo slider per la tabella fatture
+                setTimeout(() => {
+                    initTableSlider();
+                }, 200);
             }
         }
 
@@ -2646,27 +2662,32 @@
             const tbody = document.getElementById('fattureTableBody');
             tbody.innerHTML = '';
             
-                            documenti.forEach(documento => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td><span class="badge badge-${getTipoBadge(documento.tipo)}">${documento.tipo.toUpperCase()}</span></td>
-                        <td>${documento.numero}</td>
-                        <td>${documento.cliente}</td>
-                        <td>${documento.data}</td>
-                        <td>${documento.scadenza || '-'}</td>
-                        <td>€${documento.subtotale.toFixed(2)}</td>
-                        <td>€${documento.scontoExtra.toFixed(2)}</td>
-                        <td>€${documento.totale.toFixed(2)}</td>
-                        <td>${getStatoBadge(documento.stato)}</td>
-                        <td>${documento.note || '-'}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary" onclick="editDocumento(${documento.id})">✏️</button>
-                            <button class="btn btn-sm btn-success" onclick="stampaDocumentoSalvato(${documento.id})">🖨️</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteDocumento(${documento.id})">🗑️</button>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
+            documenti.forEach(documento => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="badge badge-${getTipoBadge(documento.tipo)}">${documento.tipo.toUpperCase()}</span></td>
+                    <td>${documento.numero}</td>
+                    <td>${documento.cliente}</td>
+                    <td>${documento.data}</td>
+                    <td>${documento.scadenza || '-'}</td>
+                    <td>€${documento.subtotale.toFixed(2)}</td>
+                    <td>€${documento.scontoExtra.toFixed(2)}</td>
+                    <td>€${documento.totale.toFixed(2)}</td>
+                    <td>${getStatoBadge(documento.stato)}</td>
+                    <td>${documento.note || '-'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="editDocumento(${documento.id})">✏️</button>
+                        <button class="btn btn-sm btn-success" onclick="stampaDocumentoSalvato(${documento.id})">🖨️</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteDocumento(${documento.id})">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Inizializza lo slider dopo l'aggiornamento della tabella
+            setTimeout(() => {
+                initTableSlider();
+            }, 100);
         }
 
         function getTipoBadge(tipo) {
@@ -4206,6 +4227,81 @@
             XLSX.writeFile(wb, filename);
         }
 
+        // Variabili globali per lo slider
+        let currentSlide = 0;
+        let totalSlides = 1;
+        let slideWidth = 0;
+        
+        // Funzione per gestire lo slider delle tabelle
+        function slideTable(direction) {
+            const tableWrapper = document.querySelector('.table-wrapper');
+            const table = document.getElementById('fattureTable');
+            const indicator = document.querySelector('.slider-indicator');
+            const prevBtn = document.querySelector('.slider-prev');
+            const nextBtn = document.querySelector('.slider-next');
+            
+            if (!tableWrapper || !table) return;
+            
+            // Calcola la larghezza della tabella e del contenitore
+            const tableWidth = table.scrollWidth;
+            const containerWidth = tableWrapper.clientWidth;
+            
+            // Se la tabella è più piccola del contenitore, non serve lo slider
+            if (tableWidth <= containerWidth) {
+                currentSlide = 0;
+                totalSlides = 1;
+                updateSliderControls();
+                return;
+            }
+            
+            // Calcola il numero totale di slide
+            slideWidth = containerWidth * 0.8; // 80% della larghezza del contenitore
+            totalSlides = Math.ceil(tableWidth / slideWidth);
+            
+            // Gestisci la direzione
+            if (direction === 'left' && currentSlide > 0) {
+                currentSlide--;
+            } else if (direction === 'right' && currentSlide < totalSlides - 1) {
+                currentSlide++;
+            }
+            
+            // Applica la traslazione
+            const translateX = -currentSlide * slideWidth;
+            tableWrapper.scrollTo({
+                left: translateX,
+                behavior: 'smooth'
+            });
+            
+            // Aggiorna i controlli
+            updateSliderControls();
+        }
+        
+        // Funzione per aggiornare i controlli dello slider
+        function updateSliderControls() {
+            const indicator = document.querySelector('.slider-indicator');
+            const prevBtn = document.querySelector('.slider-prev');
+            const nextBtn = document.querySelector('.slider-next');
+            
+            if (indicator) {
+                indicator.textContent = `${currentSlide + 1}/${totalSlides}`;
+            }
+            
+            if (prevBtn) {
+                prevBtn.disabled = currentSlide === 0;
+            }
+            
+            if (nextBtn) {
+                nextBtn.disabled = currentSlide >= totalSlides - 1;
+            }
+        }
+        
+        // Funzione per inizializzare lo slider quando si cambia tab
+        function initTableSlider() {
+            setTimeout(() => {
+                slideTable('left'); // Reset alla prima slide
+            }, 100);
+        }
+        
         // Funzione per stampare il listino vini - VERSIONE OTTIMIZZATA PER STAMPA B/N
         function printWineList() {
             if (vini.length === 0) {
@@ -4457,18 +4553,110 @@
                             }
                         }
                         
-                        /* Responsive per schermi piccoli */
-                        @media (max-width: 600px) {
-                            .wine-item {
-                                grid-template-columns: 1fr;
-                                gap: 2px;
-                                padding: 4px 0;
-                            }
-                            
-                            .wine-header-row {
-                                display: none;
-                            }
-                        }
+                                /* Responsive per schermi piccoli */
+        @media (max-width: 600px) {
+            .wine-item {
+                grid-template-columns: 1fr;
+                gap: 2px;
+                padding: 4px 0;
+            }
+            
+            .wine-header-row {
+                display: none;
+            }
+        }
+        
+        /* Stili per lo slider delle tabelle */
+        .table-slider-container {
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .slider-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .slider-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slider-btn:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
+        
+        .slider-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .slider-indicator {
+            font-weight: bold;
+            color: #333;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .table-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .table-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Responsive per lo slider */
+        @media (max-width: 768px) {
+            .slider-controls {
+                margin-bottom: 10px;
+            }
+            
+            .slider-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+            
+            .slider-indicator {
+                font-size: 14px;
+            }
+        }
                     </style>
                 </head>
                 <body>
