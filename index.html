@@ -1144,7 +1144,7 @@
         }
     </style>
 
-        /* Stili per la stampa del listino vini */
+        /* Print Styles for Wine List */
         @media print {
             body * {
                 visibility: hidden;
@@ -1161,120 +1161,120 @@
                 width: 100%;
                 height: 100%;
                 background: white;
-                padding: 20px;
+                padding: var(--spacing-xl);
                 margin: 0;
             }
             
-                                    .wine-header {
-                            text-align: center;
-                            margin-bottom: 30px;
-                            border-bottom: 3px solid #228B22;
-                            padding-bottom: 20px;
-                            position: relative;
-                        }
-                        
-                        .wine-header::before,
-                        .wine-header::after {
-                            content: '🍷';
-                            font-size: 24px;
-                            position: absolute;
-                            top: 50%;
-                            transform: translateY(-50%);
-                        }
-                        
-                        .wine-header::before {
-                            left: 20px;
-                        }
-                        
-                        .wine-header::after {
-                            right: 20px;
-                        }
-                        
-                        .wine-title {
-                            font-size: 36px;
-                            font-weight: bold;
-                            color: #228B22;
-                            margin: 0;
-                            font-family: 'Georgia', serif;
-                        }
+            .wine-header {
+                text-align: center;
+                margin-bottom: var(--spacing-xl);
+                border-bottom: 3px solid var(--success-color);
+                padding-bottom: var(--spacing-lg);
+                position: relative;
+            }
+            
+            .wine-header::before,
+            .wine-header::after {
+                content: '🍷';
+                font-size: 1.5rem;
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            
+            .wine-header::before {
+                left: var(--spacing-xl);
+            }
+            
+            .wine-header::after {
+                right: var(--spacing-xl);
+            }
+            
+            .wine-title {
+                font-size: 2.25rem;
+                font-weight: 700;
+                color: var(--success-color);
+                margin: 0;
+                font-family: 'Georgia', serif;
+            }
             
             .wine-subtitle {
-                font-size: 18px;
-                color: #666;
-                margin: 10px 0 0 0;
+                font-size: 1.125rem;
+                color: var(--text-secondary);
+                margin: var(--spacing-sm) 0 0 0;
                 font-style: italic;
             }
             
             .wine-date {
-                font-size: 14px;
-                color: #888;
-                margin: 5px 0 0 0;
+                font-size: 0.875rem;
+                color: var(--text-muted);
+                margin: var(--spacing-xs) 0 0 0;
             }
             
-                                    .wine-category {
-                            margin: 40px 0 20px 0;
-                            font-size: 24px;
-                            font-weight: bold;
-                            color: #228B22;
-                            border-bottom: 2px solid #228B22;
-                            padding-bottom: 12px;
-                            text-transform: uppercase;
-                            letter-spacing: 1px;
-                            position: relative;
-                            text-align: center;
-                        }
-                        
-                        .wine-category::before {
-                            content: '';
-                            position: absolute;
-                            top: 50%;
-                            left: 0;
-                            right: 0;
-                            height: 1px;
-                            background: linear-gradient(to right, transparent, #228B22, transparent);
-                        }
-                        
-                        .wine-category::after {
-                            content: '🍇';
-                            position: absolute;
-                            top: 50%;
-                            right: 10px;
-                            transform: translateY(-50%);
-                            font-size: 18px;
-                        }
+            .wine-category {
+                margin: var(--spacing-2xl) 0 var(--spacing-lg) 0;
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: var(--success-color);
+                border-bottom: 2px solid var(--success-color);
+                padding-bottom: var(--spacing-md);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                position: relative;
+                text-align: center;
+            }
+            
+            .wine-category::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 0;
+                right: 0;
+                height: 1px;
+                background: linear-gradient(to right, transparent, var(--success-color), transparent);
+            }
+            
+            .wine-category::after {
+                content: '🍇';
+                position: absolute;
+                top: 50%;
+                right: var(--spacing-md);
+                transform: translateY(-50%);
+                font-size: 1.125rem;
+            }
             
             .wine-item {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                padding: 12px 0;
-                border-bottom: 1px solid #f0f0f0;
-                font-size: 16px;
+                padding: var(--spacing-md) 0;
+                border-bottom: 1px solid var(--border-light);
+                font-size: 1rem;
             }
             
             .wine-item:last-child {
-                border-bottom: 2px solid #ddd;
+                border-bottom: 2px solid var(--border-color);
             }
             
             .wine-name {
                 font-weight: 600;
-                color: #333;
+                color: var(--text-primary);
                 flex: 1;
             }
             
             .wine-price {
-                font-weight: bold;
-                color: #8B0000;
-                font-size: 18px;
+                font-weight: 700;
+                color: var(--danger-color);
+                font-size: 1.125rem;
                 min-width: 80px;
                 text-align: right;
             }
             
             .wine-tipologia {
-                font-size: 14px;
-                color: #666;
+                font-size: 0.875rem;
+                color: var(--text-secondary);
                 font-style: italic;
-                margin-left: 20px;
+                margin-left: var(--spacing-lg);
                 flex: 0 0 120px;
             }
             
@@ -1283,44 +1283,44 @@
             }
             
             .wine-footer {
-                margin-top: 40px;
+                margin-top: var(--spacing-2xl);
                 text-align: center;
-                font-size: 12px;
-                color: #888;
-                border-top: 1px solid #ddd;
-                padding-top: 20px;
+                font-size: 0.75rem;
+                color: var(--text-muted);
+                border-top: 1px solid var(--border-color);
+                padding-top: var(--spacing-lg);
             }
         }
 
-        /* Animazione per loading spinner */
+        /* Loading Animation */
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
-        /* Miglioramenti responsive per tabelle */
+        /* Responsive Table Improvements */
         @media (max-width: 768px) {
             .data-table {
-                font-size: 12px;
+                font-size: 0.75rem;
             }
             
             .data-table th,
             .data-table td {
-                padding: 8px 4px;
+                padding: var(--spacing-sm) var(--spacing-xs);
             }
             
             .btn-sm {
-                padding: 4px 8px;
-                font-size: 12px;
+                padding: var(--spacing-xs) var(--spacing-sm);
+                font-size: 0.75rem;
             }
         }
         
-        /* Stili per tabelle con scroll orizzontale */
+        /* Table Scroll Container */
         .table-scroll-container {
             overflow-x: auto;
             width: 100%;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
         }
         
         .table-scroll-container::-webkit-scrollbar {
@@ -1328,57 +1328,57 @@
         }
         
         .table-scroll-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
+            background: var(--border-light);
+            border-radius: var(--radius-sm);
         }
         
         .table-scroll-container::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 4px;
+            background: var(--primary-color);
+            border-radius: var(--radius-sm);
         }
         
         .table-scroll-container::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
+            background: var(--primary-dark);
         }
         
         .scrollable-table {
-            min-width: 1200px; /* Larghezza minima per contenere tutte le colonne */
+            min-width: 1200px;
             width: 100%;
         }
         
         .scrollable-table th,
         .scrollable-table td {
             white-space: nowrap;
-            padding: 12px 8px;
+            padding: var(--spacing-md) var(--spacing-sm);
         }
         
-        /* Stili specifici per colonne importanti */
-        .scrollable-table td:nth-child(1) { /* Nome */
+        /* Specific column styles */
+        .scrollable-table td:nth-child(1) {
             font-weight: 600;
             min-width: 150px;
         }
         
-        .scrollable-table td:nth-child(8) { /* Prezzo Ingrosso */
+        .scrollable-table td:nth-child(8) {
             font-weight: 600;
-            color: #28a745;
+            color: var(--success-color);
         }
         
-        .scrollable-table td:nth-child(9) { /* Prezzo Dettaglio */
+        .scrollable-table td:nth-child(9) {
             font-weight: 600;
-            color: #dc3545;
+            color: var(--danger-color);
         }
         
-        .scrollable-table td:nth-child(10) { /* Quantità */
+        .scrollable-table td:nth-child(10) {
             text-align: center;
             font-weight: 600;
         }
         
-        .scrollable-table td:nth-child(14) { /* Azioni */
+        .scrollable-table td:nth-child(14) {
             white-space: nowrap;
             min-width: 120px;
         }
 
-        /* Stili per la censura e il sistema di sicurezza */
+        /* Censorship and Security System */
         .censored {
             color: transparent;
             text-shadow: 0 0 8px #000;
@@ -1388,7 +1388,7 @@
 
         .censored::before {
             content: '***';
-            color: #666;
+            color: var(--text-muted);
             text-shadow: none;
             position: absolute;
             left: 0;
@@ -1406,85 +1406,91 @@
             display: none;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(4px);
         }
 
         .security-modal {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
+            background: var(--surface-color);
+            padding: var(--spacing-2xl);
+            border-radius: var(--radius-xl);
             text-align: center;
             max-width: 400px;
             width: 90%;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-color);
         }
 
         .security-modal h3 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 1.5em;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-lg);
+            font-size: 1.5rem;
+            font-weight: 600;
         }
 
         .security-modal input {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 16px;
-            margin-bottom: 20px;
+            padding: var(--spacing-md);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            margin-bottom: var(--spacing-lg);
             text-align: center;
+            font-family: inherit;
         }
 
         .security-modal input:focus {
             outline: none;
-            border-color: #1a5f3a;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .security-toggle {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: var(--spacing-lg);
+            right: var(--spacing-lg);
             z-index: 1000;
-            background: #1a5f3a;
+            background: var(--primary-color);
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: var(--spacing-sm) var(--spacing-md);
             border-radius: 25px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
             font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .security-toggle:hover {
-            background: #2d5a3d;
+            background: var(--primary-dark);
             transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
         .security-toggle.active {
-            background: #28a745;
+            background: var(--success-color);
         }
 
         .security-toggle.active:hover {
-            background: #218838;
+            background: #059669;
         }
 
         .security-warning {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            color: #856404;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            font-size: 14px;
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            color: #92400e;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-lg);
+            font-size: 0.875rem;
             text-align: center;
         }
 
         .security-warning strong {
-            color: #d63031;
+            color: var(--danger-color);
         }
 
-        /* Animazione per il toggle di sicurezza */
+        /* Security Toggle Animation */
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -1493,10 +1499,10 @@
 
         .security-toggle.alert {
             animation: pulse 2s infinite;
-            background: #dc3545;
+            background: var(--danger-color);
         }
 
-        /* Stili per i campi censurati nelle tabelle */
+        /* Censored Table Styles */
         .table-censored {
             position: relative;
         }
@@ -1733,26 +1739,27 @@
             background: var(--border-light);
         }
 
-        /* Stili per la tabella di anteprima */
+        /* Preview Table Styles */
         .anteprima-section {
-            margin-top: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
+            margin-top: var(--spacing-xl);
+            padding: var(--spacing-xl);
+            background: var(--border-light);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
         }
 
         .anteprima-section h5 {
-            margin: 0 0 15px 0;
-            color: #495057;
-            font-size: 16px;
+            margin: 0 0 var(--spacing-md) 0;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
         }
 
         .anteprima-table-container {
             overflow-x: auto;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background: var(--surface-color);
         }
 
         .anteprima-table {
@@ -1763,112 +1770,116 @@
 
         .anteprima-table th,
         .anteprima-table td {
-            padding: 10px;
+            padding: var(--spacing-md);
             text-align: left;
-            border-bottom: 1px solid #e9ecef;
-            font-size: 14px;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 0.875rem;
         }
 
         .anteprima-table th {
-            background: #e9ecef;
+            background: var(--border-light);
             font-weight: 600;
-            color: #495057;
+            color: var(--text-primary);
         }
 
         .anteprima-table tr:hover {
-            background: #f8f9fa;
+            background: var(--border-light);
         }
 
         .anteprima-table .sconto-cell {
             font-weight: 600;
-            color: #dc3545;
+            color: var(--danger-color);
         }
 
         .anteprima-table .subtotale-cell {
             font-weight: 600;
-            color: #28a745;
+            color: var(--success-color);
         }
 
-        /* Stili per i controlli nell'anteprima */
+        /* Preview Controls */
         .anteprima-table input[type="number"],
         .anteprima-table select {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            font-family: inherit;
         }
 
         .anteprima-table input[type="number"]:focus,
         .anteprima-table select:focus {
             outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
         }
 
         .anteprima-table .sconto-cell .flex-container {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: var(--spacing-xs);
         }
 
-        /* Stili per il pulsante elimina nell'anteprima */
+        /* Preview Delete Button */
         .anteprima-table .btn-danger {
-            background: #dc3545;
+            background: var(--danger-color);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.2s ease;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 0.75rem;
         }
 
         .anteprima-table .btn-danger:hover {
-            background: #c82333;
+            background: #dc2626;
+            transform: translateY(-1px);
         }
 
-        /* Stili per i badge */
+        /* Badge Styles */
         .badge {
             display: inline-block;
-            padding: 4px 8px;
-            font-size: 12px;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 0.75rem;
             font-weight: 600;
             border-radius: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.05em;
         }
 
         .badge-primary {
-            background: #007bff;
+            background: var(--primary-color);
             color: white;
         }
 
         .badge-warning {
-            background: #ffc107;
-            color: #212529;
+            background: var(--warning-color);
+            color: white;
         }
 
         .badge-info {
-            background: #17a2b8;
+            background: var(--info-color);
             color: white;
         }
 
         .badge-secondary {
-            background: #6c757d;
+            background: var(--secondary-color);
             color: white;
         }
 
-        /* Responsive per il sistema di sicurezza */
+        /* Security System Responsive */
         @media (max-width: 768px) {
             .security-toggle {
-                top: 10px;
-                right: 10px;
-                padding: 8px 12px;
-                font-size: 12px;
+                top: var(--spacing-md);
+                right: var(--spacing-md);
+                padding: var(--spacing-xs) var(--spacing-sm);
+                font-size: 0.75rem;
             }
             
             .security-modal {
-                margin: 20px;
-                padding: 20px;
+                margin: var(--spacing-lg);
+                padding: var(--spacing-xl);
             }
         }
     </style>
