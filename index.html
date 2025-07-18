@@ -9874,6 +9874,9 @@
             currentUser = null;
             isLoggedIn = false;
             
+            // Ferma tutti i monitoraggi
+            stopAllMonitoring();
+            
             // Rimuovi classe guest-mode dal body
             document.body.classList.remove('guest-mode');
             
@@ -11021,18 +11024,34 @@
             }
         }
 
+        // Variabile globale per il timer di monitoraggio benvenuto
+        let benvenutoMonitorTimer = null;
+
         // Funzione per monitorare e nascondere la tab benvenuto per admin
         function monitorBenvenutoTabForAdmin() {
+            // Ferma tutti i monitoraggi esistenti
+            stopAllMonitoring();
+            
             if (currentUser === 'admin') {
-                setInterval(() => {
+                let lastLogTime = 0;
+                benvenutoMonitorTimer = setInterval(() => {
+                    const currentTime = Date.now();
+                    let hasChanges = false;
+                    
                     const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
                     if (benvenutoTab && benvenutoTab.style.display !== 'none') {
                         benvenutoTab.style.display = 'none';
                         benvenutoTab.classList.remove('active');
                         benvenutoTab.classList.add('guest-only');
-                        console.log('🔒 Tab benvenuto nascosta per admin');
+                        hasChanges = true;
                     }
-                }, 1000); // Controlla ogni secondo
+                    
+                    // Log solo se ci sono stati cambiamenti e non più di una volta ogni 5 secondi
+                    if (hasChanges && (currentTime - lastLogTime) > 5000) {
+                        console.log('🔒 Tab benvenuto nascosta per admin');
+                        lastLogTime = currentTime;
+                    }
+                }, 2000); // Controlla ogni 2 secondi invece di 1
             }
         }
 
@@ -11048,17 +11067,44 @@
             }
         }
 
+        // Variabili globali per i timer di monitoraggio
+        let guestMonitorTimer = null;
+        let adminMonitorTimer = null;
+
+        // Funzione per fermare tutti i monitoraggi
+        function stopAllMonitoring() {
+            if (guestMonitorTimer) {
+                clearInterval(guestMonitorTimer);
+                guestMonitorTimer = null;
+            }
+            if (adminMonitorTimer) {
+                clearInterval(adminMonitorTimer);
+                adminMonitorTimer = null;
+            }
+            if (benvenutoMonitorTimer) {
+                clearInterval(benvenutoMonitorTimer);
+                benvenutoMonitorTimer = null;
+            }
+        }
+
         // Funzione per monitorare e nascondere le tab admin-only per ospiti
         function monitorAdminTabsForGuest() {
+            // Ferma tutti i monitoraggi esistenti
+            stopAllMonitoring();
+            
             if (currentUser === 'guest') {
-                setInterval(() => {
+                let lastLogTime = 0;
+                guestMonitorTimer = setInterval(() => {
+                    const currentTime = Date.now();
+                    let hasChanges = false;
+                    
                     const adminTabs = document.querySelectorAll('.nav-tab.admin-only');
                     adminTabs.forEach(tab => {
                         if (tab.style.display !== 'none') {
                             tab.style.display = 'none';
                             tab.classList.remove('active');
                             tab.classList.add('admin-only');
-                            console.log('🔒 Tab admin nascosta per ospite');
+                            hasChanges = true;
                         }
                     });
 
@@ -11069,10 +11115,16 @@
                             section.style.display = 'none';
                             section.classList.remove('active');
                             section.classList.add('admin-only');
-                            console.log('🔒 Sezione admin nascosta per ospite');
+                            hasChanges = true;
                         }
                     });
-                }, 1000); // Controlla ogni secondo
+                    
+                    // Log solo se ci sono stati cambiamenti e non più di una volta ogni 5 secondi
+                    if (hasChanges && (currentTime - lastLogTime) > 5000) {
+                        console.log('🔒 Elementi admin nascosti per ospite');
+                        lastLogTime = currentTime;
+                    }
+                }, 2000); // Controlla ogni 2 secondi invece di 1
             }
         }
 
@@ -11112,15 +11164,22 @@
 
         // Funzione per monitorare e mostrare le tab admin-only per Tommaso
         function monitorAdminTabsForTommaso() {
+            // Ferma tutti i monitoraggi esistenti
+            stopAllMonitoring();
+            
             if (currentUser === 'admin') {
-                setInterval(() => {
+                let lastLogTime = 0;
+                adminMonitorTimer = setInterval(() => {
+                    const currentTime = Date.now();
+                    let hasChanges = false;
+                    
                     const adminTabs = document.querySelectorAll('.nav-tab.admin-only');
                     adminTabs.forEach(tab => {
                         if (tab.style.display === 'none') {
                             tab.style.display = 'block';
                             tab.classList.remove('hidden-for-guest');
                             tab.classList.add('admin-only');
-                            console.log('👨‍💼 Tab admin ripristinata per Tommaso');
+                            hasChanges = true;
                         }
                     });
 
@@ -11131,10 +11190,16 @@
                             section.style.display = 'block';
                             section.classList.remove('hidden-for-guest');
                             section.classList.add('admin-only');
-                            console.log('👨‍💼 Sezione admin ripristinata per Tommaso');
+                            hasChanges = true;
                         }
                     });
-                }, 1000); // Controlla ogni secondo
+                    
+                    // Log solo se ci sono stati cambiamenti e non più di una volta ogni 5 secondi
+                    if (hasChanges && (currentTime - lastLogTime) > 5000) {
+                        console.log('👨‍💼 Elementi admin ripristinati per Tommaso');
+                        lastLogTime = currentTime;
+                    }
+                }, 2000); // Controlla ogni 2 secondi invece di 1
             }
         }
     </script>
