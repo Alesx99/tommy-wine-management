@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestione Tommy - Bar e Cantina Tommy</title>
+    <title>Gestione Tommy - Privilege Cafè&Wine</title>
     <style>
         * {
             margin: 0;
@@ -1100,7 +1100,7 @@
         
         <div class="header">
             <h1>🍷 Gestione Tommy</h1>
-            <p>Bar e Cantina Tommy - Sistema di Gestione Dati</p>
+            <p>Privilege Cafè&Wine - Sistema di Gestione Dati</p>
             <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
                 💾 Dati salvati automaticamente nel browser
                 <div id="syncStatus" style="margin-top: 5px; font-size: 0.8em;">
@@ -2296,7 +2296,7 @@
         function addTommasoCompanyData() {
             // Controlla se l'azienda di Tommaso esiste già
             const existingCompany = clienti.find(cliente => 
-                cliente.nomeAzienda === 'Bar e Cantina Tommy' || 
+                                        cliente.nomeAzienda === 'Privilege Cafè&Wine' || 
                 cliente.nomeAzienda === 'Privilege Cafè&Wine' ||
                 (cliente.nome === 'Tommaso' && cliente.tipologia === 'azienda')
             );
@@ -2306,7 +2306,7 @@
                 existingCompany.indirizzo = 'C.so Vittorio Emanuele II, 48 Bitonto (Ba) 70032';
                 existingCompany.telefono = '0803740786';
                 existingCompany.email = 'tommyprivilege@gmail.com';
-                existingCompany.nomeAzienda = 'Bar e Cantina Tommy';
+                existingCompany.nomeAzienda = 'Privilege Cafè&Wine';
                 existingCompany.citta = 'Bitonto';
                 existingCompany.cap = '70032';
                 existingCompany.provincia = 'BA';
@@ -2324,7 +2324,7 @@
                     cap: '70032',
                     provincia: 'BA',
                     tipologia: 'azienda',
-                    nomeAzienda: 'Bar e Cantina Tommy',
+                    nomeAzienda: 'Privilege Cafè&Wine',
                     note: 'Azienda principale - Dati per intestazione fatture',
                     dataRegistrazione: new Date().toISOString().split('T')[0]
                 };
@@ -2775,7 +2775,7 @@
             let printContent = `
                 <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
                     <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
-                        <h1 style="margin: 0; color: #333;">Bar e Cantina Tommy</h1>
+                        <h1 style="margin: 0; color: #333;">Privilege Cafè&Wine</h1>
                         <p style="margin: 5px 0; color: #666;">C.so Vittorio Emanuele II, 48 Bitonto (Ba) 70032 - Tel: 0803740786</p>
                         <h2 style="margin: 20px 0; color: #ff6b6b;">${documento.tipo.toUpperCase()} N. ${documento.numero}</h2>
                     </div>
@@ -2811,33 +2811,84 @@
                 const valoreSconto = riga.valoreSconto || 0;
                 const simboloSconto = tipoSconto === 'percentuale' ? '%' : '€';
                 
+                // Calcolo dinamico dell'imponibile
+                const quantita = parseFloat(riga.quantita) || 0;
+                const prezzoUnitario = parseFloat(riga.prezzoUnitario) || 0;
+                const subtotaleBase = quantita * prezzoUnitario;
+                
+                let imponibile = subtotaleBase;
+                
+                // Applica sconto se presente
+                if (valoreSconto > 0) {
+                    if (tipoSconto === 'percentuale') {
+                        // Sconto percentuale
+                        const scontoAmount = subtotaleBase * (valoreSconto / 100);
+                        imponibile = subtotaleBase - scontoAmount;
+                    } else {
+                        // Sconto fisso in euro
+                        imponibile = subtotaleBase - valoreSconto;
+                    }
+                }
+                
+                // Assicurati che l'imponibile non sia negativo
+                imponibile = Math.max(0, imponibile);
+                
                 printContent += `
                     <tr>
                         <td style="padding: 12px; border: 1px solid #ddd;">${riga.prodotto}</td>
                         <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${riga.quantita}</td>
                         <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${riga.prezzoUnitario.toFixed(2)}</td>
-                        <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${tipoSconto === 'percentuale' ? '%' : '€'}</td>
                         <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${valoreSconto}${simboloSconto}</td>
-                        <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${riga.subtotaleRiga.toFixed(2)}</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${imponibile.toFixed(2)}</td>
                     </tr>
                 `;
             });
+            
+            // Calcolo dinamico del subtotale e totale
+            let subtotaleCalcolato = 0;
+            let scontoExtraCalcolato = parseFloat(documento.scontoExtra) || 0;
+            
+            // Ricalcola il subtotale basandosi sui nuovi imponibili
+            documento.prodotti.forEach(riga => {
+                const quantita = parseFloat(riga.quantita) || 0;
+                const prezzoUnitario = parseFloat(riga.prezzoUnitario) || 0;
+                const subtotaleBase = quantita * prezzoUnitario;
+                
+                let imponibile = subtotaleBase;
+                const valoreSconto = parseFloat(riga.valoreSconto) || 0;
+                const tipoSconto = riga.tipoSconto || 'percentuale';
+                
+                if (valoreSconto > 0) {
+                    if (tipoSconto === 'percentuale') {
+                        const scontoAmount = subtotaleBase * (valoreSconto / 100);
+                        imponibile = subtotaleBase - scontoAmount;
+                    } else {
+                        imponibile = subtotaleBase - valoreSconto;
+                    }
+                }
+                
+                imponibile = Math.max(0, imponibile);
+                subtotaleCalcolato += imponibile;
+            });
+            
+            // Calcola il totale finale
+            const totaleCalcolato = subtotaleCalcolato - scontoExtraCalcolato;
             
             printContent += `
                         </tbody>
                     </table>
                     
-                                                <div style="text-align: right; margin-top: 30px;">
-                                <div style="margin-bottom: 10px;">
-                                    <strong>Subtotale:</strong> €${documento.subtotale.toFixed(2)}
-                                </div>
-                                <div style="margin-bottom: 10px;">
-                                    <strong>Sconto Extra:</strong> €${documento.scontoExtra.toFixed(2)}
-                                </div>
-                                <div style="font-size: 18px; font-weight: bold; border-top: 2px solid #333; padding-top: 10px;">
-                                    <strong>TOTALE:</strong> €${documento.totale.toFixed(2)}
-                                </div>
-                            </div>
+                    <div style="text-align: right; margin-top: 30px;">
+                        <div style="margin-bottom: 10px;">
+                            <strong>Subtotale:</strong> €${subtotaleCalcolato.toFixed(2)}
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <strong>Sconto Extra:</strong> €${scontoExtraCalcolato.toFixed(2)}
+                        </div>
+                        <div style="font-size: 18px; font-weight: bold; border-top: 2px solid #333; padding-top: 10px;">
+                            <strong>TOTALE:</strong> €${totaleCalcolato.toFixed(2)}
+                        </div>
+                    </div>
                 </div>
             `;
             
@@ -3523,7 +3574,7 @@
             let printContent = `
                 <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
                     <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
-                        <h1 style="margin: 0; color: #333;">Bar e Cantina Tommy</h1>
+                        <h1 style="margin: 0; color: #333;">Privilege Cafè&Wine</h1>
                         <p style="margin: 5px 0; color: #666;">C.so Vittorio Emanuele II, 48 Bitonto (Ba) 70032 - Tel: 0803740786</p>
                         <h2 style="margin: 20px 0; color: #ff6b6b;">${tipo.toUpperCase()} N. ${numero}</h2>
                     </div>
@@ -3554,22 +3605,51 @@
                         <tbody>
             `;
             
+            // Calcolo dinamico del subtotale e totale
+            let subtotaleCalcolato = 0;
+            let scontoExtraCalcolato = parseFloat(scontoExtra) || 0;
+            
             righeProdotto.forEach(riga => {
                 const tipoSconto = riga.tipoSconto || 'percentuale';
                 const valoreSconto = riga.valoreSconto || 0;
                 const simboloSconto = tipoSconto === 'percentuale' ? '%' : '€';
+                
+                // Calcolo dinamico dell'imponibile
+                const quantita = parseFloat(riga.quantita) || 0;
+                const prezzoUnitario = parseFloat(riga.prezzoUnitario) || 0;
+                const subtotaleBase = quantita * prezzoUnitario;
+                
+                let imponibile = subtotaleBase;
+                
+                // Applica sconto se presente
+                if (valoreSconto > 0) {
+                    if (tipoSconto === 'percentuale') {
+                        // Sconto percentuale
+                        const scontoAmount = subtotaleBase * (valoreSconto / 100);
+                        imponibile = subtotaleBase - scontoAmount;
+                    } else {
+                        // Sconto fisso in euro
+                        imponibile = subtotaleBase - valoreSconto;
+                    }
+                }
+                
+                // Assicurati che l'imponibile non sia negativo
+                imponibile = Math.max(0, imponibile);
+                subtotaleCalcolato += imponibile;
                 
                 printContent += `
                     <tr>
                         <td style="padding: 12px; border: 1px solid #ddd;">${riga.prodotto}</td>
                         <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${riga.quantita}</td>
                         <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${riga.prezzoUnitario.toFixed(2)}</td>
-                        <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${tipoSconto === 'percentuale' ? '%' : '€'}</td>
                         <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${valoreSconto}${simboloSconto}</td>
-                        <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${riga.subtotaleRiga.toFixed(2)}</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; text-align: right;">€${imponibile.toFixed(2)}</td>
                     </tr>
                 `;
             });
+            
+            // Calcola il totale finale
+            const totaleCalcolato = subtotaleCalcolato - scontoExtraCalcolato;
             
             printContent += `
                         </tbody>
@@ -3577,13 +3657,13 @@
                     
                     <div style="text-align: right; margin-top: 30px;">
                         <div style="margin-bottom: 10px;">
-                            <strong>Subtotale:</strong> €${subtotale.toFixed(2)}
+                            <strong>Subtotale:</strong> €${subtotaleCalcolato.toFixed(2)}
                         </div>
                         <div style="margin-bottom: 10px;">
-                            <strong>Sconto Extra:</strong> €${scontoExtra.toFixed(2)}
+                            <strong>Sconto Extra:</strong> €${scontoExtraCalcolato.toFixed(2)}
                         </div>
                         <div style="font-size: 18px; font-weight: bold; border-top: 2px solid #333; padding-top: 10px;">
-                            <strong>TOTALE:</strong> €${totale.toFixed(2)}
+                            <strong>TOTALE:</strong> €${totaleCalcolato.toFixed(2)}
                         </div>
                     </div>
                 </div>
@@ -4153,7 +4233,7 @@
             let printContent = `
                 <div class="print-wine-list">
                     <div class="wine-header">
-                        <h1 class="wine-title">Bar e Cantina Tommy</h1>
+                        <h1 class="wine-title">Privilege Cafè&Wine</h1>
                         <p class="wine-subtitle">Listino Vini - ${tipoText}</p>
                         <p class="wine-date">Aggiornato al ${new Date().toLocaleDateString('it-IT')}</p>
                     </div>
@@ -4183,7 +4263,7 @@
 
             printContent += `
                     <div class="wine-footer">
-                        <p>Bar e Cantina Tommy - Listino prezzi al ${tipoText.toLowerCase()}</p>
+                        <p>Privilege Cafè&Wine - Listino prezzi al ${tipoText.toLowerCase()}</p>
                         <p>I prezzi sono espressi in Euro e includono IVA</p>
                     </div>
                 </div>
@@ -4195,7 +4275,7 @@
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>Listino Vini ${tipoText} - Bar e Cantina Tommy</title>
+                    <title>Listino Vini ${tipoText} - Privilege Cafè&Wine</title>
                     <style>
                         body {
                             font-family: 'Arial', sans-serif;

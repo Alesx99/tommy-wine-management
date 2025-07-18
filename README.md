@@ -114,8 +114,8 @@ Questo progetto è sotto licenza MIT. Vedi il file `LICENSE` per i dettagli.
 
 ## 👨‍💻 Sviluppatore
 
-Sviluppato per la gestione del bar e cantina "Bar e Cantina Tommy".
+Sviluppato per la gestione del bar e cantina "Privilege Cafè&Wine".
 
 ---
 
-**🍷 Gestione Tommy** - Sistema professionale per la gestione di bar e cantine 
+**🍷 Gestione Tommy** - Sistema professionale per la gestione di bar e cantine "Privilege Cafè&Wine" 
