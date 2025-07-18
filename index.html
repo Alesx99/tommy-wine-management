@@ -1140,8 +1140,8 @@
                             <th>Cliente</th>
                             <th>Data</th>
                             <th>Scadenza</th>
-                            <th>Imponibile</th>
-                            <th>IVA</th>
+                            <th>Subtotale</th>
+                            <th>Sconto Extra</th>
                             <th>Totale</th>
                             <th>Stato</th>
                             <th>Note</th>
@@ -1515,18 +1515,13 @@
                             <input type="date" name="scadenza">
                         </div>
                         <div class="form-group">
-                            <label>Aliquota IVA (%)</label>
-                            <select name="aliquotaIva" onchange="calcolaTotali()">
-                                <option value="22">22%</option>
-                                <option value="10">10%</option>
-                                <option value="5">5%</option>
-                                <option value="0">0%</option>
-                            </select>
+                            <label>Sconto Extra (€)</label>
+                            <input type="number" name="scontoExtra" step="0.01" value="0" onchange="calcolaTotali()" placeholder="0.00">
                         </div>
                     </div>
                     
                     <div class="prodotti-section">
-                        <h4>🛒 Prodotti/Servizi</h4>
+                        <h4>🛒 Prodotti/Servizi (Prezzi IVA Inclusa)</h4>
                         <div class="prodotti-controls">
                             <button type="button" class="btn btn-sm btn-primary" onclick="aggiungiRigaProdotto()">➕ Aggiungi Prodotto</button>
                             <button type="button" class="btn btn-sm btn-secondary" onclick="selezionaDaCatalogo()">📋 Seleziona da Catalogo</button>
@@ -1537,7 +1532,7 @@
                                     <tr>
                                         <th>Prodotto/Servizio</th>
                                         <th>Quantità</th>
-                                        <th>Prezzo Unitario</th>
+                                        <th>Prezzo Unitario (IVA Inclusa)</th>
                                         <th>Sconto %</th>
                                         <th>Imponibile</th>
                                         <th>Azioni</th>
@@ -1551,12 +1546,12 @@
                     <div class="totali-section">
                         <div class="totali-grid">
                             <div class="form-group">
-                                <label>Imponibile</label>
-                                <input type="number" name="imponibile" step="0.01" readonly>
+                                <label>Subtotale</label>
+                                <input type="number" name="subtotale" step="0.01" readonly>
                             </div>
                             <div class="form-group">
-                                <label>IVA</label>
-                                <input type="number" name="iva" step="0.01" readonly>
+                                <label>Sconto Extra</label>
+                                <input type="number" name="scontoExtraDisplay" step="0.01" readonly>
                             </div>
                             <div class="form-group">
                                 <label>Totale</label>
@@ -2173,27 +2168,27 @@
             const tbody = document.getElementById('fattureTableBody');
             tbody.innerHTML = '';
             
-            documenti.forEach(documento => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><span class="badge badge-${getTipoBadge(documento.tipo)}">${documento.tipo.toUpperCase()}</span></td>
-                    <td>${documento.numero}</td>
-                    <td>${documento.cliente}</td>
-                    <td>${documento.data}</td>
-                    <td>${documento.scadenza || '-'}</td>
-                    <td>€${documento.imponibile.toFixed(2)}</td>
-                    <td>€${documento.iva.toFixed(2)}</td>
-                    <td>€${documento.totale.toFixed(2)}</td>
-                    <td>${getStatoBadge(documento.stato)}</td>
-                    <td>${documento.note || '-'}</td>
-                    <td>
-                        <button class="btn btn-sm btn-primary" onclick="editDocumento(${documento.id})">✏️</button>
-                        <button class="btn btn-sm btn-success" onclick="stampaDocumentoSalvato(${documento.id})">🖨️</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteDocumento(${documento.id})">🗑️</button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
+                            documenti.forEach(documento => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><span class="badge badge-${getTipoBadge(documento.tipo)}">${documento.tipo.toUpperCase()}</span></td>
+                        <td>${documento.numero}</td>
+                        <td>${documento.cliente}</td>
+                        <td>${documento.data}</td>
+                        <td>${documento.scadenza || '-'}</td>
+                        <td>€${documento.subtotale.toFixed(2)}</td>
+                        <td>€${documento.scontoExtra.toFixed(2)}</td>
+                        <td>€${documento.totale.toFixed(2)}</td>
+                        <td>${getStatoBadge(documento.stato)}</td>
+                        <td>${documento.note || '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="editDocumento(${documento.id})">✏️</button>
+                            <button class="btn btn-sm btn-success" onclick="stampaDocumentoSalvato(${documento.id})">🖨️</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteDocumento(${documento.id})">🗑️</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
         }
 
         function getTipoBadge(tipo) {
@@ -2219,7 +2214,7 @@
             document.querySelector('#fatturaModal select[name="cliente"]').value = documento.cliente;
             document.querySelector('#fatturaModal input[name="data"]').value = documento.data;
             document.querySelector('#fatturaModal input[name="scadenza"]').value = documento.scadenza || '';
-            document.querySelector('#fatturaModal select[name="aliquotaIva"]').value = documento.aliquotaIva;
+            document.querySelector('#fatturaModal input[name="scontoExtra"]').value = documento.scontoExtra || 0;
             document.querySelector('#fatturaModal textarea[name="note"]').value = documento.note || '';
             
             // Popola le righe prodotto
@@ -2253,9 +2248,8 @@
                 cliente: formData.get('cliente'),
                 data: formData.get('data'),
                 scadenza: formData.get('scadenza'),
-                aliquotaIva: parseFloat(formData.get('aliquotaIva')),
-                imponibile: parseFloat(formData.get('imponibile')),
-                iva: parseFloat(formData.get('iva')),
+                subtotale: parseFloat(formData.get('subtotale')),
+                scontoExtra: parseFloat(formData.get('scontoExtra')),
                 totale: parseFloat(formData.get('totale')),
                 prodotti: [...righeProdotto],
                 note: formData.get('note')
@@ -2335,17 +2329,17 @@
                         </tbody>
                     </table>
                     
-                    <div style="text-align: right; margin-top: 30px;">
-                        <div style="margin-bottom: 10px;">
-                            <strong>Imponibile:</strong> €${documento.imponibile.toFixed(2)}
-                        </div>
-                        <div style="margin-bottom: 10px;">
-                            <strong>IVA:</strong> €${documento.iva.toFixed(2)}
-                        </div>
-                        <div style="font-size: 18px; font-weight: bold; border-top: 2px solid #333; padding-top: 10px;">
-                            <strong>TOTALE:</strong> €${documento.totale.toFixed(2)}
-                        </div>
-                    </div>
+                                                <div style="text-align: right; margin-top: 30px;">
+                                <div style="margin-bottom: 10px;">
+                                    <strong>Subtotale:</strong> €${documento.subtotale.toFixed(2)}
+                                </div>
+                                <div style="margin-bottom: 10px;">
+                                    <strong>Sconto Extra:</strong> €${documento.scontoExtra.toFixed(2)}
+                                </div>
+                                <div style="font-size: 18px; font-weight: bold; border-top: 2px solid #333; padding-top: 10px;">
+                                    <strong>TOTALE:</strong> €${documento.totale.toFixed(2)}
+                                </div>
+                            </div>
                 </div>
             `;
             
@@ -2787,18 +2781,17 @@
         }
 
         function calcolaTotali() {
-            const aliquotaIva = parseFloat(document.querySelector('#fatturaModal select[name="aliquotaIva"]').value) || 22;
+            const scontoExtra = parseFloat(document.querySelector('#fatturaModal input[name="scontoExtra"]').value) || 0;
             
-            let imponibile = 0;
+            let subtotale = 0;
             righeProdotto.forEach(riga => {
-                imponibile += parseFloat(riga.imponibile) || 0;
+                subtotale += parseFloat(riga.imponibile) || 0;
             });
             
-            const iva = imponibile * (aliquotaIva / 100);
-            const totale = imponibile + iva;
+            const totale = subtotale - scontoExtra;
             
-            document.querySelector('#fatturaModal input[name="imponibile"]').value = imponibile.toFixed(2);
-            document.querySelector('#fatturaModal input[name="iva"]').value = iva.toFixed(2);
+            document.querySelector('#fatturaModal input[name="subtotale"]').value = subtotale.toFixed(2);
+            document.querySelector('#fatturaModal input[name="scontoExtraDisplay"]').value = scontoExtra.toFixed(2);
             document.querySelector('#fatturaModal input[name="totale"]').value = totale.toFixed(2);
         }
 
@@ -2903,9 +2896,8 @@
                 cliente: formData.get('cliente'),
                 data: formData.get('data'),
                 scadenza: formData.get('scadenza'),
-                aliquotaIva: parseFloat(formData.get('aliquotaIva')),
-                imponibile: parseFloat(formData.get('imponibile')),
-                iva: parseFloat(formData.get('iva')),
+                subtotale: parseFloat(formData.get('subtotale')),
+                scontoExtra: parseFloat(formData.get('scontoExtra')),
                 totale: parseFloat(formData.get('totale')),
                 prodotti: [...righeProdotto],
                 note: formData.get('note'),
@@ -2934,8 +2926,8 @@
             const numero = formData.get('numero');
             const cliente = formData.get('cliente');
             const data = formData.get('data');
-            const imponibile = parseFloat(formData.get('imponibile'));
-            const iva = parseFloat(formData.get('iva'));
+            const subtotale = parseFloat(formData.get('subtotale'));
+            const scontoExtra = parseFloat(formData.get('scontoExtra'));
             const totale = parseFloat(formData.get('totale'));
             
             // Crea il contenuto per la stampa
@@ -2991,10 +2983,10 @@
                     
                     <div style="text-align: right; margin-top: 30px;">
                         <div style="margin-bottom: 10px;">
-                            <strong>Imponibile:</strong> €${imponibile.toFixed(2)}
+                            <strong>Subtotale:</strong> €${subtotale.toFixed(2)}
                         </div>
                         <div style="margin-bottom: 10px;">
-                            <strong>IVA:</strong> €${iva.toFixed(2)}
+                            <strong>Sconto Extra:</strong> €${scontoExtra.toFixed(2)}
                         </div>
                         <div style="font-size: 18px; font-weight: bold; border-top: 2px solid #333; padding-top: 10px;">
                             <strong>TOTALE:</strong> €${totale.toFixed(2)}
@@ -3335,9 +3327,8 @@
                         cliente: row['Cliente'] || '',
                         data: row['Data'] || new Date().toISOString().split('T')[0],
                         scadenza: row['Scadenza'] || '',
-                        aliquotaIva: 22,
-                        imponibile: parseFloat(row['Imponibile']) || 0,
-                        iva: parseFloat(row['IVA']) || 0,
+                        subtotale: parseFloat(row['Subtotale']) || 0,
+                        scontoExtra: parseFloat(row['Sconto Extra']) || 0,
                         totale: parseFloat(row['Totale']) || 0,
                         prodotti: [],
                         stato: row['Stato'] || 'in_attesa',
@@ -3457,8 +3448,8 @@
                         'Cliente': d.cliente,
                         'Data': d.data,
                         'Scadenza': d.scadenza || '',
-                        'Imponibile': d.imponibile,
-                        'IVA': d.iva,
+                        'Subtotale': d.subtotale,
+                        'Sconto Extra': d.scontoExtra,
                         'Totale': d.totale,
                         'Stato': d.stato,
                         'Note': d.note || ''
