@@ -2374,7 +2374,7 @@
         </div>
 
         <div class="nav-tabs">
-            <button class="nav-tab admin-only" onclick="showTab('dashboard', event)">📊 Dashboard</button>
+            <button class="nav-tab admin-only" onclick="showTab('dashboard', event)" style="display: none;">📊 Dashboard</button>
             <button class="nav-tab admin-only" onclick="showTab('clienti', event)">👥 Clienti</button>
             <button class="nav-tab admin-only" onclick="showTab('fatture', event)">📄 Fatture</button>
             <button class="nav-tab guest-only" onclick="showTab('benvenuto', event)" style="display: none;">🏠 Benvenuto</button>
@@ -2383,7 +2383,7 @@
         </div>
 
         <!-- TAB CLIENTI -->
-        <div id="clienti" class="tab-content admin-only">
+        <div id="clienti" class="tab-content active admin-only">
             <div class="form-section">
                 <h3>📝 Inserimento Nuovo Cliente</h3>
                 <form id="clienteForm">
@@ -4338,97 +4338,63 @@
             if (!handleAdminSectionAccessForGuest(tabName)) {
                 return;
             }
-            
-            // Forza il nascondimento di TUTTE le sezioni prima di mostrare quella selezionata
-            forceHideAllSections();
-            
-            // Rimuovi le classi active da tutte le tab
+            // Nascondi tutte le tab
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
 
-            // Gestione specifica per admin
+            // Assicurati che la sezione benvenuto sia sempre nascosta per admin
             if (currentUser === 'admin') {
-                // Nascondi completamente la sezione benvenuto per admin
                 const benvenutoSection = document.getElementById('benvenuto');
                 if (benvenutoSection) {
                     benvenutoSection.style.display = 'none';
                     benvenutoSection.classList.remove('active');
                     benvenutoSection.classList.remove('guest-only');
-                    benvenutoSection.setAttribute('style', 'display: none !important');
                 }
                 
-                // Nascondi la tab benvenuto per admin
-                const benvenutoTab = document.querySelector('.nav-tab[onclick*="showTab(\'benvenuto\')"]');
+                // Nascondi anche la tab benvenuto per admin
+                const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
                 if (benvenutoTab) {
                     benvenutoTab.style.display = 'none';
                     benvenutoTab.classList.remove('active');
                     benvenutoTab.classList.add('guest-only');
                 }
-                
-                // Mostra solo le tab admin e quelle pubbliche (prodotti, vini)
-                const adminTabs = document.querySelectorAll('.nav-tab.admin-only');
-                adminTabs.forEach(tab => {
-                    tab.style.display = 'block';
-                    tab.classList.remove('hidden-for-guest');
-                    tab.classList.add('admin-only');
-                });
-                
-                // Mostra le sezioni admin
-                const adminSections = ['dashboard', 'clienti', 'fatture'];
-                adminSections.forEach(sectionId => {
-                    const section = document.getElementById(sectionId);
-                    if (section) {
-                        section.style.display = 'block';
-                        section.classList.remove('hidden-for-guest');
-                        section.classList.add('admin-only');
-                    }
-                });
             }
 
-            // Gestione specifica per ospiti
+            // Nascondi le tab admin-only per ospiti
             if (currentUser === 'guest') {
-                // Nascondi tutte le tab admin-only per ospiti
                 const adminTabs = document.querySelectorAll('.nav-tab.admin-only');
                 adminTabs.forEach(tab => {
                     tab.style.display = 'none';
                     tab.classList.remove('active');
                     tab.classList.add('admin-only');
                 });
-                
-                // Nascondi tutte le sezioni admin-only per ospiti
+            }
+
+            // Mostra la tab selezionata
+            document.getElementById(tabName).classList.add('active');
+
+            // Nascondi le sezioni admin-only per ospiti
+            if (currentUser === 'guest') {
                 const adminSections = ['dashboard', 'clienti', 'fatture'];
                 adminSections.forEach(sectionId => {
                     const section = document.getElementById(sectionId);
-                    if (section) {
+                    if (section && sectionId !== tabName) {
                         section.style.display = 'none';
                         section.classList.remove('active');
                         section.classList.add('admin-only');
-                        section.setAttribute('style', 'display: none !important');
                     }
                 });
-                
-                // Mostra solo le tab pubbliche per ospiti
-                const publicTabs = document.querySelectorAll('.nav-tab:not(.admin-only)');
-                publicTabs.forEach(tab => {
-                    tab.style.display = 'block';
-                    tab.classList.remove('hidden-for-guest');
-                });
             }
             
-            // Mostra SOLO la tab selezionata
-            const selectedTab = document.getElementById(tabName);
-            if (selectedTab) {
-                selectedTab.style.display = 'block';
-                selectedTab.classList.add('active');
-                selectedTab.setAttribute('style', 'display: block !important');
-            }
-            
-            // Attiva il pulsante della tab corrispondente
+            // Se l'evento è disponibile, attiva il pulsante cliccato
             if (event && event.target) {
                 event.target.classList.add('active');
             } else {
-                // Trova e attiva il pulsante della tab corrispondente
+                // Altrimenti trova e attiva il pulsante della tab corrispondente
                 const tabButtons = document.querySelectorAll('.nav-tab');
                 tabButtons.forEach(button => {
                     if (button.getAttribute('onclick') && button.getAttribute('onclick').includes(tabName)) {
@@ -4455,21 +4421,6 @@
             setTimeout(() => {
                 initTableEnhancements(tabName);
             }, 200);
-            
-            // Pulisci le classi CSS per evitare conflitti
-            cleanupTabClasses();
-            
-            // Preveni la duplicazione delle schede
-            preventTabDuplication();
-        }
-
-        // Funzione per forzare il nascondimento di tutte le sezioni
-        function forceHideAllSections() {
-            document.querySelectorAll('.tab-content').forEach(section => {
-                section.classList.remove('active');
-                section.style.display = 'none';
-                section.setAttribute('style', 'display: none !important');
-            });
         }
 
         // Funzione per navigare alle sezioni dalla scheda di benvenuto
@@ -4481,92 +4432,58 @@
         // Funzione per gestire la modalità ospite
         function setupGuestMode() {
             if (currentUser === 'guest') {
-                // Nascondi completamente tutti gli elementi admin
+                // Mostra la scheda di benvenuto per gli ospiti
+                showTab('benvenuto');
+                
+                // Nascondi elementi admin
                 document.querySelectorAll('.admin-only').forEach(el => {
                     el.style.display = 'none';
-                    el.classList.add('admin-only');
                 });
                 
                 // Mostra elementi guest
                 document.querySelectorAll('.guest-only').forEach(el => {
                     el.style.display = 'block';
-                    el.classList.add('guest-only');
                 });
                 
-                // Nascondi specificamente le tab admin-only per ospiti
-                const adminTabIds = ['dashboard', 'clienti', 'fatture'];
-                adminTabIds.forEach(tabId => {
-                    const tab = document.querySelector(`.nav-tab[onclick*="showTab('${tabId}')"]`);
-                    if (tab) {
-                        tab.style.display = 'none';
-                        tab.classList.add('admin-only');
-                        tab.classList.add('hidden-for-guest');
-                    }
-                });
-                
-                // Nascondi le sezioni admin-only per ospiti
-                adminTabIds.forEach(sectionId => {
-                    const section = document.getElementById(sectionId);
-                    if (section) {
-                        section.style.display = 'none';
-                        section.classList.remove('active');
-                        section.classList.add('admin-only');
-                        section.classList.add('hidden-for-guest');
-                    }
-                });
-                
-                // Mostra la tab benvenuto per ospiti
-                const benvenutoTab = document.querySelector('.nav-tab[onclick*="showTab(\'benvenuto\')"]');
-                if (benvenutoTab) {
-                    benvenutoTab.style.display = 'block';
-                    benvenutoTab.classList.add('guest-only');
-                    benvenutoTab.classList.remove('admin-only');
-                }
-                
-                // Mostra la sezione benvenuto per ospiti
+                // Mostra specificamente la sezione benvenuto per ospiti
                 const benvenutoSection = document.getElementById('benvenuto');
                 if (benvenutoSection) {
                     benvenutoSection.style.display = 'block';
                     benvenutoSection.classList.add('guest-only');
-                    benvenutoSection.classList.remove('admin-only');
                 }
                 
-                // Mostra le tab pubbliche (prodotti, vini) per ospiti
-                const publicTabIds = ['prodotti', 'vini'];
-                publicTabIds.forEach(tabId => {
-                    const tab = document.querySelector(`.nav-tab[onclick*="showTab('${tabId}')"]`);
+                // Nascondi schede non accessibili agli ospiti
+                const hiddenTabs = ['clienti', 'fatture', 'dashboard'];
+                hiddenTabs.forEach(tabId => {
+                    const tab = document.querySelector(`.nav-tab[onclick="showTab('${tabId}')"]`);
                     if (tab) {
-                        tab.style.display = 'block';
-                        tab.classList.remove('admin-only');
-                        tab.classList.remove('hidden-for-guest');
+                        tab.style.display = 'none';
+                        tab.classList.add('hidden-for-guest');
                     }
                 });
                 
-                // Mostra le sezioni pubbliche per ospiti
-                publicTabIds.forEach(sectionId => {
-                    const section = document.getElementById(sectionId);
-                    if (section) {
-                        section.style.display = 'block';
-                        section.classList.remove('admin-only');
-                        section.classList.remove('hidden-for-guest');
-                    }
-                });
+                // Mostra la tab benvenuto per ospiti
+                const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
+                if (benvenutoTab) {
+                    benvenutoTab.style.display = 'block';
+                    benvenutoTab.classList.add('guest-only');
+                    benvenutoTab.classList.add('active');
+                }
+
+                // Nascondi le tab admin-only per ospiti
+                hideAdminTabsForGuest();
+                
+                // Avvia il monitoraggio delle tab admin-only per ospiti
+                monitorAdminTabsForGuest();
                 
                 // Disabilita funzioni di modifica per ospiti
                 disableEditFunctions();
-                
-                // Inizializza correttamente le schede
-                initializeTabsCorrectly();
-                
-                // Mostra la scheda di benvenuto per gli ospiti
-                showTab('benvenuto');
                 
                 console.log('👤 Modalità ospite attivata');
             } else {
                 // Nascondi elementi guest per admin
                 document.querySelectorAll('.guest-only').forEach(el => {
                     el.style.display = 'none';
-                    el.classList.add('guest-only');
                 });
                 
                 // Nascondi specificamente la sezione benvenuto per admin
@@ -4574,42 +4491,36 @@
                 if (benvenutoSection) {
                     benvenutoSection.style.display = 'none';
                     benvenutoSection.classList.remove('active');
-                    benvenutoSection.classList.add('guest-only');
+                    benvenutoSection.classList.remove('guest-only');
                 }
                 
                 // Nascondi la tab benvenuto per admin
-                const benvenutoTab = document.querySelector('.nav-tab[onclick*="showTab(\'benvenuto\')"]');
+                const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
                 if (benvenutoTab) {
                     benvenutoTab.style.display = 'none';
                     benvenutoTab.classList.remove('active');
                     benvenutoTab.classList.add('guest-only');
                 }
                 
+                // Assicurati che la tab benvenuto sia sempre nascosta per admin
+                setTimeout(() => {
+                    const benvenutoTabCheck = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
+                    if (benvenutoTabCheck) {
+                        benvenutoTabCheck.style.display = 'none';
+                        benvenutoTabCheck.classList.remove('active');
+                        benvenutoTabCheck.classList.add('guest-only');
+                    }
+                }, 100);
+                
                 // Mostra elementi admin
                 document.querySelectorAll('.admin-only').forEach(el => {
                     el.style.display = 'block';
-                    el.classList.add('admin-only');
                 });
                 
-                // Mostra tutte le schede admin per admin
-                const adminTabIds = ['dashboard', 'clienti', 'fatture'];
-                adminTabIds.forEach(tabId => {
-                    const tab = document.querySelector(`.nav-tab[onclick*="showTab('${tabId}')"]`);
-                    if (tab) {
-                        tab.style.display = 'block';
-                        tab.classList.add('admin-only');
-                        tab.classList.remove('hidden-for-guest');
-                    }
-                });
-                
-                // Mostra le sezioni admin per admin
-                adminTabIds.forEach(sectionId => {
-                    const section = document.getElementById(sectionId);
-                    if (section) {
-                        section.style.display = 'block';
-                        section.classList.add('admin-only');
-                        section.classList.remove('hidden-for-guest');
-                    }
+                // Mostra tutte le schede per admin
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.style.display = 'block';
+                    tab.classList.remove('hidden-for-guest');
                 });
             }
         }
@@ -8639,16 +8550,6 @@
             display: block !important;
         }
 
-        /* Forza visibilità tab admin-only per admin */
-        body:not(.guest-mode) .nav-tab.admin-only {
-            display: block !important;
-        }
-
-        /* Assicurati che le tab admin siano visibili per Tommaso */
-        .nav-tab.admin-only[style*="display: none"] {
-            display: block !important;
-        }
-
         .welcome-section {
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
             border-radius: 20px;
@@ -9017,6 +8918,646 @@
         .nav-tab.hidden-for-guest {
             display: none !important;
         }
+        
+        .hidden-for-guest {
+            display: none !important;
+        }
+        }
+        
+        /* Nascondi le card su desktop */
+        .mobile-cards {
+            display: none;
+        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent}
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            
+            // Stampa automatica dopo un breve delay
+            setTimeout(() => {
+                printWindow.print();
+            }, 500);
+        }
+
+        // Funzione per i colori delle categorie
+        function getCategoriaColor(categoria) {
+            const colors = {
+                distillati: 'bg-amber-100 text-amber-800',
+                liquori: 'bg-blue-100 text-blue-800',
+                vini: 'bg-wine-100 text-wine-800',
+                birre: 'bg-orange-100 text-orange-800',
+                rum: 'bg-amber-100 text-amber-800',
+                gin: 'bg-blue-100 text-blue-800',
+                vodka: 'bg-gray-100 text-gray-800',
+                whisky: 'bg-orange-100 text-orange-800',
+                tequila: 'bg-green-100 text-green-800',
+                cognac: 'bg-purple-100 text-purple-800',
+                brandy: 'bg-red-100 text-red-800',
+                amari: 'bg-red-100 text-red-800',
+                digestivi: 'bg-green-100 text-green-800',
+                creme: 'bg-pink-100 text-pink-800',
+                premium: 'bg-purple-100 text-purple-800',
+                flavored: 'bg-blue-100 text-blue-800',
+                rossi: 'bg-red-100 text-red-800',
+                bianchi: 'bg-yellow-100 text-yellow-800',
+                spumanti: 'bg-pink-100 text-pink-800',
+                dessert: 'bg-purple-100 text-purple-800',
+                fortificati: 'bg-orange-100 text-orange-800',
+                lager: 'bg-yellow-100 text-yellow-800',
+                ale: 'bg-amber-100 text-amber-800',
+                speciali: 'bg-purple-100 text-purple-800',
+                italiane: 'bg-green-100 text-green-800',
+                liquore: 'bg-pink-100 text-pink-800',
+                altro: 'bg-gray-100 text-gray-800',
+            };
+            return colors[categoria] || colors.altro;
+        }
+
+        // Inizializzazione migliorata
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Event listener per il campo tipologia
+            const tipologiaSelect = document.querySelector('select[name="tipologia"]');
+            if (tipologiaSelect) {
+                tipologiaSelect.addEventListener('change', toggleNomeAzienda);
+            }
+            try {
+                // Pre-configurazione GitHub all'avvio
+                localStorage.setItem('tommy_gist_id', 'ed140f6366c097f54410d096017bb51b');
+                localStorage.setItem('tommy_github_enabled', 'true');
+                
+                // Carica la password di sicurezza
+                loadSecurityPassword();
+                
+                // Carica i dati salvati
+                await loadDataFromStorage();
+                
+                // Aggiungi i dati dell'azienda di Tommaso
+                addTommasoCompanyData();
+                
+                // Controlla se GitHub è già configurato
+                const hasGitHubToken = localStorage.getItem('tommy_github_token');
+                
+                if (!hasGitHubToken) {
+                    // Se non c'è il token, mostra la configurazione GitHub prima del login
+                    showGitHubSetup();
+                } else {
+                    // Se c'è già il token, mostra direttamente il login
+                    showLoginModal();
+                }
+                
+                // Imposta la data di oggi come default
+                const today = new Date().toISOString().split('T')[0];
+                const dataInputs = document.querySelectorAll('input[type="date"]');
+                dataInputs.forEach(input => {
+                    if (!input.value) {
+                        input.value = today;
+                    }
+                });
+                
+                // Mostra info dispositivo
+                document.getElementById('deviceIdDisplay').textContent = deviceId.substring(0, 8) + '...';
+                
+                // Aggiorna indicatore sincronizzazione
+                updateSyncIndicator();
+                
+                // Test automatico connessione GitHub
+                setTimeout(async () => {
+                    if (GITHUB_CONFIG.enabled && GITHUB_CONFIG.token && GITHUB_CONFIG.gistId) {
+                        const success = await testGitHubConnection();
+                        if (success) {
+                            showNotification('✅ GitHub configurato e connesso!', 'success');
+                        }
+                    }
+                }, 2000);
+
+                // Event listeners per la modale di setup GitHub
+                const githubTokenSetup = document.getElementById('githubTokenSetup');
+                const gistIdSetup = document.getElementById('gistIdSetup');
+                
+                if (githubTokenSetup) {
+                    githubTokenSetup.addEventListener('keypress', function(event) {
+                        if (event.key === 'Enter') {
+                            saveGitHubSetup();
+                        } else if (event.key === 'Escape') {
+                            skipGitHubSetup();
+                        }
+                    });
+                }
+                
+                if (gistIdSetup) {
+                    gistIdSetup.addEventListener('keypress', function(event) {
+                        if (event.key === 'Enter') {
+                            saveGitHubSetup();
+                        } else if (event.key === 'Escape') {
+                            skipGitHubSetup();
+                        }
+                    });
+                }
+                
+                // Event listeners per filtri vini con debounce
+                const filterInputs = ['filterNome', 'filterProduttore', 'filterRegione', 'filterVitigno'];
+                filterInputs.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.addEventListener('input', debouncedApplyFilters);
+                    }
+                });
+                
+                // Event listeners per select vini
+                const filterSelects = ['filterTipologia', 'filterStock'];
+                filterSelects.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.addEventListener('change', applyViniFilters);
+                    }
+                });
+                
+                // Event listeners per filtri prodotti con debounce
+                const filterInputsProdotti = ['filterNomeProdotti', 'filterMarca', 'filterFornitore'];
+                filterInputsProdotti.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.addEventListener('input', debouncedApplyProdottiFilters);
+                    }
+                });
+                
+                // Event listeners per select prodotti
+                const filterSelectsProdotti = ['filterCategoriaPrincipale', 'filterStockProdotti', 'filterPrezzo'];
+                filterSelectsProdotti.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.addEventListener('change', applyProdottiFilters);
+                    }
+                });
+
+                // Validazione form migliorata
+                const forms = document.querySelectorAll('form');
+                forms.forEach(form => {
+                    form.addEventListener('submit', function(e) {
+                        const requiredFields = form.querySelectorAll('[required]');
+                        let isValid = true;
+                        
+                        requiredFields.forEach(field => {
+                            if (!field.value.trim()) {
+                                field.style.borderColor = '#dc3545';
+                                isValid = false;
+                            } else {
+                                field.style.borderColor = '#e9ecef';
+                            }
+                        });
+                        
+                        if (!isValid) {
+                            e.preventDefault();
+                            showNotification('Compila tutti i campi obbligatori', 'error');
+                        }
+                    });
+                });
+
+                showNotification('Sistema caricato con successo!', 'success');
+            } catch (error) {
+                console.error('Errore nell\'inizializzazione:', error);
+                showNotification('Errore nell\'inizializzazione del sistema', 'error');
+            }
+        });
+
+
+
+        // Debounce per filtri vini
+        const debouncedApplyFilters = debounce(applyViniFilters, 300);
+        const debouncedApplyProdottiFilters = debounce(applyProdottiFilters, 300);
+
+        function applyViniFilters() {
+            try {
+                const filterNome = document.getElementById('filterNome').value.toLowerCase();
+                const filterProduttore = document.getElementById('filterProduttore').value.toLowerCase();
+                const filterTipologia = document.getElementById('filterTipologia').value;
+                const filterRegione = document.getElementById('filterRegione').value.toLowerCase();
+                const filterVitigno = document.getElementById('filterVitigno').value.toLowerCase();
+                const filterStock = document.getElementById('filterStock').value;
+
+                const tbody = document.getElementById('viniTableBody');
+                tbody.innerHTML = '';
+                
+                let filteredCount = 0;
+                
+                vini.forEach(vino => {
+                    // Applica filtri
+                    const matchesNome = !filterNome || vino.nome.toLowerCase().includes(filterNome);
+                    const matchesProduttore = !filterProduttore || vino.produttore.toLowerCase().includes(filterProduttore);
+                    const matchesTipologia = !filterTipologia || vino.tipologia === filterTipologia;
+                    const matchesRegione = !filterRegione || (vino.regione && vino.regione.toLowerCase().includes(filterRegione));
+                    const matchesVitigno = !filterVitigno || (vino.vitigno && vino.vitigno.toLowerCase().includes(filterVitigno));
+                    
+                    // Filtro stock
+                    const stockClass = vino.quantita <= 3 ? 'stock-low' : 'stock-ok';
+                    const stockText = vino.quantita <= 3 ? 'Scorte Basse' : 'OK';
+                    const matchesStock = !filterStock || 
+                        (filterStock === 'ok' && vino.quantita > 3) ||
+                        (filterStock === 'basso' && vino.quantita <= 3);
+
+                    if (matchesNome && matchesProduttore && matchesTipologia && matchesRegione && matchesVitigno && matchesStock) {
+                        // Gestione censura prezzi di acquisto nei filtri - solo per admin
+                        let prezzoAcquistoCell = '';
+                        if (currentUser === 'admin') {
+                            const prezzoAcquistoDisplay = isSecurityActive && !isSecurityUnlocked ? 
+                                `<span class="censored">€${vino.prezzoAcquisto.toFixed(2)}</span>` : 
+                                `€${vino.prezzoAcquisto.toFixed(2)}`;
+                            prezzoAcquistoCell = `<td class="table-censored">${prezzoAcquistoDisplay}</td>`;
+                        }
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${vino.nome}</td>
+                            <td>${vino.produttore}</td>
+                            <td>${vino.annata}</td>
+                            <td>${vino.tipologia}</td>
+                            <td>${vino.regione}</td>
+                            <td>${vino.vitigno || '-'}</td>
+                            ${prezzoAcquistoCell}
+                            <td>€${vino.prezzoVenditaIngrosso.toFixed(2)}</td>
+                            <td>€${vino.prezzoVenditaDettaglio.toFixed(2)}</td>
+                            <td>${vino.quantita}</td>
+                            <td>${vino.unitaMisura || 'bottiglie'}</td>
+                            <td><span class="status-badge ${stockClass}">${stockText}</span></td>
+                            <td>${vino.note}</td>
+                            <td>
+                                <button class="btn btn-sm btn-warning" onclick="editVino(${vino.id})">✏️ Modifica</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteVino(${vino.id})">🗑️ Elimina</button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                        filteredCount++;
+                    }
+                });
+                
+                // Mostra risultati
+                const totalCount = vini.length;
+                document.getElementById('filterResults').textContent = 
+                    `Risultati: ${filteredCount} di ${totalCount} vini`;
+            } catch (error) {
+                console.error('Errore nell\'applicazione filtri:', error);
+                showNotification('Errore nell\'applicazione dei filtri', 'error');
+            }
+        }
+
+        function clearViniFilters() {
+            try {
+                document.getElementById('filterNome').value = '';
+                document.getElementById('filterProduttore').value = '';
+                document.getElementById('filterTipologia').value = '';
+                document.getElementById('filterRegione').value = '';
+                document.getElementById('filterVitigno').value = '';
+                document.getElementById('filterStock').value = '';
+                document.getElementById('filterResults').textContent = '';
+                updateViniTable();
+                showNotification('Filtri cancellati', 'success');
+            } catch (error) {
+                console.error('Errore nella cancellazione filtri:', error);
+                showNotification('Errore nella cancellazione dei filtri', 'error');
+            }
+        }
+
+        function applyProdottiFilters() {
+            try {
+                const filterNome = document.getElementById('filterNomeProdotti').value.toLowerCase();
+                const filterCategoria = document.getElementById('filterCategoriaPrincipale').value;
+                const filterMarca = document.getElementById('filterMarca').value.toLowerCase();
+                const filterFornitore = document.getElementById('filterFornitore').value.toLowerCase();
+                const filterStock = document.getElementById('filterStockProdotti').value;
+                const filterPrezzo = document.getElementById('filterPrezzo').value;
+
+                const tbody = document.getElementById('prodottiTableBody');
+                tbody.innerHTML = '';
+                
+                let filteredCount = 0;
+                
+                prodotti.forEach(prodotto => {
+                    // Applica filtri
+                    const matchesNome = !filterNome || prodotto.nome.toLowerCase().includes(filterNome);
+                    const matchesCategoria = !filterCategoria || prodotto.categoriaPrincipale === filterCategoria;
+                    const matchesMarca = !filterMarca || (prodotto.marca && prodotto.marca.toLowerCase().includes(filterMarca));
+                    const matchesFornitore = !filterFornitore || (prodotto.fornitore && prodotto.fornitore.toLowerCase().includes(filterFornitore));
+                    
+                    // Filtro stock
+                    const stockClass = prodotto.quantita <= prodotto.quantitaMinima ? 'stock-low' : 'stock-ok';
+                    const stockText = prodotto.quantita <= prodotto.quantitaMinima ? 'Scorte Basse' : 'OK';
+                    const matchesStock = !filterStock || 
+                        (filterStock === 'ok' && prodotto.quantita > prodotto.quantitaMinima) ||
+                        (filterStock === 'basso' && prodotto.quantita <= prodotto.quantitaMinima);
+                    
+                    // Filtro prezzo (usa prezzo dettaglio come riferimento)
+                    let matchesPrezzo = true;
+                    if (filterPrezzo) {
+                        const prezzo = prodotto.prezzoVenditaDettaglio;
+                        if (filterPrezzo === 'basso' && prezzo >= 10) matchesPrezzo = false;
+                        else if (filterPrezzo === 'medio' && (prezzo < 10 || prezzo > 30)) matchesPrezzo = false;
+                        else if (filterPrezzo === 'alto' && prezzo <= 30) matchesPrezzo = false;
+                    }
+
+                    if (matchesNome && matchesCategoria && matchesMarca && matchesFornitore && matchesStock && matchesPrezzo) {
+                        // Gestione censura prezzi di acquisto - solo per admin
+                        let prezzoAcquistoCell = '';
+                        if (currentUser === 'admin') {
+                            const prezzoAcquistoDisplay = isSecurityActive && !isSecurityUnlocked ? 
+                                `<span class="censored">€${prodotto.prezzoAcquisto.toFixed(2)}</span>` : 
+                                `€${prodotto.prezzoAcquisto.toFixed(2)}`;
+                            prezzoAcquistoCell = `<td role="cell" class="table-censored">${prezzoAcquistoDisplay}</td>`;
+                        }
+                        
+                        const row = document.createElement('tr');
+                        row.setAttribute('role', 'row');
+                        row.innerHTML = `
+                            <td role="cell">${prodotto.nome}</td>
+                            <td role="cell">
+                                <div>
+                                    <span class="status-badge ${getCategoriaColor(prodotto.categoriaPrincipale)}">${prodotto.categoriaPrincipale.toUpperCase()}</span>
+                                    <br>
+                                    <span class="status-badge ${getCategoriaColor(prodotto.sottocategoria)}">${getSottocategoriaDisplayName(prodotto.categoriaPrincipale, prodotto.sottocategoria)}</span>
+                                </div>
+                            </td>
+                            <td role="cell">${prodotto.marca}</td>
+                            ${prezzoAcquistoCell}
+                            <td role="cell">€${prodotto.prezzoVenditaIngrosso.toFixed(2)}</td>
+                            <td role="cell">€${prodotto.prezzoVenditaDettaglio.toFixed(2)}</td>
+                            <td role="cell">${prodotto.quantita}</td>
+                            <td role="cell">${prodotto.unitaMisura || 'bottiglie'}</td>
+                            <td role="cell"><span class="status-badge ${stockClass}">${stockText}</span></td>
+                            <td role="cell">${prodotto.fornitore}</td>
+                            <td role="cell">${prodotto.note}</td>
+                            <td role="cell">
+                                <button class="btn btn-sm btn-warning" onclick="editProdotto(${prodotto.id})" title="Modifica prodotto">✏️ Modifica</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteProdotto(${prodotto.id})" title="Elimina prodotto">🗑️ Elimina</button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                        filteredCount++;
+                    }
+                });
+                
+                // Mostra risultati
+                const totalCount = prodotti.length;
+                document.getElementById('filterResultsProdotti').textContent = 
+                    `Risultati: ${filteredCount} di ${totalCount} prodotti`;
+                
+
+            } catch (error) {
+                console.error('Errore nell\'applicazione filtri prodotti:', error);
+                showNotification('Errore nell\'applicazione dei filtri prodotti', 'error');
+            }
+        }
+
+        function clearProdottiFilters() {
+            try {
+                document.getElementById('filterNomeProdotti').value = '';
+                document.getElementById('filterCategoriaPrincipale').value = '';
+                document.getElementById('filterMarca').value = '';
+                document.getElementById('filterFornitore').value = '';
+                document.getElementById('filterStockProdotti').value = '';
+                document.getElementById('filterPrezzo').value = '';
+                document.getElementById('filterResultsProdotti').textContent = '';
+                updateProdottiTable();
+                showNotification('Filtri prodotti cancellati', 'success');
+            } catch (error) {
+                console.error('Errore nella cancellazione filtri prodotti:', error);
+                showNotification('Errore nella cancellazione dei filtri prodotti', 'error');
+            }
+                }
+        
+
+        
+        // Funzioni per il sistema di sicurezza
+        function toggleSecurity() {
+            if (isSecurityActive && !isSecurityUnlocked) {
+                // Se la sicurezza è attiva ma bloccata, mostra il modal per sbloccare
+                showSecurityModal('unlock');
+            } else if (isSecurityActive && isSecurityUnlocked) {
+                // Se la sicurezza è attiva e sbloccata, riattiva la censura
+                activateSecurity();
+            } else {
+                // Se la sicurezza è disattivata, riattivala
+                activateSecurity();
+            }
+        }
+
+        function showSecurityModal(mode = 'unlock') {
+            const overlay = document.getElementById('securityOverlay');
+            const passwordInput = document.getElementById('securityPassword');
+            const modalTitle = document.getElementById('securityModalTitle');
+            const warning = document.getElementById('securityWarning');
+            const actionBtn = document.getElementById('securityActionBtn');
+            const currentPasswordDisplay = document.getElementById('currentPasswordDisplay');
+            
+            overlay.style.display = 'flex';
+            passwordInput.focus();
+            passwordInput.value = '';
+            
+            // Aggiorna il display della password attuale (nascosta)
+            currentPasswordDisplay.textContent = '•••••••';
+            
+            if (mode === 'unlock') {
+                modalTitle.textContent = '🔐 Accesso Sicurezza';
+                warning.innerHTML = '<strong>⚠️ ATTENZIONE:</strong><br>Inserisci la password per visualizzare i prezzi di acquisto';
+                actionBtn.textContent = '🔓 Sblocca';
+                actionBtn.onclick = validateSecurityPassword;
+            }
+        }
+
+        function hideSecurityModal() {
+            const overlay = document.getElementById('securityOverlay');
+            overlay.style.display = 'none';
+        }
+
+        function handleSecurityPassword(event) {
+            if (event.key === 'Enter') {
+                validateSecurityPassword();
+            } else if (event.key === 'Escape') {
+                cancelSecurity();
+            }
+        }
+
+        function validateSecurityPassword() {
+            const password = document.getElementById('securityPassword').value;
+            
+            if (password === SECURITY_PASSWORD) {
+                isSecurityUnlocked = true;
+                hideSecurityModal();
+                updateSecurityToggle();
+                updateAllTables();
+                showNotification('🔓 Sicurezza disattivata - Prezzi di acquisto visibili', 'success');
+                
+                // Auto-riattiva la sicurezza dopo 5 minuti
+                setTimeout(() => {
+                    if (isSecurityUnlocked) {
+                        activateSecurity();
+                        showNotification('🔒 Sicurezza riattivata automaticamente', 'warning');
+                    }
+                }, 300000); // 5 minuti
+            } else {
+                showNotification('❌ Password errata!', 'error');
+                document.getElementById('securityPassword').value = '';
+                document.getElementById('securityPassword').focus();
+            }
+        }
+
+        function cancelSecurity() {
+            hideSecurityModal();
+            document.getElementById('securityPassword').value = '';
+        }
+
+        function activateSecurity() {
+            isSecurityActive = true;
+            isSecurityUnlocked = false;
+            updateSecurityToggle();
+            updateAllTables();
+            showNotification('🔒 Sicurezza attivata - Prezzi di acquisto censurati', 'success');
+        }
+
+        function updateSecurityToggle() {
+            const toggle = document.getElementById('securityToggle');
+            if (isSecurityActive && !isSecurityUnlocked) {
+                toggle.textContent = '🔒 Sicurezza';
+                toggle.className = 'security-toggle';
+                toggle.title = '🔒 Sicurezza attiva - Clicca per sbloccare';
+            } else if (isSecurityActive && isSecurityUnlocked) {
+                toggle.textContent = '🔓 Sbloccato';
+                toggle.className = 'security-toggle active';
+                toggle.title = '🔓 Sicurezza sbloccata - Clicca per riattivare';
+            } else {
+                toggle.textContent = '⚠️ Disattivata';
+                toggle.className = 'security-toggle alert';
+                toggle.title = '⚠️ Sicurezza disattivata - Clicca per riattivare';
+            }
+            updateFormSecurity();
+        }
+
+        // Censura dinamica dei campi input nei form
+        function updateFormSecurity() {
+            // Prodotti
+            const inputProdotti = document.getElementById('prezzoAcquistoProdottiInput');
+            const labelProdotti = document.getElementById('securityLabelProdotti');
+            if (inputProdotti && labelProdotti) {
+                if (isSecurityActive && !isSecurityUnlocked) {
+                    inputProdotti.type = 'password';
+                    inputProdotti.placeholder = '***';
+                    inputProdotti.style.letterSpacing = '2px';
+                    labelProdotti.textContent = '🔒';
+                } else {
+                    inputProdotti.type = 'number';
+                    inputProdotti.placeholder = '';
+                    inputProdotti.style.letterSpacing = 'normal';
+                    labelProdotti.textContent = '🔓';
+                }
+            }
+            // Vini
+            const inputVini = document.getElementById('prezzoAcquistoViniInput');
+            const labelVini = document.getElementById('securityLabelVini');
+            if (inputVini && labelVini) {
+                if (isSecurityActive && !isSecurityUnlocked) {
+                    inputVini.type = 'password';
+                    inputVini.placeholder = '***';
+                    inputVini.style.letterSpacing = '2px';
+                    labelVini.textContent = '🔒';
+                } else {
+                    inputVini.type = 'number';
+                    inputVini.placeholder = '';
+                    inputVini.style.letterSpacing = 'normal';
+                    labelVini.textContent = '🔓';
+                }
+            }
+        }
+
+        // Aggiungi event listeners per ricerca in tempo reale
+        document.addEventListener('DOMContentLoaded', function() {
+            // ... existing code ...
+            
+            // Event listeners per filtri vini
+            const filterInputs = ['filterNome', 'filterProduttore', 'filterRegione', 'filterVitigno'];
+            filterInputs.forEach(id => {
+                document.getElementById(id).addEventListener('input', function() {
+                    if (this.value.length >= 2 || this.value.length === 0) {
+                        applyViniFilters();
+                    }
+                });
+            });
+            
+            // Event listeners per select
+            document.getElementById('filterTipologia').addEventListener('change', applyViniFilters);
+            document.getElementById('filterStock').addEventListener('change', applyViniFilters);
+            
+            // Inizializza il toggle di sicurezza
+            updateSecurityToggle();
+        });
+
+        // Funzioni per il cambio password
+        function showChangePasswordModal() {
+            hideSecurityModal();
+            const overlay = document.getElementById('changePasswordOverlay');
+            const currentPasswordInput = document.getElementById('currentPassword');
+            overlay.style.display = 'flex';
+            currentPasswordInput.focus();
+            currentPasswordInput.value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function hideChangePasswordModal() {
+            const overlay = document.getElementById('changePasswordOverlay');
+            overlay.style.display = 'none';
+        }
+
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (currentPassword !== SECURITY_PASSWORD) {
+                showNotification('❌ Password attuale errata!', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 4) {
+                showNotification('❌ La nuova password deve essere di almeno 4 caratteri!', 'error');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showNotification('❌ Le password non coincidono!', 'error');
+                return;
+            }
+            
+            SECURITY_PASSWORD = newPassword;
+            hideChangePasswordModal();
+            showNotification('✅ Password cambiata con successo!', 'success');
+            
+            // Salva la nuova password nel localStorage
+            try {
+                localStorage.setItem('tommy_security_password', SECURITY_PASSWORD);
+            } catch (error) {
+                console.error('Errore nel salvataggio password:', error);
+            }
+        }
+
+        function cancelChangePassword() {
+            hideChangePasswordModal();
+        }
+
+        // Carica la password salvata all'avvio
+        function loadSecurityPassword() {
+            try {
+                const savedPassword = localStorage.getItem('tommy_security_password');
+                if (savedPassword) {
+                    SECURITY_PASSWORD = savedPassword;
+                }
+            } catch (error) {
+                console.error('Errore nel caricamento password:', error);
+            }
+        }
 
         // Ottimizzazione: Gestione eventi con cleanup
         function addEventListeners() {
@@ -9125,14 +9666,6 @@
             // Rimuovi classe guest-mode dal body
             document.body.classList.remove('guest-mode');
             
-            // Forza la visibilità delle tab admin-only
-            const adminTabs = document.querySelectorAll('.nav-tab.admin-only');
-            adminTabs.forEach(tab => {
-                tab.style.display = 'block';
-                tab.classList.remove('hidden-for-guest');
-                tab.classList.add('admin-only');
-            });
-            
             // Ripristina l'ordine originale delle schede per admin
             restoreOriginalTabOrder();
             
@@ -9221,12 +9754,6 @@
             
             // Avvia il monitoraggio della tab benvenuto per admin
             monitorBenvenutoTabForAdmin();
-            
-            // Mostra le tab admin-only per Tommaso
-            showAdminTabsForTommaso();
-            
-            // Inizializza correttamente le schede
-            initializeTabsCorrectly();
         }
 
         function showGuestInterface() {
@@ -9323,9 +9850,6 @@
             currentUser = null;
             isLoggedIn = false;
             
-            // Ferma tutti i monitoraggi
-            stopAllMonitoring();
-            
             // Rimuovi classe guest-mode dal body
             document.body.classList.remove('guest-mode');
             
@@ -9403,18 +9927,21 @@
             
             console.log('📊 Statistiche sincronizzazione:', stats);
             
-            const message = 
-                '📊 Statistiche Sincronizzazione:\n\n' +
-                '📋 Dati:\n' +
-                '• Clienti: ' + stats.clienti + '\n' +
-                '• Documenti: ' + stats.documenti + '\n' +
-                '• Prodotti: ' + stats.prodotti + '\n' +
-                '• Vini: ' + stats.vini + '\n\n' +
-                '🔄 Sincronizzazione:\n' +
-                '• Stato: ' + (stats.isOnline ? '🌐 Online' : '📡 Offline') + '\n' +
-                '• Ultimo sync: ' + (stats.lastSync ? new Date(parseInt(stats.lastSync)).toLocaleString() : 'Mai') + '\n' +
-                '• Device ID: ' + stats.deviceId + '\n' +
-                '• Backup disponibili: ' + stats.backupCount;
+            const message = `
+                📊 Statistiche Sincronizzazione:
+                
+                📋 Dati:
+                • Clienti: ${stats.clienti}
+                • Documenti: ${stats.documenti}
+                • Prodotti: ${stats.prodotti}
+                • Vini: ${stats.vini}
+                
+                🔄 Sincronizzazione:
+                • Stato: ${stats.isOnline ? '🌐 Online' : '📡 Offline'}
+                • Ultimo sync: ${stats.lastSync ? new Date(parseInt(stats.lastSync)).toLocaleString() : 'Mai'}
+                • Device ID: ${stats.deviceId}
+                • Backup disponibili: ${stats.backupCount}
+            `;
             
             alert(message);
         }
@@ -9616,7 +10143,7 @@
             document.getElementById('totalFatture').textContent = filteredDocs.length;
             
             const totalRevenue = filteredDocs.reduce((sum, doc) => sum + (doc.totale || 0), 0);
-            document.getElementById('totalRevenue').textContent = '€' + totalRevenue.toFixed(2);
+            document.getElementById('totalRevenue').textContent = `€${totalRevenue.toFixed(2)}`;
             
             document.getElementById('totalClienti').textContent = clienti.length;
             document.getElementById('totalVini').textContent = vini.length;
@@ -9625,7 +10152,7 @@
         function updateSystemWidgets() {
             // Calcola storage utilizzato
             const storageUsed = calculateStorageUsage();
-            document.getElementById('storageInfo').textContent = storageUsed.toFixed(2) + ' MB';
+            document.getElementById('storageInfo').textContent = `${storageUsed.toFixed(2)} MB`;
             
             // Ultimo sync
             const lastSync = localStorage.getItem('tommy_last_sync');
@@ -9641,7 +10168,7 @@
             // Alert di sistema
             const alerts = checkSystemAlerts();
             document.getElementById('alertInfo').textContent = alerts.length > 0 ? 
-                alerts.length + ' problema/i' : 'Nessun problema';
+                `${alerts.length} problema/i` : 'Nessun problema';
         }
 
         function filterDocumentsByTime(documents, filter) {
@@ -9705,7 +10232,7 @@
             });
             
             if (scadute.length > 0) {
-                alerts.push(scadute.length + ' fattura/e scaduta/e');
+                alerts.push(`${scadute.length} fattura/e scaduta/e`);
             }
             
             // Controlla prodotti con stock basso
@@ -9714,7 +10241,7 @@
             });
             
             if (lowStock.length > 0) {
-                alerts.push(lowStock.length + ' prodotto/i con stock basso');
+                alerts.push(`${lowStock.length} prodotto/i con stock basso`);
             }
             
             return alerts;
@@ -10015,27 +10542,27 @@
                 }
                 
                 // Renderizza le notizie con design moderno e immagini
-                newsContainer.innerHTML = news.map((news, index) => 
-                    '<div class="news-item" style="animation: fadeInUp 0.5s ease ' + (index * 0.1) + 's both;">' +
-                        '<div class="news-content">' +
-                            (news.image ? 
-                                '<div class="news-image">' +
-                                    '<img src="' + news.image + '" alt="' + news.title + '" onerror="this.style.display=\'none\'">' +
-                                '</div>'
-                            : '') +
-                            '<div class="news-text">' +
-                                '<div class="news-title">' +
-                                    '<a href="' + news.url + '" target="_blank" rel="noopener noreferrer">' + news.title + '</a>' +
-                                '</div>' +
-                                '<div class="news-description">' + news.description + '</div>' +
-                                '<div class="news-meta">' +
-                                    '<span class="news-date">' + news.publishedAt + '</span>' +
-                                    '<span class="news-source">' + (news.source || (apiError ? 'Notizie simulate' : 'GNews')) + '</span>' +
-                                '</div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>'
-                ).join('');
+                newsContainer.innerHTML = news.map((news, index) => `
+                    <div class="news-item" style="animation: fadeInUp 0.5s ease ${index * 0.1}s both;">
+                        <div class="news-content">
+                            ${news.image ? `
+                                <div class="news-image">
+                                    <img src="${news.image}" alt="${news.title}" onerror="this.style.display='none'">
+                                </div>
+                            ` : ''}
+                            <div class="news-text">
+                                <div class="news-title">
+                                    <a href="${news.url}" target="_blank" rel="noopener noreferrer">${news.title}</a>
+                                </div>
+                                <div class="news-description">${news.description}</div>
+                                <div class="news-meta">
+                                    <span class="news-date">${news.publishedAt}</span>
+                                    <span class="news-source">${news.source || (apiError ? 'Notizie simulate' : 'GNews')}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
                 
                 // Mostra notifica se si usano notizie simulate
                 if (apiError) {
@@ -10047,22 +10574,22 @@
             } catch (error) {
                 console.error('Errore nel caricamento notizie:', error);
                 // Fallback a notizie simulate in caso di errore
-                newsContainer.innerHTML = getMockWineNews().map((news, index) => 
-                    '<div class="news-item" style="animation: fadeInUp 0.5s ease ' + (index * 0.1) + 's both;">' +
-                        '<div class="news-content">' +
-                            '<div class="news-text">' +
-                                '<div class="news-title">' +
-                                    '<a href="' + news.url + '" target="_blank">' + news.title + '</a>' +
-                                '</div>' +
-                                '<div class="news-description">' + news.description + '</div>' +
-                                '<div class="news-meta">' +
-                                    '<span class="news-date">' + news.publishedAt + '</span>' +
-                                    '<span class="news-source">Notizie simulate</span>' +
-                                '</div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>'
-                ).join('');
+                newsContainer.innerHTML = getMockWineNews().map((news, index) => `
+                    <div class="news-item" style="animation: fadeInUp 0.5s ease ${index * 0.1}s both;">
+                        <div class="news-content">
+                            <div class="news-text">
+                                <div class="news-title">
+                                    <a href="${news.url}" target="_blank">${news.title}</a>
+                                </div>
+                                <div class="news-description">${news.description}</div>
+                                <div class="news-meta">
+                                    <span class="news-date">${news.publishedAt}</span>
+                                    <span class="news-source">Notizie simulate</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
                 
                 setTimeout(() => {
                     showNotification('📰 Mostrando notizie simulate - Errore di caricamento', 'warning');
@@ -10095,7 +10622,7 @@
                 const country = 'it';
                 const max = 10;
                 
-                const url = 'https://gnews.io/api/v4/search?q=' + encodeURIComponent(randomQuery) + '&lang=' + language + '&country=' + country + '&max=' + max + '&apikey=' + apiKey;
+                const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(randomQuery)}&lang=${language}&country=${country}&max=${max}&apikey=${apiKey}`;
                 
                 console.log('🔍 Ricerca notizie GNews:', randomQuery);
                 
@@ -10110,7 +10637,7 @@
                         console.warn('GNews rate limit raggiunto - usando notizie simulate');
                         return null;
                     } else {
-                        throw new Error('HTTP error! status: ' + response.status);
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
                 }
                 
@@ -10136,7 +10663,7 @@
                         return wineKeywords.some(keyword => content.includes(keyword));
                     });
                     
-                    console.log('🍷 Trovati ' + wineArticles.length + ' articoli sui vini su ' + data.articles.length + ' totali');
+                    console.log(`🍷 Trovati ${wineArticles.length} articoli sui vini su ${data.articles.length} totali`);
                     
                     return wineArticles.slice(0, 6).map(article => ({
                         title: article.title,
@@ -10174,7 +10701,7 @@
                 const response = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(randomSource));
                 
                 if (!response.ok) {
-                    throw new Error('HTTP error! status: ' + response.status);
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
                 const data = await response.json();
@@ -10294,11 +10821,11 @@
             const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
             
             if (diffInHours < 1) return 'Poco fa';
-            if (diffInHours < 24) return diffInHours + ' ore fa';
+            if (diffInHours < 24) return `${diffInHours} ore fa`;
             if (diffInHours < 48) return 'Ieri';
             
             const diffInDays = Math.floor(diffInHours / 24);
-            return diffInDays + ' giorni fa';
+            return `${diffInDays} giorni fa`;
         }
 
         function refreshNews() {
@@ -10310,7 +10837,7 @@
             currentNewsSource = currentNewsSource === 'gnews' ? 'alternative' : 'gnews';
             updateNewsSourceIndicator();
             loadWineNews();
-            showNotification('📰 Fonte notizie cambiata: ' + (currentNewsSource === 'gnews' ? 'GNews' : 'Alternativa'), 'info');
+            showNotification(`📰 Fonte notizie cambiata: ${currentNewsSource === 'gnews' ? 'GNews' : 'Alternativa'}`, 'info');
         }
 
         // Contatore errori API per auto-disabilitazione
@@ -10352,7 +10879,7 @@
             documenti.forEach((documento, index) => {
                 // Verifica se il documento ha il campo stato
                 if (!documento.hasOwnProperty('stato')) {
-                    console.log('📋 Documento ' + documento.numero + ' non ha campo stato - aggiungendo...');
+                    console.log(`📋 Documento ${documento.numero} non ha campo stato - aggiungendo...`);
                     documenti[index].stato = 'in_attesa';
                     updatedCount++;
                 }
@@ -10361,7 +10888,7 @@
                 if (documento.scadenza && documento.stato !== 'pagata') {
                     const scadenza = new Date(documento.scadenza);
                     if (scadenza < currentDate) {
-                        console.log('⚠️ Fattura ' + documento.numero + ' scaduta - aggiornando stato...');
+                        console.log(`⚠️ Fattura ${documento.numero} scaduta - aggiornando stato...`);
                         documenti[index].stato = 'scaduta';
                         updatedCount++;
                     }
@@ -10371,8 +10898,8 @@
             if (updatedCount > 0) {
                 updateFattureTable();
                 saveDataToStorage();
-                showNotification('🔄 Aggiornati ' + updatedCount + ' stati fatture', 'info');
-                console.log('✅ Aggiornati ' + updatedCount + ' stati fatture');
+                showNotification(`🔄 Aggiornati ${updatedCount} stati fatture`, 'info');
+                console.log(`✅ Aggiornati ${updatedCount} stati fatture`);
             }
 
             return updatedCount;
@@ -10403,8 +10930,8 @@
             updateFattureTable();
             saveDataToStorage();
             
-            showNotification('✅ Stato fattura ' + documenti[documentoIndex].numero + ' cambiato da "' + oldStato + '" a "' + newStato + '"', 'success');
-            console.log('🔄 Stato fattura ' + documenti[documentoIndex].numero + ': ' + oldStato + ' → ' + newStato);
+            showNotification(`✅ Stato fattura ${documenti[documentoIndex].numero} cambiato da "${oldStato}" a "${newStato}"`, 'success');
+            console.log(`🔄 Stato fattura ${documenti[documentoIndex].numero}: ${oldStato} → ${newStato}`);
         }
 
         // Funzione per abilitare/disabilitare la modifica dello stato
@@ -10412,8 +10939,8 @@
             enableStatoFatture = !enableStatoFatture;
             const status = enableStatoFatture ? 'abilitata' : 'disabilitata';
             updateToggleStatoButton();
-            showNotification('🔧 Modifica stato fatture ' + status, 'info');
-            console.log('🔧 Modifica stato fatture: ' + status);
+            showNotification(`🔧 Modifica stato fatture ${status}`, 'info');
+            console.log(`🔧 Modifica stato fatture: ${status}`);
         }
 
         // Funzione per aggiornare l'aspetto del pulsante toggle
@@ -10470,34 +10997,18 @@
             }
         }
 
-        // Variabile globale per il timer di monitoraggio benvenuto
-        let benvenutoMonitorTimer = null;
-
         // Funzione per monitorare e nascondere la tab benvenuto per admin
         function monitorBenvenutoTabForAdmin() {
-            // Ferma tutti i monitoraggi esistenti
-            stopAllMonitoring();
-            
             if (currentUser === 'admin') {
-                let lastLogTime = 0;
-                benvenutoMonitorTimer = setInterval(() => {
-                    const currentTime = Date.now();
-                    let hasChanges = false;
-                    
+                setInterval(() => {
                     const benvenutoTab = document.querySelector('.nav-tab[onclick="showTab(\'benvenuto\')"]');
                     if (benvenutoTab && benvenutoTab.style.display !== 'none') {
                         benvenutoTab.style.display = 'none';
                         benvenutoTab.classList.remove('active');
                         benvenutoTab.classList.add('guest-only');
-                        hasChanges = true;
-                    }
-                    
-                    // Log solo se ci sono stati cambiamenti e non più di una volta ogni 5 secondi
-                    if (hasChanges && (currentTime - lastLogTime) > 5000) {
                         console.log('🔒 Tab benvenuto nascosta per admin');
-                        lastLogTime = currentTime;
                     }
-                }, 2000); // Controlla ogni 2 secondi invece di 1
+                }, 1000); // Controlla ogni secondo
             }
         }
 
@@ -10513,62 +11024,17 @@
             }
         }
 
-        // Variabili globali per i timer di monitoraggio
-        let guestMonitorTimer = null;
-        let adminMonitorTimer = null;
-        let monitoringActive = false;
-
-        // Funzione per fermare tutti i monitoraggi
-        function stopAllMonitoring() {
-            if (guestMonitorTimer) {
-                clearInterval(guestMonitorTimer);
-                guestMonitorTimer = null;
-            }
-            if (adminMonitorTimer) {
-                clearInterval(adminMonitorTimer);
-                adminMonitorTimer = null;
-            }
-            if (benvenutoMonitorTimer) {
-                clearInterval(benvenutoMonitorTimer);
-                benvenutoMonitorTimer = null;
-            }
-            monitoringActive = false;
-        }
-
-        // Funzione per avviare il monitoraggio in modo sicuro
-        function startSafeMonitoring() {
-            if (monitoringActive) {
-                stopAllMonitoring();
-            }
-            
-            if (currentUser === 'guest') {
-                monitorAdminTabsForGuest();
-            } else if (currentUser === 'admin') {
-                monitorAdminTabsForTommaso();
-                monitorBenvenutoTabForAdmin();
-            }
-            
-            monitoringActive = true;
-        }
-
         // Funzione per monitorare e nascondere le tab admin-only per ospiti
         function monitorAdminTabsForGuest() {
-            // Ferma tutti i monitoraggi esistenti
-            stopAllMonitoring();
-            
             if (currentUser === 'guest') {
-                let lastLogTime = 0;
-                guestMonitorTimer = setInterval(() => {
-                    const currentTime = Date.now();
-                    let hasChanges = false;
-                    
+                setInterval(() => {
                     const adminTabs = document.querySelectorAll('.nav-tab.admin-only');
                     adminTabs.forEach(tab => {
                         if (tab.style.display !== 'none') {
                             tab.style.display = 'none';
                             tab.classList.remove('active');
                             tab.classList.add('admin-only');
-                            hasChanges = true;
+                            console.log('🔒 Tab admin nascosta per ospite');
                         }
                     });
 
@@ -10579,16 +11045,10 @@
                             section.style.display = 'none';
                             section.classList.remove('active');
                             section.classList.add('admin-only');
-                            hasChanges = true;
+                            console.log('🔒 Sezione admin nascosta per ospite');
                         }
                     });
-                    
-                    // Log solo se ci sono stati cambiamenti e non più di una volta ogni 5 secondi
-                    if (hasChanges && (currentTime - lastLogTime) > 5000) {
-                        console.log('🔒 Elementi admin nascosti per ospite');
-                        lastLogTime = currentTime;
-                    }
-                }, 2000); // Controlla ogni 2 secondi invece di 1
+                }, 1000); // Controlla ogni secondo
             }
         }
 
@@ -10602,246 +11062,6 @@
                 }
             }
             return true;
-        }
-
-        // Funzione per pulire e riorganizzare le classi CSS delle schede
-        function cleanupTabClasses() {
-            // Rimuovi classi duplicate e conflittuali
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                // Rimuovi classi duplicate
-                const classes = tab.classList;
-                if (classes.contains('admin-only') && classes.contains('guest-only')) {
-                    if (currentUser === 'admin') {
-                        tab.classList.remove('guest-only');
-                    } else {
-                        tab.classList.remove('admin-only');
-                    }
-                }
-                
-                // Assicurati che le tab abbiano le classi corrette
-                if (currentUser === 'admin') {
-                    if (tab.getAttribute('onclick') && tab.getAttribute('onclick').includes('dashboard') ||
-                        tab.getAttribute('onclick') && tab.getAttribute('onclick').includes('clienti') ||
-                        tab.getAttribute('onclick') && tab.getAttribute('onclick').includes('fatture')) {
-                        tab.classList.add('admin-only');
-                        tab.classList.remove('guest-only');
-                    }
-                } else {
-                    if (tab.getAttribute('onclick') && tab.getAttribute('onclick').includes('benvenuto')) {
-                        tab.classList.add('guest-only');
-                        tab.classList.remove('admin-only');
-                    }
-                }
-            });
-            
-            // Pulisci anche le sezioni
-            document.querySelectorAll('.tab-content').forEach(section => {
-                const sectionId = section.id;
-                if (sectionId === 'dashboard' || sectionId === 'clienti' || sectionId === 'fatture') {
-                    section.classList.add('admin-only');
-                    section.classList.remove('guest-only');
-                } else if (sectionId === 'benvenuto') {
-                    section.classList.add('guest-only');
-                    section.classList.remove('admin-only');
-                }
-            });
-        }
-
-        // Funzione per prevenire la duplicazione delle schede
-        function preventTabDuplication() {
-            // Controlla se ci sono tab duplicate
-            const tabIds = ['dashboard', 'clienti', 'fatture', 'prodotti', 'vini', 'benvenuto'];
-            tabIds.forEach(tabId => {
-                const tabs = document.querySelectorAll('.nav-tab[onclick*="showTab(\'' + tabId + '\')"]');
-                if (tabs.length > 1) {
-                    // Mantieni solo la prima tab e rimuovi le duplicate
-                    for (let i = 1; i < tabs.length; i++) {
-                        tabs[i].remove();
-                    }
-                }
-            });
-            
-            // Controlla se ci sono sezioni duplicate
-            tabIds.forEach(sectionId => {
-                const sections = document.querySelectorAll('#' + sectionId);
-                if (sections.length > 1) {
-                    // Mantieni solo la prima sezione e rimuovi le duplicate
-                    for (let i = 1; i < sections.length; i++) {
-                        sections[i].remove();
-                    }
-                }
-            });
-        }
-
-        // Funzione per mostrare le tab admin-only per Tommaso
-        function showAdminTabsForTommaso() {
-            if (currentUser === 'admin') {
-                const adminTabs = document.querySelectorAll('.nav-tab.admin-only');
-                adminTabs.forEach(tab => {
-                    tab.style.display = 'block';
-                    tab.classList.remove('hidden-for-guest');
-                    tab.classList.add('admin-only');
-                });
-                
-                // Mostra anche le sezioni admin-only
-                const adminSections = document.querySelectorAll('.tab-content.admin-only');
-                adminSections.forEach(section => {
-                    section.style.display = 'block';
-                    section.classList.remove('hidden-for-guest');
-                    section.classList.add('admin-only');
-                });
-                
-                console.log('👨‍💼 Tab admin mostrate per Tommaso');
-            }
-        }
-
-        // Funzione per monitorare e mostrare le tab admin-only per Tommaso
-        function monitorAdminTabsForTommaso() {
-            // Ferma tutti i monitoraggi esistenti
-            stopAllMonitoring();
-            
-            if (currentUser === 'admin') {
-                let lastLogTime = 0;
-                adminMonitorTimer = setInterval(() => {
-                    const currentTime = Date.now();
-                    let hasChanges = false;
-                    
-                    const adminTabs = document.querySelectorAll('.nav-tab.admin-only');
-                    adminTabs.forEach(tab => {
-                        if (tab.style.display === 'none') {
-                            tab.style.display = 'block';
-                            tab.classList.remove('hidden-for-guest');
-                            tab.classList.add('admin-only');
-                            hasChanges = true;
-                        }
-                    });
-
-                    // Mostra anche le sezioni admin-only se nascoste
-                    const adminSections = document.querySelectorAll('.tab-content.admin-only');
-                    adminSections.forEach(section => {
-                        if (section.style.display === 'none') {
-                            section.style.display = 'block';
-                            section.classList.remove('hidden-for-guest');
-                            section.classList.add('admin-only');
-                            hasChanges = true;
-                        }
-                    });
-                    
-                    // Log solo se ci sono stati cambiamenti e non più di una volta ogni 5 secondi
-                    if (hasChanges && (currentTime - lastLogTime) > 5000) {
-                        console.log('👨‍💼 Elementi admin ripristinati per Tommaso');
-                        lastLogTime = currentTime;
-                    }
-                }, 2000); // Controlla ogni 2 secondi invece di 1
-            }
-        }
-
-        // Funzione per inizializzare correttamente le schede all'avvio
-        function initializeTabsCorrectly() {
-            // Ferma tutti i monitoraggi esistenti
-            stopAllMonitoring();
-            
-            // Pulisci le classi CSS
-            cleanupTabClasses();
-            
-            // Preveni la duplicazione delle schede
-            preventTabDuplication();
-            
-            // Forza il nascondimento di tutte le sezioni all'avvio
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-                tab.style.display = 'none';
-                tab.setAttribute('style', 'display: none !important');
-            });
-            
-            // Imposta la visualizzazione corretta in base al tipo di utente
-            if (currentUser === 'admin') {
-                // Mostra tutte le tab admin per admin
-                const adminTabIds = ['dashboard', 'clienti', 'fatture'];
-                adminTabIds.forEach(tabId => {
-                    const tab = document.querySelector('.nav-tab[onclick*="showTab(\'' + tabId + '\')"]');
-                    if (tab) {
-                        tab.style.display = 'block';
-                        tab.classList.add('admin-only');
-                        tab.classList.remove('guest-only');
-                        tab.classList.remove('hidden-for-guest');
-                    }
-                });
-                
-                // Nascondi la tab benvenuto per admin
-                const benvenutoTab = document.querySelector('.nav-tab[onclick*="showTab(\'benvenuto\')"]');
-                if (benvenutoTab) {
-                    benvenutoTab.style.display = 'none';
-                    benvenutoTab.classList.add('guest-only');
-                    benvenutoTab.classList.remove('admin-only');
-                }
-                
-                // Mostra le sezioni admin
-                adminTabIds.forEach(sectionId => {
-                    const section = document.getElementById(sectionId);
-                    if (section) {
-                        section.style.display = 'block';
-                        section.classList.add('admin-only');
-                        section.classList.remove('guest-only');
-                        section.classList.remove('hidden-for-guest');
-                    }
-                });
-                
-                // Nascondi la sezione benvenuto per admin
-                const benvenutoSection = document.getElementById('benvenuto');
-                if (benvenutoSection) {
-                    benvenutoSection.style.display = 'none';
-                    benvenutoSection.classList.add('guest-only');
-                    benvenutoSection.classList.remove('admin-only');
-                }
-                
-            } else if (currentUser === 'guest') {
-                // Nascondi tutte le tab admin per ospiti
-                const adminTabIds = ['dashboard', 'clienti', 'fatture'];
-                adminTabIds.forEach(tabId => {
-                    const tab = document.querySelector('.nav-tab[onclick*="showTab(\'' + tabId + '\')"]');
-                    if (tab) {
-                        tab.style.display = 'none';
-                        tab.classList.add('admin-only');
-                        tab.classList.add('hidden-for-guest');
-                        tab.classList.remove('guest-only');
-                    }
-                });
-                
-                // Mostra la tab benvenuto per ospiti
-                const benvenutoTab = document.querySelector('.nav-tab[onclick*="showTab(\'benvenuto\')"]');
-                if (benvenutoTab) {
-                    benvenutoTab.style.display = 'block';
-                    benvenutoTab.classList.add('guest-only');
-                    benvenutoTab.classList.remove('admin-only');
-                    benvenutoTab.classList.remove('hidden-for-guest');
-                }
-                
-                // Nascondi le sezioni admin per ospiti
-                adminTabIds.forEach(sectionId => {
-                    const section = document.getElementById(sectionId);
-                    if (section) {
-                        section.style.display = 'none';
-                        section.classList.add('admin-only');
-                        section.classList.add('hidden-for-guest');
-                        section.classList.remove('guest-only');
-                    }
-                });
-                
-                // Mostra la sezione benvenuto per ospiti
-                const benvenutoSection = document.getElementById('benvenuto');
-                if (benvenutoSection) {
-                    benvenutoSection.style.display = 'block';
-                    benvenutoSection.classList.add('guest-only');
-                    benvenutoSection.classList.remove('admin-only');
-                }
-            }
-            
-            // Forza il nascondimento di tutte le sezioni all'avvio
-            forceHideAllSections();
-            
-            // Avvia il monitoraggio sicuro
-            startSafeMonitoring();
         }
     </script>
 </body>
