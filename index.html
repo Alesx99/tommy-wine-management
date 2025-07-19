@@ -10652,7 +10652,7 @@
             // Controlla se ci sono tab duplicate
             const tabIds = ['dashboard', 'clienti', 'fatture', 'prodotti', 'vini', 'benvenuto'];
             tabIds.forEach(tabId => {
-                const tabs = document.querySelectorAll(`.nav-tab[onclick*="showTab('${tabId}')"]`);
+                const tabs = document.querySelectorAll('.nav-tab[onclick*="showTab(\'' + tabId + '\')"]');
                 if (tabs.length > 1) {
                     // Mantieni solo la prima tab e rimuovi le duplicate
                     for (let i = 1; i < tabs.length; i++) {
@@ -10759,7 +10759,7 @@
                 // Mostra tutte le tab admin per admin
                 const adminTabIds = ['dashboard', 'clienti', 'fatture'];
                 adminTabIds.forEach(tabId => {
-                    const tab = document.querySelector(`.nav-tab[onclick*="showTab('${tabId}')"]`);
+                    const tab = document.querySelector('.nav-tab[onclick*="showTab(\'' + tabId + '\')"]');
                     if (tab) {
                         tab.style.display = 'block';
                         tab.classList.add('admin-only');
@@ -10799,7 +10799,7 @@
                 // Nascondi tutte le tab admin per ospiti
                 const adminTabIds = ['dashboard', 'clienti', 'fatture'];
                 adminTabIds.forEach(tabId => {
-                    const tab = document.querySelector(`.nav-tab[onclick*="showTab('${tabId}')"]`);
+                    const tab = document.querySelector('.nav-tab[onclick*="showTab(\'' + tabId + '\')"]');
                     if (tab) {
                         tab.style.display = 'none';
                         tab.classList.add('admin-only');
