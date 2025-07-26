@@ -1920,6 +1920,132 @@
             justify-content: flex-end;
         }
 
+        /* Stili per il modal di selezione stampa vini */
+        .print-wine-options {
+            max-width: 600px;
+        }
+
+        .print-wine-options h4 {
+            margin: var(--spacing-lg) 0 var(--spacing-md) 0;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: var(--spacing-sm);
+        }
+
+        .price-type-selection {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .radio-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-md);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--surface-color);
+            transition: all 0.2s ease;
+        }
+
+        .radio-group:hover {
+            border-color: var(--primary-color);
+            background: var(--border-light);
+        }
+
+        .radio-group input[type="radio"] {
+            margin-right: var(--spacing-md);
+            transform: scale(1.2);
+        }
+
+        .radio-group label {
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .wine-types-selection {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .select-all-section {
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--primary-color);
+            color: white;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+        }
+
+        .select-all-section input[type="checkbox"] {
+            margin-right: var(--spacing-md);
+            transform: scale(1.2);
+        }
+
+        .select-all-section label {
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .wine-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            max-height: 300px;
+            overflow-y: auto;
+            padding: var(--spacing-md);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--surface-color);
+        }
+
+        .wine-type-checkbox {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-sm);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            background: white;
+            transition: all 0.2s ease;
+        }
+
+        .wine-type-checkbox:hover {
+            border-color: var(--primary-color);
+            background: var(--border-light);
+        }
+
+        .wine-type-checkbox input[type="checkbox"] {
+            margin-right: var(--spacing-sm);
+            transform: scale(1.1);
+        }
+
+        .wine-type-checkbox label {
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        /* Responsive per il modal stampa vini */
+        @media (max-width: 768px) {
+            .wine-types-grid {
+                grid-template-columns: 1fr;
+                max-height: 200px;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .radio-group input[type="radio"] {
+                margin-bottom: var(--spacing-sm);
+            }
+        }
+
         /* Product Section Styles */
         .prodotti-section {
             margin: var(--spacing-xl) 0;
@@ -3335,6 +3461,46 @@
         </div>
     </div>
 
+    <!-- Modal Selezione Stampa Vini -->
+    <div id="printWineModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🖨️ Stampa Listino Vini</h3>
+                <button class="modal-close" onclick="hidePrintWineModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="print-wine-options">
+                    <h4>📊 Tipo di Prezzo</h4>
+                    <div class="price-type-selection">
+                        <div class="radio-group">
+                            <input type="radio" id="priceTypeDettaglio" name="priceType" value="dettaglio" checked>
+                            <label for="priceTypeDettaglio">💰 Prezzo al Dettaglio</label>
+                        </div>
+                        <div class="radio-group">
+                            <input type="radio" id="priceTypeIngrosso" name="priceType" value="ingrosso">
+                            <label for="priceTypeIngrosso">🏪 Prezzo all'Ingrosso</label>
+                        </div>
+                    </div>
+                    
+                    <h4>🍷 Tipologie di Vino da Includere</h4>
+                    <div class="wine-types-selection">
+                        <div class="select-all-section">
+                            <input type="checkbox" id="selectAllWineTypes" checked onchange="toggleAllWineTypes()">
+                            <label for="selectAllWineTypes"><strong>Seleziona Tutte</strong></label>
+                        </div>
+                        <div id="wineTypesContainer" class="wine-types-grid">
+                            <!-- Le tipologie verranno popolate dinamicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="hidePrintWineModal()">❌ Annulla</button>
+                <button type="button" class="btn btn-primary" onclick="generateWineList()">🖨️ Genera Listino</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         // Dati in memoria
@@ -3721,19 +3887,40 @@
                         if (githubTime > localTime && githubData.deviceId !== deviceId) {
                             console.log('✅ Aggiornamento dati da GitHub...');
                             
-                            // Aggiorna i dati locali con quelli di GitHub
-                            clienti = githubData.clienti || clienti;
-                            documenti = githubData.documenti || documenti;
-                            prodotti = githubData.prodotti || prodotti;
-                            vini = githubData.vini || vini;
+                            // Crea backup preventivo
+                            createBackupBeforeSync();
                             
-                            // Salva i dati aggiornati localmente
-                            saveAllDataToLocalStorage();
-                            localStorage.setItem('tommy_last_sync', githubTime.toString());
+                            // MERGE INTELLIGENTE invece di sostituzione completa
+                            const mergeResult = mergeDataIntelligently(githubData);
                             
-                            console.log('✅ Sincronizzazione GitHub completata');
-                            showNotification('📡 Dati sincronizzati da GitHub!', 'success');
-                            return true;
+                            if (mergeResult.success) {
+                                // Aggiorna i dati locali con il merge
+                                clienti = mergeResult.data.clienti;
+                                documenti = mergeResult.data.documenti;
+                                prodotti = mergeResult.data.prodotti;
+                                vini = mergeResult.data.vini;
+                                
+                                // Salva i dati aggiornati localmente
+                                saveAllDataToLocalStorage();
+                                localStorage.setItem('tommy_last_sync', githubTime.toString());
+                                
+                                // Verifica integrità dopo sincronizzazione
+                                if (!verifyDataIntegrityAfterSync()) {
+                                    console.warn('⚠️ Problemi di integrità dopo sincronizzazione, ripristino da backup...');
+                                    if (restoreFromBackup()) {
+                                        showNotification('🔄 Dati ripristinati da backup dopo problemi di sincronizzazione', 'warning');
+                                        return false;
+                                    }
+                                }
+                                
+                                console.log(`✅ Sincronizzazione GitHub completata: ${mergeResult.stats.merged} record uniti, ${mergeResult.stats.added} nuovi, ${mergeResult.stats.updated} aggiornati`);
+                                showNotification(`📡 Sincronizzazione completata: ${mergeResult.stats.merged} record uniti`, 'success');
+                                return true;
+                            } else {
+                                console.warn('⚠️ Merge fallito, mantenuti dati locali:', mergeResult.reason);
+                                showNotification('⚠️ Sincronizzazione fallita - Dati locali mantenuti', 'warning');
+                                return false;
+                            }
                         } else {
                             console.log('ℹ️ Nessun aggiornamento necessario da GitHub');
                         }
@@ -3868,21 +4055,29 @@
                         const localTime = parseInt(localTimestamp) || 0;
                         
                         if (githubTime > localTime && githubData.deviceId !== deviceId) {
-                            // Aggiorna i dati locali con quelli di GitHub
-                            clienti = githubData.clienti || clienti;
-                            documenti = githubData.documenti || documenti;
-                            prodotti = githubData.prodotti || prodotti;
-                            vini = githubData.vini || vini;
+                            // MERGE INTELLIGENTE invece di sostituzione completa
+                            const mergeResult = mergeDataIntelligently(githubData);
                             
-                            // Salva i dati aggiornati localmente
-                            localStorage.setItem('tommy_clienti', JSON.stringify(clienti));
-                            localStorage.setItem('tommy_documenti', JSON.stringify(documenti));
-                            localStorage.setItem('tommy_prodotti', JSON.stringify(prodotti));
-                            localStorage.setItem('tommy_vini', JSON.stringify(vini));
-                            localStorage.setItem('tommy_last_sync', githubTime.toString());
-                            
-                            showNotification('📡 Dati sincronizzati da GitHub!', 'success');
-                            return;
+                            if (mergeResult.success) {
+                                // Aggiorna i dati locali con il merge
+                                clienti = mergeResult.data.clienti;
+                                documenti = mergeResult.data.documenti;
+                                prodotti = mergeResult.data.prodotti;
+                                vini = mergeResult.data.vini;
+                                
+                                // Salva i dati aggiornati localmente
+                                localStorage.setItem('tommy_clienti', JSON.stringify(clienti));
+                                localStorage.setItem('tommy_documenti', JSON.stringify(documenti));
+                                localStorage.setItem('tommy_prodotti', JSON.stringify(prodotti));
+                                localStorage.setItem('tommy_vini', JSON.stringify(vini));
+                                localStorage.setItem('tommy_last_sync', githubTime.toString());
+                                
+                                showNotification(`📡 Sincronizzazione: ${mergeResult.stats.merged} record uniti`, 'success');
+                                return;
+                            } else {
+                                console.warn('⚠️ Merge fallito, mantenuti dati locali:', mergeResult.reason);
+                                showNotification('⚠️ Sincronizzazione fallita - Dati locali mantenuti', 'warning');
+                            }
                         }
                     }
                 }
@@ -4274,7 +4469,7 @@
             }
         }
         
-        // Carica dati da GitHub Gist
+        // Carica dati da GitHub Gist con validazione robusta
         async function loadFromGitHubGist() {
             try {
                 if (!GITHUB_CONFIG.enabled || !GITHUB_CONFIG.token || !GITHUB_CONFIG.gistId) {
@@ -4293,7 +4488,18 @@
                     const gist = await response.json();
                     const file = gist.files['tommy_data.json'];
                     if (file && file.content) {
-                        return JSON.parse(file.content);
+                        const parsedData = JSON.parse(file.content);
+                        
+                        // VALIDAZIONE ROBUSTA DEI DATI
+                        const validatedData = validateAndCleanData(parsedData);
+                        
+                        if (validatedData.isValid) {
+                            console.log('✅ Dati GitHub validati con successo');
+                            return validatedData.data;
+                        } else {
+                            console.warn('⚠️ Dati GitHub non validi, ignorati:', validatedData.reasons);
+                            return null;
+                        }
                     } else {
                         console.log('Nessun file tommy_data.json trovato nel Gist');
                     }
@@ -4736,6 +4942,340 @@
                     formGroup.classList.remove('hidden-for-guest');
                 }
             });
+        }
+
+        // Funzione per verificare integrità dati dopo sincronizzazione
+        function verifyDataIntegrityAfterSync() {
+            const issues = [];
+            
+            // Verifica che i dati non siano vuoti dopo la sincronizzazione
+            const dataTypes = [
+                { name: 'clienti', data: clienti },
+                { name: 'documenti', data: documenti },
+                { name: 'prodotti', data: prodotti },
+                { name: 'vini', data: vini }
+            ];
+            
+            dataTypes.forEach(({ name, data }) => {
+                if (!Array.isArray(data)) {
+                    issues.push(`${name}: non è un array`);
+                } else if (data.length === 0) {
+                    issues.push(`${name}: array vuoto`);
+                } else {
+                    // Verifica che ogni elemento abbia i campi obbligatori
+                    const invalidItems = data.filter(item => !item || typeof item !== 'object');
+                    if (invalidItems.length > 0) {
+                        issues.push(`${name}: ${invalidItems.length} elementi non validi`);
+                    }
+                }
+            });
+            
+            if (issues.length > 0) {
+                console.warn('⚠️ Problemi di integrità dati rilevati:', issues);
+                showNotification('⚠️ Problemi di integrità dati - Verifica backup', 'warning');
+                return false;
+            }
+            
+            console.log('✅ Integrità dati verificata con successo');
+            return true;
+        }
+
+        // Funzione per ripristinare da backup
+        function restoreFromBackup() {
+            try {
+                const backupKeys = Object.keys(localStorage).filter(key => key.startsWith('tommy_backup_'));
+                if (backupKeys.length === 0) {
+                    console.log('Nessun backup disponibile');
+                    return false;
+                }
+                
+                // Prendi il backup più recente
+                const latestBackupKey = backupKeys.sort().pop();
+                const backupData = JSON.parse(localStorage.getItem(latestBackupKey));
+                
+                if (backupData && backupData.timestamp) {
+                    clienti = backupData.clienti || [];
+                    documenti = backupData.documenti || [];
+                    prodotti = backupData.prodotti || [];
+                    vini = backupData.vini || [];
+                    
+                    // Salva i dati ripristinati
+                    saveAllDataToLocalStorage();
+                    
+                    console.log(`🔄 Ripristinato da backup del ${new Date(backupData.timestamp).toLocaleString('it-IT')}`);
+                    showNotification('🔄 Dati ripristinati da backup', 'success');
+                    return true;
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('Errore nel ripristino da backup:', error);
+                return false;
+            }
+        }
+
+        // Funzione per creare backup preventivo
+        function createBackupBeforeSync() {
+            try {
+                const backup = {
+                    clienti: [...clienti],
+                    documenti: [...documenti],
+                    prodotti: [...prodotti],
+                    vini: [...vini],
+                    timestamp: Date.now(),
+                    deviceId: deviceId
+                };
+                
+                localStorage.setItem('tommy_backup_' + Date.now(), JSON.stringify(backup));
+                
+                // Mantieni solo gli ultimi 3 backup
+                const backupKeys = Object.keys(localStorage).filter(key => key.startsWith('tommy_backup_'));
+                if (backupKeys.length > 3) {
+                    backupKeys.sort().slice(0, -3).forEach(key => localStorage.removeItem(key));
+                }
+                
+                console.log('💾 Backup preventivo creato');
+                return true;
+            } catch (error) {
+                console.error('Errore nella creazione backup:', error);
+                return false;
+            }
+        }
+
+        // Funzione per merge intelligente dei dati
+        function mergeDataIntelligently(remoteData) {
+            const result = {
+                success: true,
+                data: {},
+                stats: { merged: 0, added: 0, updated: 0, conflicts: 0 },
+                reason: null
+            };
+            
+            try {
+                // Verifica che i dati remoti siano validi
+                if (!remoteData || typeof remoteData !== 'object') {
+                    result.success = false;
+                    result.reason = 'Dati remoti non validi';
+                    return result;
+                }
+                
+                // Merge per ogni tipo di dato
+                const dataTypes = ['clienti', 'documenti', 'prodotti', 'vini'];
+                
+                dataTypes.forEach(type => {
+                    const localData = window[type] || [];
+                    const remoteDataArray = remoteData[type] || [];
+                    
+                    if (!Array.isArray(localData) || !Array.isArray(remoteDataArray)) {
+                        result.data[type] = localData;
+                        return;
+                    }
+                    
+                    // Se i dati remoti sono vuoti, mantieni i locali
+                    if (remoteDataArray.length === 0) {
+                        console.log(`⚠️ Dati remoti ${type} vuoti, mantenuti dati locali`);
+                        result.data[type] = localData;
+                        return;
+                    }
+                    
+                    // Merge intelligente basato su ID univoci
+                    const mergedData = mergeArraysIntelligently(localData, remoteDataArray, type);
+                    
+                    result.data[type] = mergedData.data;
+                    result.stats.merged += mergedData.stats.merged;
+                    result.stats.added += mergedData.stats.added;
+                    result.stats.updated += mergedData.stats.updated;
+                    result.stats.conflicts += mergedData.stats.conflicts;
+                });
+                
+                console.log(`🔀 Merge completato: ${result.stats.merged} totali, ${result.stats.added} aggiunti, ${result.stats.updated} aggiornati, ${result.stats.conflicts} conflitti`);
+                
+            } catch (error) {
+                console.error('Errore durante il merge:', error);
+                result.success = false;
+                result.reason = 'Errore durante il merge: ' + error.message;
+            }
+            
+            return result;
+        }
+
+        // Funzione per merge intelligente di array
+        function mergeArraysIntelligently(localArray, remoteArray, dataType) {
+            const result = {
+                data: [],
+                stats: { merged: 0, added: 0, updated: 0, conflicts: 0 }
+            };
+            
+            // Crea mappe per accesso rapido
+            const localMap = new Map();
+            const remoteMap = new Map();
+            
+            // Popola mappa locale
+            localArray.forEach(item => {
+                const key = getUniqueKey(item, dataType);
+                if (key) localMap.set(key, item);
+            });
+            
+            // Popola mappa remota
+            remoteArray.forEach(item => {
+                const key = getUniqueKey(item, dataType);
+                if (key) remoteMap.set(key, item);
+            });
+            
+            // Unisci i dati
+            const allKeys = new Set([...localMap.keys(), ...remoteMap.keys()]);
+            
+            allKeys.forEach(key => {
+                const localItem = localMap.get(key);
+                const remoteItem = remoteMap.get(key);
+                
+                if (localItem && remoteItem) {
+                    // Entrambi esistono - risolvi conflitto
+                    const mergedItem = resolveConflict(localItem, remoteItem, dataType);
+                    result.data.push(mergedItem);
+                    result.stats.merged++;
+                    
+                    if (mergedItem !== localItem && mergedItem !== remoteItem) {
+                        result.stats.conflicts++;
+                    }
+                } else if (localItem) {
+                    // Solo locale
+                    result.data.push(localItem);
+                } else if (remoteItem) {
+                    // Solo remoto
+                    result.data.push(remoteItem);
+                    result.stats.added++;
+                }
+            });
+            
+            return result;
+        }
+
+        // Funzione per ottenere chiave univoca per ogni tipo di dato
+        function getUniqueKey(item, dataType) {
+            if (!item || typeof item !== 'object') return null;
+            
+            switch (dataType) {
+                case 'clienti':
+                    return `${item.nome}-${item.cognome}-${item.email}`;
+                case 'documenti':
+                    return `${item.numero}-${item.cliente}`;
+                case 'prodotti':
+                    return `${item.nome}-${item.marca}-${item.categoriaPrincipale}`;
+                case 'vini':
+                    return `${item.nome}-${item.produttore}-${item.annata}`;
+                default:
+                    return item.id || null;
+            }
+        }
+
+        // Funzione per risolvere conflitti tra dati locali e remoti
+        function resolveConflict(localItem, remoteItem, dataType) {
+            // Se i dati sono identici, ritorna uno dei due
+            if (JSON.stringify(localItem) === JSON.stringify(remoteItem)) {
+                return localItem;
+            }
+            
+            // Altrimenti, preferisci il più recente basato su timestamp
+            const localTime = localItem.lastModified || 0;
+            const remoteTime = remoteItem.lastModified || 0;
+            
+            if (remoteTime > localTime) {
+                return remoteItem;
+            } else {
+                return localItem;
+            }
+        }
+
+        // Funzione per validare e pulire i dati scaricati
+        function validateAndCleanData(data) {
+            const result = {
+                isValid: true,
+                data: {},
+                reasons: []
+            };
+            
+            try {
+                // Verifica struttura base
+                if (!data || typeof data !== 'object') {
+                    result.isValid = false;
+                    result.reasons.push('Dati non validi o mancanti');
+                    return result;
+                }
+                
+                // Validazione e pulizia per ogni tipo di dato
+                const validators = {
+                    clienti: (arr) => {
+                        if (!Array.isArray(arr)) return [];
+                        return arr.filter(item => 
+                            item && 
+                            typeof item === 'object' && 
+                            item.nome && 
+                            item.cognome
+                        );
+                    },
+                    documenti: (arr) => {
+                        if (!Array.isArray(arr)) return [];
+                        return arr.filter(item => 
+                            item && 
+                            typeof item === 'object' && 
+                            item.numero && 
+                            item.cliente
+                        );
+                    },
+                    prodotti: (arr) => {
+                        if (!Array.isArray(arr)) return [];
+                        return arr.filter(item => 
+                            item && 
+                            typeof item === 'object' && 
+                            item.nome && 
+                            item.categoriaPrincipale
+                        );
+                    },
+                    vini: (arr) => {
+                        if (!Array.isArray(arr)) return [];
+                        return arr.filter(item => 
+                            item && 
+                            typeof item === 'object' && 
+                            item.nome && 
+                            item.produttore
+                        );
+                    }
+                };
+                
+                // Applica validazione per ogni tipo
+                Object.keys(validators).forEach(key => {
+                    const originalData = data[key];
+                    const cleanedData = validators[key](originalData);
+                    
+                    if (originalData && originalData.length > 0 && cleanedData.length === 0) {
+                        result.reasons.push(`${key}: tutti i record sono stati filtrati`);
+                    }
+                    
+                    result.data[key] = cleanedData;
+                });
+                
+                // Verifica che almeno alcuni dati siano validi
+                const totalValidRecords = Object.values(result.data).reduce((sum, arr) => sum + arr.length, 0);
+                
+                if (totalValidRecords === 0) {
+                    result.isValid = false;
+                    result.reasons.push('Nessun record valido trovato');
+                }
+                
+                // Aggiungi metadati se presenti
+                if (data.lastModified) result.data.lastModified = data.lastModified;
+                if (data.deviceId) result.data.deviceId = data.deviceId;
+                
+                console.log(`🔍 Validazione completata: ${totalValidRecords} record validi`);
+                
+            } catch (error) {
+                console.error('Errore durante la validazione dati:', error);
+                result.isValid = false;
+                result.reasons.push('Errore durante la validazione');
+            }
+            
+            return result;
         }
 
         // Funzione per verificare la modalità ospite
@@ -6650,16 +7190,92 @@
                 return;
             }
 
-            // Chiedi all'utente quale tipo di listino stampare
-            const tipoListino = confirm('Vuoi stampare il listino al DETTAGLIO?\n\nClicca OK per DETTAGLIO\nClicca Annulla per INGROSSO');
-            const isDettaglio = tipoListino;
-            const prezzoType = isDettaglio ? 'dettaglio' : 'ingrosso';
+            // Mostra il modal di selezione
+            showPrintWineModal();
+        }
+
+        // Funzione per mostrare il modal di selezione stampa vini
+        function showPrintWineModal() {
+            const modal = document.getElementById('printWineModal');
+            modal.style.display = 'flex';
+            
+            // Popola le tipologie disponibili
+            populateWineTypes();
+            
+            // Resetta le selezioni
+            resetWineTypeSelections();
+        }
+
+        // Funzione per popolare le tipologie di vino disponibili
+        function populateWineTypes() {
+            const container = document.getElementById('wineTypesContainer');
+            container.innerHTML = '';
+            
+            // Ottieni tutte le tipologie uniche dai vini
+            const tipologie = [...new Set(vini.map(vino => vino.tipologia))];
+            
+            tipologie.forEach(tipologia => {
+                const div = document.createElement('div');
+                div.className = 'wine-type-checkbox';
+                div.innerHTML = `
+                    <input type="checkbox" id="type_${tipologia}" value="${tipologia}" checked>
+                    <label for="type_${tipologia}">${tipologia.charAt(0).toUpperCase() + tipologia.slice(1)}</label>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Funzione per resettare le selezioni
+        function resetWineTypeSelections() {
+            const checkboxes = document.querySelectorAll('#wineTypesContainer input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+        }
+
+        // Funzione per selezionare/deselezionare tutte le tipologie
+        function toggleAllWineTypes() {
+            const checkboxes = document.querySelectorAll('#wineTypesContainer input[type="checkbox"]');
+            const selectAllCheckbox = document.getElementById('selectAllWineTypes');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        }
+
+        // Funzione per nascondere il modal
+        function hidePrintWineModal() {
+            const modal = document.getElementById('printWineModal');
+            modal.style.display = 'none';
+        }
+
+        // Funzione per generare il listino con le tipologie selezionate
+        function generateWineList() {
+            const isDettaglio = document.getElementById('priceTypeDettaglio').checked;
+            const isIngrosso = document.getElementById('priceTypeIngrosso').checked;
             const prezzoField = isDettaglio ? 'prezzoVenditaDettaglio' : 'prezzoVenditaIngrosso';
             const tipoText = isDettaglio ? 'DETTAGLIO' : 'INGROSSO';
+            
+            // Ottieni le tipologie selezionate
+            const selectedTypes = Array.from(document.querySelectorAll('#wineTypesContainer input[type="checkbox"]:checked'))
+                .map(checkbox => checkbox.value);
+            
+            if (selectedTypes.length === 0) {
+                alert('Seleziona almeno una tipologia di vino!');
+                return;
+            }
+            
+            // Filtra i vini per le tipologie selezionate
+            const viniFiltrati = vini.filter(vino => selectedTypes.includes(vino.tipologia));
+            
+            if (viniFiltrati.length === 0) {
+                alert('Nessun vino trovato per le tipologie selezionate!');
+                return;
+            }
 
             // Raggruppa i vini per tipologia
             const viniPerTipologia = {};
-            vini.forEach(vino => {
+            viniFiltrati.forEach(vino => {
                 if (!viniPerTipologia[vino.tipologia]) {
                     viniPerTipologia[vino.tipologia] = [];
                 }
@@ -8943,6 +9559,9 @@
             setTimeout(() => {
                 printWindow.print();
             }, 500);
+            
+            // Nascondi il modal
+            hidePrintWineModal();
         }
 
         // Funzione per i colori delle categorie
