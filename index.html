@@ -2494,7 +2494,7 @@
                                 <div id="userInfo" style="margin-top: 10px; display: none;">
                         <span id="currentUserDisplay"></span>
                         <button class="btn btn-sm btn-secondary" onclick="logout()" style="margin-left: 10px;">🚪 Logout</button>
-                        <button class="btn btn-sm btn-info" onclick="forceSync()" style="margin-left: 10px;" title="🔄 Forza sincronizzazione">🔄 Sync</button>
+                        <button class="btn btn-sm btn-info" onclick="forceSync()" style="margin-left: 10px;" title="📥 Scarica dati dal Gist">📥 Download</button>
                         <button class="btn btn-sm btn-warning" onclick="showGitHubConfig()" style="margin-left: 10px;" title="⚙️ Configura GitHub">⚙️ GitHub</button>
                     </div>
         </div>
@@ -4340,8 +4340,8 @@
             updateAllTables();
         }
 
-                // Salva dati nel localStorage con gestione errori e sincronizzazione robusta
-        function saveDataToStorage() {
+                // Salva dati nel localStorage e carica automaticamente sul Gist (SALVATAGGIO AUTOMATICO)
+        async function saveDataToStorage() {
             try {
                 console.log('💾 Avvio salvataggio dati...');
                 const timestamp = Date.now();
@@ -4363,12 +4363,19 @@
                 };
                 
                 // Salva anche nel cloud storage se disponibile
-                saveToCloudStorage(dataToSave);
+                const cloudSaveResult = await saveToCloudStorage(dataToSave);
                 
                 // Aggiorna il timestamp dell'ultima modifica
                 lastSyncTime = timestamp;
                 
-                console.log('✅ Salvataggio completato con successo');
+                console.log('✅ Salvataggio locale completato');
+                
+                // Mostra notifica appropriata in base al risultato
+                if (cloudSaveResult && cloudSaveResult.success) {
+                    showNotification(`📤 Dati caricati su GitHub: ${cloudSaveResult.stats.uploaded} record`, 'success');
+                } else if (cloudSaveResult && !cloudSaveResult.success) {
+                    showNotification('💾 Dati salvati localmente (GitHub non disponibile)', 'info');
+                }
                 
             } catch (error) {
                 console.error('❌ Errore nel salvataggio:', error);
@@ -4378,25 +4385,43 @@
         
         // Salva dati nel cloud storage (GitHub Gist + localStorage fallback)
         async function saveToCloudStorage(data) {
+            const result = {
+                success: false,
+                stats: { uploaded: 0, local: 0, errors: 0 },
+                reason: null
+            };
+            
             try {
+                // Calcola statistiche
+                const totalRecords = (data.clienti?.length || 0) + 
+                                   (data.documenti?.length || 0) + 
+                                   (data.prodotti?.length || 0) + 
+                                   (data.vini?.length || 0);
+                
                 // Salva sempre in localStorage come backup
                 localStorage.setItem('tommy_cloud_data', JSON.stringify(data));
                 localStorage.setItem('tommy_cloud_timestamp', Date.now().toString());
+                result.stats.local = totalRecords;
                 
                 // Se GitHub è configurato, salva anche lì
                 if (GITHUB_CONFIG.enabled && GITHUB_CONFIG.token && GITHUB_CONFIG.gistId) {
                     try {
                         const success = await saveToGitHubGist(data);
                         if (success) {
-                            showNotification('📡 Dati sincronizzati su GitHub!', 'success');
+                            result.success = true;
+                            result.stats.uploaded = totalRecords;
+                            console.log(`📤 Dati caricati su GitHub: ${totalRecords} record`);
                         } else {
-                            // Non mostrare warning per errori GitHub - i dati sono salvati localmente
+                            result.reason = 'GitHub sync fallito';
                             console.log('Salvataggio locale completato - GitHub sync fallito');
                         }
                     } catch (error) {
                         console.error('Errore durante il salvataggio GitHub:', error);
-                        // I dati sono già salvati localmente, quindi non è critico
+                        result.reason = 'Errore GitHub: ' + error.message;
+                        result.stats.errors++;
                     }
+                } else {
+                    result.reason = 'GitHub non configurato';
                 }
                 
                 // Simula sincronizzazione con altri dispositivi
@@ -4404,7 +4429,11 @@
                 
             } catch (error) {
                 console.error('Errore nel salvataggio cloud:', error);
+                result.reason = 'Errore generale: ' + error.message;
+                result.stats.errors++;
             }
+            
+            return result;
         }
         
         // Salva dati su GitHub Gist
@@ -5447,7 +5476,7 @@
                 if (idx !== -1) {
                     clienti.splice(idx, 1);
                     updateClientiTable();
-                    saveDataToStorage();
+                    await saveDataToStorage();
                     alert('Cliente eliminato con successo!');
                 }
             }
@@ -5485,7 +5514,7 @@
                         note: formData.get('note')
                     };
                     updateClientiTable();
-                    saveDataToStorage();
+                    await saveDataToStorage();
                     alert('Cliente modificato con successo!');
                 }
                 this.removeChild(this.querySelector('[name="editId"]'));
@@ -5509,7 +5538,7 @@
             };
             clienti.push(cliente);
             updateClientiTable();
-            saveDataToStorage();
+            await saveDataToStorage();
             this.reset();
             alert('Cliente aggiunto con successo!');
         });
@@ -5637,7 +5666,7 @@
             };
             
             updateFattureTable();
-            saveDataToStorage();
+            await saveDataToStorage();
             
             alert('Documento aggiornato con successo!');
             hideFatturaModal();
@@ -5651,7 +5680,7 @@
             if (confirm('Sei sicuro di voler eliminare questo documento?')) {
                 documenti = documenti.filter(d => d.id !== id);
                 updateFattureTable();
-                saveDataToStorage();
+                await saveDataToStorage();
             }
         }
 
@@ -5835,7 +5864,7 @@
                         note: formData.get('note')
                     };
                     updateProdottiTable();
-                    saveDataToStorage();
+                    await saveDataToStorage();
                     alert('Prodotto modificato con successo!');
                 }
                 // Rimuovi campo nascosto e resetta il form
@@ -5861,7 +5890,7 @@
             };
             prodotti.push(prodotto);
             updateProdottiTable();
-            saveDataToStorage();
+            await saveDataToStorage();
             this.reset();
             alert('Prodotto aggiunto con successo!');
         });
@@ -5935,7 +5964,7 @@
                 if (idx !== -1) {
                     vini.splice(idx, 1);
                     updateViniTable();
-                    saveDataToStorage();
+                    await saveDataToStorage();
                     alert('Vino eliminato con successo!');
                 }
             }
@@ -5967,7 +5996,7 @@
                         note: formData.get('note')
                     };
                     updateViniTable();
-                    saveDataToStorage();
+                    await saveDataToStorage();
                     alert('Vino modificato con successo!');
                 }
                 this.removeChild(this.querySelector('[name="editId"]'));
@@ -5995,7 +6024,7 @@
             };
             vini.push(vino);
             updateViniTable();
-            saveDataToStorage();
+            await saveDataToStorage();
             this.reset();
             alert('Vino aggiunto con successo!');
         });
@@ -6436,7 +6465,7 @@
             
             documenti.push(documento);
             updateFattureTable();
-            saveDataToStorage();
+            await saveDataToStorage();
             
             alert('Documento salvato con successo!');
             hideFatturaModal();
@@ -6597,7 +6626,7 @@
                 if (idx !== -1) {
                     prodotti.splice(idx, 1);
                     updateProdottiTable();
-                    saveDataToStorage();
+                    await saveDataToStorage();
                     alert('Prodotto eliminato con successo!');
                 }
             }
@@ -10522,12 +10551,52 @@
         // Aggiorna indicatore sincronizzazione
         function updateSyncIndicator() {
             const indicator = document.getElementById('syncIndicator');
-            if (isOnline) {
-                indicator.textContent = '🔄 Sincronizzazione attiva';
-                indicator.style.color = '#28a745';
+            if (!indicator) return;
+            
+            if (GITHUB_CONFIG.enabled && GITHUB_CONFIG.token && GITHUB_CONFIG.gistId) {
+                const lastSync = localStorage.getItem('tommy_last_sync');
+                if (lastSync) {
+                    const syncTime = new Date(parseInt(lastSync));
+                    const now = new Date();
+                    const diffHours = Math.floor((now - syncTime) / (1000 * 60 * 60));
+                    
+                    if (diffHours < 1) {
+                        indicator.textContent = '✅ Sincronizzato ora';
+                        indicator.style.color = '#28a745';
+                    } else if (diffHours < 24) {
+                        indicator.textContent = `✅ Sincronizzato ${diffHours}h fa`;
+                        indicator.style.color = '#28a745';
+                    } else {
+                        indicator.textContent = '⚠️ Sincronizzazione obsoleta';
+                        indicator.style.color = '#ffc107';
+                    }
+                } else {
+                    indicator.textContent = '📥 Pronto per download';
+                    indicator.style.color = '#17a2b8';
+                }
             } else {
-                indicator.textContent = '📡 Modalità offline';
-                indicator.style.color = '#ffc107';
+                indicator.textContent = '❌ GitHub non configurato';
+                indicator.style.color = '#dc3545';
+            }
+        }
+
+        // Mostra statistiche dettagliate del sync
+        function showDetailedSyncStats(stats) {
+            const totalRecords = stats.merged + stats.added + stats.updated;
+            const message = `
+📊 Statistiche Download:
+• Record uniti: ${stats.merged}
+• Nuovi record: ${stats.added}
+• Record aggiornati: ${stats.updated}
+• Conflitti risolti: ${stats.conflicts}
+• Totale: ${totalRecords} record
+            `;
+            
+            console.log(message);
+            
+            // Mostra notifica estesa se ci sono molti record
+            if (totalRecords > 10) {
+                showNotification(`📊 Download: ${totalRecords} record processati (${stats.added} nuovi)`, 'success');
             }
         }
 
@@ -10565,36 +10634,71 @@
             alert(message);
         }
         
-        // Funzione per forzare la sincronizzazione
+        // Funzione per scaricare dati dal Gist e unirli ai locali (PULSANTE SYNC)
         async function forceSync() {
             try {
                 showLoading(true);
-                console.log('🔄 Avvio sincronizzazione forzata...');
+                console.log('📥 Avvio download dati dal Gist...');
                 
-                // Verifica integrità dati prima del sync
-                verifyDataIntegrity();
-                
-                // Controlla aggiornamenti dal cloud
-                const hasUpdates = await forceSyncOnStartup();
-                
-                // Salva i dati locali
-                saveDataToStorage();
-                
-                // Crea backup
-                createBackup();
-                
-                if (hasUpdates) {
-                    showNotification('🔄 Sincronizzazione completata con aggiornamenti!', 'success');
-                } else {
-                    showNotification('🔄 Sincronizzazione completata!', 'success');
+                // Verifica che GitHub sia configurato
+                if (!GITHUB_CONFIG.enabled || !GITHUB_CONFIG.token || !GITHUB_CONFIG.gistId) {
+                    showNotification('❌ GitHub non configurato. Configura prima la sincronizzazione.', 'error');
+                    return;
                 }
                 
-                // Mostra statistiche
-                showSyncStats();
+                // Crea backup preventivo
+                createBackupBeforeSync();
+                
+                // Scarica dati dal Gist
+                const githubData = await loadFromGitHubGist();
+                
+                if (githubData) {
+                    console.log('📥 Dati scaricati dal Gist, avvio merge...');
+                    
+                    // Merge intelligente con i dati locali
+                    const mergeResult = mergeDataIntelligently(githubData);
+                    
+                    if (mergeResult.success) {
+                        // Aggiorna i dati locali con il merge
+                        clienti = mergeResult.data.clienti;
+                        documenti = mergeResult.data.documenti;
+                        prodotti = mergeResult.data.prodotti;
+                        vini = mergeResult.data.vini;
+                        
+                        // Salva i dati aggiornati localmente
+                        saveAllDataToLocalStorage();
+                        localStorage.setItem('tommy_last_sync', Date.now().toString());
+                        
+                        // Verifica integrità dopo merge
+                        if (!verifyDataIntegrityAfterSync()) {
+                            console.warn('⚠️ Problemi di integrità dopo merge, ripristino da backup...');
+                            if (restoreFromBackup()) {
+                                showNotification('🔄 Dati ripristinati da backup dopo problemi di merge', 'warning');
+                                return;
+                            }
+                        }
+                        
+                        // Aggiorna le tabelle
+                        updateAllTables();
+                        
+                        console.log(`✅ Download completato: ${mergeResult.stats.merged} record uniti, ${mergeResult.stats.added} nuovi, ${mergeResult.stats.updated} aggiornati`);
+                        showNotification(`📥 Download completato: ${mergeResult.stats.added} nuovi record scaricati`, 'success');
+                        
+                        // Mostra statistiche dettagliate
+                        showDetailedSyncStats(mergeResult.stats);
+                        
+                    } else {
+                        console.warn('⚠️ Merge fallito, mantenuti dati locali:', mergeResult.reason);
+                        showNotification('⚠️ Download fallito - Dati locali mantenuti', 'warning');
+                    }
+                } else {
+                    console.log('ℹ️ Nessun dato disponibile sul Gist');
+                    showNotification('ℹ️ Nessun dato disponibile sul Gist', 'info');
+                }
                 
             } catch (error) {
-                console.error('❌ Errore nella sincronizzazione forzata:', error);
-                showNotification('❌ Errore nella sincronizzazione', 'error');
+                console.error('❌ Errore nel download dal Gist:', error);
+                showNotification('❌ Errore nel download dal Gist', 'error');
             } finally {
                 showLoading(false);
             }
