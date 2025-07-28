@@ -5470,7 +5470,7 @@
             form.scrollIntoView({ behavior: 'smooth' });
         }
 
-        function deleteCliente(id) {
+        async function deleteCliente(id) {
             if (confirm('Sei sicuro di voler eliminare questo cliente?')) {
                 const idx = clienti.findIndex(c => c.id === id);
                 if (idx !== -1) {
@@ -5482,7 +5482,7 @@
             }
         }
 
-        document.getElementById('clienteForm').addEventListener('submit', function(e) {
+        document.getElementById('clienteForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
             
@@ -5676,7 +5676,7 @@
             form.onsubmit = null;
         }
 
-        function deleteDocumento(id) {
+        async function deleteDocumento(id) {
             if (confirm('Sei sicuro di voler eliminare questo documento?')) {
                 documenti = documenti.filter(d => d.id !== id);
                 updateFattureTable();
@@ -5840,7 +5840,7 @@
 
 
         // Gestione form prodotti
-        document.getElementById('prodottoForm').addEventListener('submit', function(e) {
+        document.getElementById('prodottoForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
             const editId = formData.get('editId');
@@ -5958,7 +5958,7 @@
             form.scrollIntoView({ behavior: 'smooth' });
         }
 
-        function deleteVino(id) {
+        async function deleteVino(id) {
             if (confirm('Sei sicuro di voler eliminare questo vino?')) {
                 const idx = vini.findIndex(v => v.id === id);
                 if (idx !== -1) {
@@ -5970,7 +5970,7 @@
             }
         }
 
-        document.getElementById('vinoForm').addEventListener('submit', function(e) {
+        document.getElementById('vinoForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
             const editId = formData.get('editId');
@@ -6438,7 +6438,7 @@
         }
 
         // Gestione del form fattura
-        document.getElementById('fatturaFormModal').addEventListener('submit', function(e) {
+        document.getElementById('fatturaFormModal').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const formData = new FormData(this);
@@ -6620,7 +6620,7 @@
 
 
 
-        function deleteProdotto(id) {
+        async function deleteProdotto(id) {
             if (confirm('Sei sicuro di voler eliminare questo prodotto?')) {
                 const idx = prodotti.findIndex(p => p.id === id);
                 if (idx !== -1) {
