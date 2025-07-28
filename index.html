@@ -5239,8 +5239,10 @@
                         return arr.filter(item => 
                             item && 
                             typeof item === 'object' && 
-                            item.nome && 
-                            item.cognome
+                            (
+                                (item.nome && item.cognome) || // Cliente privato
+                                (item.nomeAzienda) // Cliente aziendale
+                            )
                         );
                     },
                     documenti: (arr) => {
