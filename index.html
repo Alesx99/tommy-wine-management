@@ -2566,8 +2566,10 @@
                     <div class="actions">
                         <button type="submit" class="btn btn-primary">➕ Aggiungi Cliente</button>
                         <button type="button" class="btn btn-success" onclick="exportToExcel('clienti')">📊 Esporta Excel</button>
-                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('importClienti').click()">📥 Importa Excel</button>
-                        <input type="file" id="importClienti" accept=".xlsx,.xls" style="display: none;" onchange="importFromExcel('clienti', this)">
+                                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('importClienti').click()">📥 Importa Excel</button>
+                <button type="button" class="btn btn-warning" onclick="document.getElementById('importClientiVecchio').click()">🔄 Importa dal Vecchio Gestionale</button>
+                <input type="file" id="importClienti" accept=".xlsx,.xls" style="display: none;" onchange="importFromExcel('clienti', this)">
+                <input type="file" id="importClientiVecchio" accept=".xlsx,.xls,.ods" style="display: none;" onchange="importFromOldSystem('clienti', this)">
                     </div>
                 </form>
             </div>
@@ -2746,9 +2748,11 @@
                     <button type="button" class="btn btn-info" onclick="showDDTModal()">🚚 Nuovo DDT</button>
                     <button type="button" class="btn btn-success" onclick="exportToExcel('fatture')">📊 Esporta Excel</button>
                     <button type="button" class="btn btn-secondary" onclick="document.getElementById('importFatture').click()">📥 Importa Excel</button>
+                    <button type="button" class="btn btn-warning" onclick="document.getElementById('importFattureVecchio').click()">🔄 Importa dal Vecchio Gestionale</button>
                     <button type="button" class="btn btn-info" onclick="checkAndUpdateStatoFatture()" title="Verifica e aggiorna stati fatture">🔄 Verifica Stati</button>
                     <button type="button" class="btn btn-outline" onclick="toggleStatoFatture()" id="toggleStatoBtn" title="Abilita/Disabilita modifica stati">🔧 Gestione Stati</button>
                     <input type="file" id="importFatture" accept=".xlsx,.xls" style="display: none;" onchange="importFromExcel('fatture', this)">
+                    <input type="file" id="importFattureVecchio" accept=".xlsx,.xls,.ods" style="display: none;" onchange="importFromOldSystem('fatture', this)">
                 </div>
             </div>
 
@@ -2851,7 +2855,9 @@
                         <button type="button" class="btn btn-warning" onclick="exportToExcel('prodotti', 'ingrosso')">📊 Esporta Excel Ingrosso</button>
                         <button type="button" class="btn btn-info" onclick="exportToExcel('prodotti', 'completo')">📊 Esporta Excel Completo</button>
                         <button type="button" class="btn btn-secondary" onclick="document.getElementById('importProdotti').click()">📥 Importa Excel</button>
+                        <button type="button" class="btn btn-warning" onclick="document.getElementById('importProdottiVecchio').click()">🔄 Importa dal Vecchio Gestionale</button>
                         <input type="file" id="importProdotti" accept=".xlsx,.xls" style="display: none;" onchange="importFromExcel('prodotti', this)">
+                        <input type="file" id="importProdottiVecchio" accept=".xlsx,.xls,.ods" style="display: none;" onchange="importFromOldSystem('prodotti', this)">
                     </div>
                 </form>
             </div>
@@ -3205,7 +3211,9 @@
                         <button type="button" class="btn btn-info" onclick="exportToExcel('vini', 'completo')">📊 Esporta Excel Completo</button>
                         <button type="button" class="btn btn-primary" onclick="printWineList()">🖨️ Stampa Listino</button>
                         <button type="button" class="btn btn-secondary" onclick="document.getElementById('importVini').click()">📥 Importa Excel</button>
+                        <button type="button" class="btn btn-warning" onclick="document.getElementById('importViniVecchio').click()">🔄 Importa dal Vecchio Gestionale</button>
                         <input type="file" id="importVini" accept=".xlsx,.xls" style="display: none;" onchange="importFromExcel('vini', this)">
+                        <input type="file" id="importViniVecchio" accept=".xlsx,.xls,.ods" style="display: none;" onchange="importFromOldSystem('vini', this)">
                     </div>
                 </form>
             </div>
@@ -6786,6 +6794,308 @@
                 }
             };
             reader.readAsArrayBuffer(file);
+        }
+
+        // Funzione per importare dal vecchio gestionale con mapping colonne
+        function importFromOldSystem(type, input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+                    if (jsonData.length === 0) {
+                        alert('Il file Excel è vuoto!');
+                        return;
+                    }
+
+                    // Mostra la modal di configurazione mapping
+                    showColumnMappingModal(type, jsonData[0], jsonData);
+                    input.value = ''; // Reset input
+                } catch (error) {
+                    alert('Errore durante l\'importazione del file Excel: ' + error.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Funzione per mostrare la modal di mapping colonne
+        function showColumnMappingModal(type, sampleRow, allData) {
+            const availableColumns = Object.keys(sampleRow);
+            const targetFields = getTargetFieldsForType(type);
+            
+            let modalHTML = `
+                <div id="columnMappingModal" class="modal" style="display: block;">
+                    <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+                        <div class="modal-header">
+                            <h3>🔧 Configurazione Importazione dal Vecchio Gestionale</h3>
+                            <span class="close" onclick="closeColumnMappingModal()">&times;</span>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mapping-section">
+                                <h4>📋 Colonne disponibili nel file:</h4>
+                                <div class="available-columns">
+                                    ${availableColumns.map(col => `<span class="column-tag">${col}</span>`).join('')}
+                                </div>
+                            </div>
+                            
+                            <div class="mapping-section">
+                                <h4>🎯 Mappatura colonne:</h4>
+                                <div class="column-mapping-grid">
+            `;
+
+            targetFields.forEach(field => {
+                modalHTML += `
+                    <div class="mapping-row">
+                        <label class="target-field">${field.label}:</label>
+                        <select class="column-select" data-target="${field.key}">
+                            <option value="">-- Seleziona colonna --</option>
+                            ${availableColumns.map(col => `<option value="${col}">${col}</option>`).join('')}
+                        </select>
+                    </div>
+                `;
+            });
+
+            modalHTML += `
+                                </div>
+                            </div>
+                            
+                            <div class="mapping-section">
+                                <h4>📊 Anteprima dati:</h4>
+                                <div class="preview-table">
+                                    <table>
+                                        <thead>
+                                            <tr>${availableColumns.map(col => `<th>${col}</th>`).join('')}</tr>
+                                        </thead>
+                                        <tbody>
+                                            ${allData.slice(0, 3).map(row => 
+                                                `<tr>${availableColumns.map(col => `<td>${row[col] || ''}</td>`).join('')}</tr>`
+                                            ).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="closeColumnMappingModal()">❌ Annulla</button>
+                            <button type="button" class="btn btn-success" onclick="executeImportWithMapping('${type}', ${JSON.stringify(allData).replace(/"/g, '&quot;')})">✅ Importa Dati</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Aggiungi stili CSS per la modal
+            const style = document.createElement('style');
+            style.textContent = `
+                .mapping-section { margin-bottom: 20px; }
+                .available-columns { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+                .column-tag { background: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+                .column-mapping-grid { display: grid; gap: 10px; }
+                .mapping-row { display: flex; align-items: center; gap: 10px; }
+                .target-field { min-width: 150px; font-weight: 500; }
+                .column-select { flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; }
+                .preview-table { max-height: 200px; overflow-y: auto; }
+                .preview-table table { width: 100%; border-collapse: collapse; }
+                .preview-table th, .preview-table td { border: 1px solid #d1d5db; padding: 4px 8px; font-size: 12px; }
+                .preview-table th { background: #f8fafc; font-weight: 500; }
+            `;
+            document.head.appendChild(style);
+
+            // Aggiungi la modal al DOM
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        // Funzione per chiudere la modal di mapping
+        function closeColumnMappingModal() {
+            const modal = document.getElementById('columnMappingModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Funzione per ottenere i campi target per tipo
+        function getTargetFieldsForType(type) {
+            switch(type) {
+                case 'clienti':
+                    return [
+                        { key: 'nomeAzienda', label: 'Nome Azienda' },
+                        { key: 'tipologia', label: 'Tipologia' },
+                        { key: 'nome', label: 'Nome Referente' },
+                        { key: 'cognome', label: 'Cognome Referente' },
+                        { key: 'email', label: 'Email' },
+                        { key: 'telefono', label: 'Telefono' },
+                        { key: 'indirizzo', label: 'Indirizzo' },
+                        { key: 'citta', label: 'Città' },
+                        { key: 'cap', label: 'CAP' },
+                        { key: 'dataRegistrazione', label: 'Data Registrazione' },
+                        { key: 'note', label: 'Note' }
+                    ];
+                case 'prodotti':
+                    return [
+                        { key: 'nome', label: 'Nome Prodotto' },
+                        { key: 'categoriaPrincipale', label: 'Categoria Principale' },
+                        { key: 'sottocategoria', label: 'Sottocategoria' },
+                        { key: 'marca', label: 'Marca' },
+                        { key: 'prezzoAcquisto', label: 'Prezzo Acquisto' },
+                        { key: 'prezzoVenditaIngrosso', label: 'Prezzo Vendita Ingrosso' },
+                        { key: 'prezzoVenditaDettaglio', label: 'Prezzo Vendita Dettaglio' },
+                        { key: 'quantita', label: 'Quantità' },
+                        { key: 'quantitaMinima', label: 'Quantità Minima' },
+                        { key: 'fornitore', label: 'Fornitore' },
+                        { key: 'codiceProdotto', label: 'Codice Prodotto' },
+                        { key: 'note', label: 'Note' }
+                    ];
+                case 'vini':
+                    return [
+                        { key: 'nome', label: 'Nome Vino' },
+                        { key: 'produttore', label: 'Produttore' },
+                        { key: 'annata', label: 'Annata' },
+                        { key: 'tipologia', label: 'Tipologia' },
+                        { key: 'regione', label: 'Regione' },
+                        { key: 'vitigno', label: 'Vitigno' },
+                        { key: 'prezzoAcquisto', label: 'Prezzo Acquisto' },
+                        { key: 'prezzoVenditaIngrosso', label: 'Prezzo Vendita Ingrosso' },
+                        { key: 'prezzoVenditaDettaglio', label: 'Prezzo Vendita Dettaglio' },
+                        { key: 'quantita', label: 'Quantità' },
+                        { key: 'unitaMisura', label: 'Unità di Misura' },
+                        { key: 'fornitore', label: 'Fornitore' },
+                        { key: 'codiceProdotto', label: 'Codice Prodotto' },
+                        { key: 'descrizione', label: 'Descrizione' },
+                        { key: 'note', label: 'Note' }
+                    ];
+                case 'fatture':
+                    return [
+                        { key: 'tipo', label: 'Tipo Documento' },
+                        { key: 'numero', label: 'Numero' },
+                        { key: 'cliente', label: 'Cliente' },
+                        { key: 'data', label: 'Data' },
+                        { key: 'scadenza', label: 'Scadenza' },
+                        { key: 'subtotale', label: 'Subtotale' },
+                        { key: 'scontoExtra', label: 'Sconto Extra' },
+                        { key: 'totale', label: 'Totale' },
+                        { key: 'stato', label: 'Stato' },
+                        { key: 'note', label: 'Note' }
+                    ];
+                default:
+                    return [];
+            }
+        }
+
+        // Funzione per eseguire l'import con mapping
+        function executeImportWithMapping(type, allData) {
+            const mapping = {};
+            const selects = document.querySelectorAll('.column-select');
+            
+            selects.forEach(select => {
+                const targetField = select.dataset.target;
+                const selectedColumn = select.value;
+                if (selectedColumn) {
+                    mapping[targetField] = selectedColumn;
+                }
+            });
+
+            if (Object.keys(mapping).length === 0) {
+                alert('Seleziona almeno una colonna da mappare!');
+                return;
+            }
+
+            let importedCount = 0;
+            let existingCount = 0;
+            let errors = [];
+
+            allData.forEach((row, index) => {
+                try {
+                    const item = convertMappedRowToItem(type, row, mapping);
+                    if (item) {
+                        const exists = checkIfExists(type, item);
+                        if (!exists) {
+                            addItemToArray(type, item);
+                            importedCount++;
+                        } else {
+                            existingCount++;
+                        }
+                    }
+                } catch (error) {
+                    errors.push(`Riga ${index + 1}: ${error.message}`);
+                }
+            });
+
+            // Aggiorna le tabelle e salva
+            updateAllTables();
+            saveDataToStorage();
+
+            // Chiudi la modal
+            closeColumnMappingModal();
+
+            // Mostra risultati
+            let message = `Importazione completata!\nNuovi elementi: ${importedCount}\nElementi esistenti saltati: ${existingCount}`;
+            if (errors.length > 0) {
+                message += `\n\nErrori (${errors.length}):\n${errors.slice(0, 5).join('\n')}`;
+                if (errors.length > 5) {
+                    message += `\n... e altri ${errors.length - 5} errori`;
+                }
+            }
+            
+            alert(message);
+        }
+
+        // Funzione per convertire riga mappata in oggetto
+        function convertMappedRowToItem(type, row, mapping) {
+            const item = { id: Date.now() + Math.random() };
+            
+            Object.keys(mapping).forEach(targetField => {
+                const sourceColumn = mapping[targetField];
+                let value = row[sourceColumn];
+                
+                // Conversione tipi di dati
+                switch(targetField) {
+                    case 'prezzoAcquisto':
+                    case 'prezzoVenditaIngrosso':
+                    case 'prezzoVenditaDettaglio':
+                    case 'subtotale':
+                    case 'scontoExtra':
+                    case 'totale':
+                        value = parseFloat(value) || 0;
+                        break;
+                    case 'quantita':
+                    case 'quantitaMinima':
+                    case 'annata':
+                        value = parseInt(value) || 0;
+                        break;
+                    case 'data':
+                    case 'scadenza':
+                    case 'dataRegistrazione':
+                        if (value) {
+                            // Gestione date
+                            if (typeof value === 'string') {
+                                value = value.split('T')[0]; // Rimuovi parte time se presente
+                            } else if (value instanceof Date) {
+                                value = value.toISOString().split('T')[0];
+                            }
+                        } else {
+                            value = new Date().toISOString().split('T')[0];
+                        }
+                        break;
+                }
+                
+                item[targetField] = value;
+            });
+
+            // Valori di default per campi obbligatori
+            if (type === 'clienti' && !item.tipologia) item.tipologia = 'privato';
+            if (type === 'fatture' && !item.tipo) item.tipo = 'fattura';
+            if (type === 'prodotti' && !item.categoriaPrincipale) item.categoriaPrincipale = 'altro';
+            if (type === 'vini' && !item.tipologia) item.tipologia = 'rosso';
+            if (type === 'vini' && !item.unitaMisura) item.unitaMisura = 'bottiglie';
+            if (type === 'prodotti' && !item.quantitaMinima) item.quantitaMinima = 5;
+
+            return item;
         }
 
         // Funzione per convertire riga Excel in oggetto
